@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Home Screen'),
       ),
       body: const Center(
-        child: Text('깃 로그인 성공! 홈 화면입니다.', style: TextStyle(fontSize: 18)),
+        child: Text('깃 브랜치 테스트 로그인 성공! 홈 화면입니다.', style: TextStyle(fontSize: 18)),
       ),
     );
   }

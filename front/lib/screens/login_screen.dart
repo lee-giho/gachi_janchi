@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/screens/register_screen.dart';
 import '../utils/screen_size.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -183,7 +184,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               Text("|"),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const RegisterScreen())
+                                  );
+                                },
                                 child: const Text(
                                   "회원가입",
                                   style: TextStyle(

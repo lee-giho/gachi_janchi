@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gachi_janchi/utils/CheckValidate.dart';
-import 'package:gachi_janchi/utils/screen_size.dart';
+// import 'package:gachi_janchi/utils/screen_size.dart';
 
 
 class RegisterScreen extends StatefulWidget {
@@ -13,8 +13,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
 
   // ScreenSize 값 가져오기
-  final screenWidth = ScreenSize().width;
-  final screenHeight = ScreenSize().height;
+  // final screenWidth = ScreenSize().width;
+  // final screenHeight = ScreenSize().height;
 
   // 이름 & 이메일 & 비밀번호 & 비밀번호 확인 입력 값 저장
   var name = TextEditingController();
@@ -38,8 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Form(
           key: formKey,
           child: Container(
-            padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
-            width: screenWidth,
+            // padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
+            padding: EdgeInsets.fromLTRB(50, 20, 50, 20),
+            // width: screenWidth,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +70,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     children: [
                       Container( // 이름 입력 부분
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -96,7 +98,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       Container( // 이메일 입력 부분
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -123,7 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       Container( // 비밀번호 입력 부분
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -149,7 +153,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       Container( // 비밀번호 확인 입력 부분
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -192,7 +197,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                     },
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(screenWidth*0.8, 50),
+                      // minimumSize: Size(screenWidth*0.8, 50),
+                      minimumSize: Size.fromHeight(50),
                       backgroundColor: Color.fromRGBO(122, 11, 11, 1),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(

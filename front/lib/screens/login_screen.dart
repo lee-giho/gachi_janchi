@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
-import '../utils/screen_size.dart';
+// import '../utils/screen_size.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   // ScreenSize 값 가져오기
-  final screenWidth = ScreenSize().width;
-  final screenHeight = ScreenSize().height;
+  // final screenWidth = ScreenSize().width;
+  // final screenHeight = ScreenSize().height;
 
   // 아이디 & 비밀번호 입력 값 저장
   var id = TextEditingController();
@@ -26,18 +26,19 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-
-          padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
-          width: screenWidth,
+          // padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
+          padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+          // width: screenWidth,
           child: Column(
             children: [
               Container( // 로고
-                margin: EdgeInsets.fromLTRB(0, screenHeight*0.05, 0, screenHeight*0.05),
-
+                // margin: EdgeInsets.fromLTRB(0, screenHeight*0.05, 0, screenHeight*0.05),
+                margin: EdgeInsets.fromLTRB(0, 50, 0, 30),
                 child: Image.asset(
                   'assets/images/gachi_janchi_logo.png',
                   fit: BoxFit.contain,
-                  height: screenHeight*0.15,
+                  // height: screenHeight*0.15,
+                  height: 150,
                 ),
               ),
               Container( // 로그인폼 부분
@@ -48,7 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           Container( // 아이디 입력 부분
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -77,6 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Container( // 비밀번호 입력 부분
+                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -109,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Container( // 로그인 버튼 부분
-                      margin: EdgeInsets.fromLTRB(0, screenHeight*0.01, 0, 0),
+                      // margin: EdgeInsets.fromLTRB(0, screenHeight*0.01, 0, 0),
 
                       child: Column(
                         children: [
@@ -137,14 +141,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Container( // 로그인 버튼
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                               onPressed: () {
                                 print("id: ${id.text}");
                                 print("password: ${password.text}");
                               },
                               style: ElevatedButton.styleFrom(
-                                minimumSize: Size(screenWidth*0.8, 50),
+                                // minimumSize: Size(screenWidth*0.8, 50),
+                                minimumSize: Size.fromHeight(50),
                                 backgroundColor: Color.fromRGBO(122, 11, 11, 1),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
@@ -203,13 +208,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Container( // 소셜로그인 부분
-                      margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                      // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                      height: 200,
+                      margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container( // 구글 로그인
-                            width: screenWidth*0.7,
+                            // width: screenWidth*0.7,
                             height: 40,
-                            margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(
@@ -223,9 +232,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Container( // 네이버 로그인
-                            width: screenWidth*0.7,
+                            // width: screenWidth*0.7,
                             height: 40,
-                            margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
                             decoration: BoxDecoration(
                               color: Colors.green,
                               border: Border.all(
@@ -239,9 +248,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           Container( // 카카오 로그인
-                            width: screenWidth*0.7,
+                            // width: screenWidth*0.7,
                             height: 40,
-                            margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
                             decoration: BoxDecoration(
                               color: Colors.yellow,
                               border: Border.all(

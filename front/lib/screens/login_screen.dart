@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
+        child: SingleChildScrollView(
           // padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
           padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
           // width: screenWidth,

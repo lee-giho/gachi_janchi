@@ -27,13 +27,13 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           // padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
-          padding: EdgeInsets.fromLTRB(50, 0, 50, 0),
+          padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
           // width: screenWidth,
           child: Column(
             children: [
               Container( // 로고
                 // margin: EdgeInsets.fromLTRB(0, screenHeight*0.05, 0, screenHeight*0.05),
-                margin: EdgeInsets.fromLTRB(0, 50, 0, 30),
+                margin: const EdgeInsets.fromLTRB(0, 50, 0, 30),
                 child: Image.asset(
                   'assets/images/gachi_janchi_logo.png',
                   fit: BoxFit.contain,
@@ -45,12 +45,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     Container( // 아이디 & 비밀번호 입력 부분
-
                       child: Column(
                         children: [
                           Container( // 아이디 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -80,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Container( // 비밀번호 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -114,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Container( // 로그인 버튼 부분
                       // margin: EdgeInsets.fromLTRB(0, screenHeight*0.01, 0, 0),
-
                       child: Column(
                         children: [
                           Container( // 로그인 상태 유지 체크박스 부분
@@ -149,8 +147,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                 // minimumSize: Size(screenWidth*0.8, 50),
-                                minimumSize: Size.fromHeight(50),
-                                backgroundColor: Color.fromRGBO(122, 11, 11, 1),
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5)
@@ -177,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                              Text("|"),
+                              const Text("|"),
                               TextButton(
                                 onPressed: () {},
                                 child: const Text(
@@ -187,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                              Text("|"),
+                              const Text("|"),
                               TextButton(
                                 onPressed: () {
                                   Navigator.push(
@@ -210,8 +208,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container( // 소셜로그인 부분
                       // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
                       height: 200,
-                      margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

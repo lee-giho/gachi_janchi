@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/CheckValidate.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 // import 'package:gachi_janchi/utils/screen_size.dart';
 
 
@@ -17,10 +21,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // final screenHeight = ScreenSize().height;
 
   // 이름 & 이메일 & 비밀번호 & 비밀번호 확인 입력 값 저장
-  var name = TextEditingController();
-  var email = TextEditingController();
-  var password = TextEditingController();
-  var rePassword = TextEditingController();
+  var nameController = TextEditingController();
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
+  var rePasswordController = TextEditingController();
 
   // 이름 & 이메일 & 비밀번호 & 비밀번호 확인 FocusNode
   FocusNode nameFocus = FocusNode();
@@ -29,6 +33,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
   FocusNode rePasswordFocus = FocusNode();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  // 회원가입 함수
+  Future<void> signUp() async {
+    final name = nameController.text;
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/register");
+    final headers = {'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'name': name,
+          'email': email,
+          'password': password
+        })
+      );
+      
+      if (response.statusCode == 200) {
+        // 회원가입 성공 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("회원가입 성공"))
+        );
+      } else {
+        // 회원가입 실패 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("회원가입 실패: ${response.body}"))
+        );
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: formKey,
           child: SingleChildScrollView(
             // padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
-            padding: EdgeInsets.fromLTRB(50, 20, 50, 20),
+            padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
             // width: screenWidth,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -49,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container( // 페이지 타이틀
-                      margin: EdgeInsets.fromLTRB(0, 0, 0, 50),
+                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 50),
                       child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -75,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           Container( // 이름 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -87,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: name,
+                                  controller: nameController,
                                   focusNode: nameFocus,
                                   keyboardType: TextInputType.text,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -103,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           Container( // 이메일 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -115,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: email,
+                                  controller: emailController,
                                   focusNode: emailFocus,
                                   keyboardType: TextInputType.emailAddress,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -131,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           Container( // 비밀번호 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -143,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: password,
+                                  controller: passwordController,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   validator: (value) {
                                     return CheckValidate().validatePassword(passwordFocus, value);
@@ -158,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           Container( // 비밀번호 확인 입력 부분
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                            margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -170,10 +214,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: rePassword,
+                                  controller: rePasswordController,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   validator: (value) {
-                                    return CheckValidate().validateRePassword(rePasswordFocus, password.text, value);
+                                    return CheckValidate().validateRePassword(rePasswordFocus, passwordController.text, value);
                                   },
                                   obscureText: true,
                                   decoration: const InputDecoration(
@@ -192,20 +236,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("폼이 유효합니다."))
-                        );
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   SnackBar(content: Text("폼이 유효합니다."))
+                        // );
+                        signUp();
+                        Navigator.pop(context);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("폼이 유효하지 않습니다."))
+                          const SnackBar(content: Text("입력 정보를 다시 확인해주세요."))
                         );
                       }
                       
                     },
                     style: ElevatedButton.styleFrom(
                       // minimumSize: Size(screenWidth*0.8, 50),
-                      minimumSize: Size.fromHeight(50),
-                      backgroundColor: Color.fromRGBO(122, 11, 11, 1),
+                      minimumSize: const Size.fromHeight(50),
+                      backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
+import 'package:http/http.dart'  as http;
+import 'dart:convert';
+import '../utils/secure_storage.dart';
 // import '../utils/screen_size.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,10 +21,72 @@ class _LoginScreenState extends State<LoginScreen> {
   // final screenHeight = ScreenSize().height;
 
   // 아이디 & 비밀번호 입력 값 저장
-  var id = TextEditingController();
-  var password = TextEditingController();
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
+
+  // 아이디 & 비밀번호 FocusNode
+  FocusNode emailFocus = FocusNode();
+  FocusNode passwordFocus = FocusNode();
 
   bool? _isAutoLogin = false;
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  // 로그인 함수
+  Future<void> login() async {
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/login");
+    final headers = {'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'email': email,
+          'password': password
+        })
+      );
+
+      if (response.statusCode == 200) {
+        // 로그인 성공 처리
+        final data = json.decode(response.body);
+        String accessToken = data['accessToken'];
+        String refreshToken = data['refreshToken'];
+
+        // 토큰을 secure_storage에 저장
+        await SecureStorage.saveAccessToken(accessToken);
+        await SecureStorage.saveRefreshToken(refreshToken);
+
+        // 로그인 성공 후 홈 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen())
+        );
+      } else {
+        // 로그인 실패 처리
+        showDialog(
+          context: context,
+          builder: (_) => const AlertDialog(
+            title: Text("로그인 실패"),
+            content: Text("아이디 또는 비밀번호를 확인해주세요."),
+          )
+        );
+      }
+    } catch (e) {
+      // 예외 처리
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("로그인 오류"),
+          content: Text("서버에 문제가 발생했습니다."),
+        )
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Container( // 로그인폼 부분
                 child: Column(
                   children: [
-                    Container( // 아이디 & 비밀번호 입력 부분
+                    Form( // 아이디 & 비밀번호 입력 부분
+                      key: formKey,
                       child: Column(
                         children: [
                           Container( // 아이디 입력 부분
@@ -54,16 +122,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  "아이디",
+                                  "이메일",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                TextField(
-                                  controller: id,
+                                TextFormField(
+                                  controller: emailController,
+                                  focusNode: emailFocus,
+                                  keyboardType: TextInputType.emailAddress,
+                                  autovalidateMode: AutovalidateMode.onUnfocus,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "이메일을 입력해주세요.";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
                                   decoration: const InputDecoration(
-                                    hintText: "아이디를 입력해주세요.",
+                                    hintText: "이메일을 입력해주세요.",
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(Radius.circular(5)),
                                       borderSide: BorderSide(color: Color.fromRGBO(121, 55, 64, 0.612))
@@ -90,9 +168,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                TextField(
-                                  controller: password,
+                                TextFormField(
+                                  controller: passwordController,
+                                  focusNode: passwordFocus,
                                   obscureText: true,
+                                  keyboardType: TextInputType.text,
+                                  autovalidateMode: AutovalidateMode.onUnfocus,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "비밀번호를 입력해주세요.";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
                                   decoration: const InputDecoration(
                                     hintText: "비밀번호를 입력해주세요.",
                                     enabledBorder: OutlineInputBorder(
@@ -142,8 +230,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                               onPressed: () {
-                                print("id: ${id.text}");
-                                print("password: ${password.text}");
+                                if (formKey.currentState!.validate()) {
+                                  print("id: ${emailController.text}");
+                                  print("password: ${passwordController.text}");
+                                  login();
+                                }        
                               },
                               style: ElevatedButton.styleFrom(
                                 // minimumSize: Size(screenWidth*0.8, 50),
@@ -177,7 +268,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               const Text("|"),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const HomeScreen())
+                                  );
+                                },
                                 child: const Text(
                                   "아이디 찾기",
                                   style: TextStyle(

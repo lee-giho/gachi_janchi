@@ -31,7 +31,7 @@ public class AuthController {
   }
 
   // 로그인 엔드포인트
-  @PostMapping("login")
+  @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
     LoginResponse loginResponse = authService.login(loginRequest);
     return ResponseEntity.ok(loginResponse);

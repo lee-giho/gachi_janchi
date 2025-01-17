@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/splash_screen.dart';
 import 'utils/screen_size.dart';
-import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // main 메소드에서 비동기 작업을 한 후에 runApp()을 실행할 경우에 상단에 추가해주는 코드
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: const LoginScreen(),
+          home: const SplashScreen(),
         );
 
       }

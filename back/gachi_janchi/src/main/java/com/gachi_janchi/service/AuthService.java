@@ -1,7 +1,6 @@
 package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
-import com.gachi_janchi.entity.RefreshToken;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.RefreshTokenRepository;
 import com.gachi_janchi.repository.UserRepository;
@@ -9,8 +8,6 @@ import com.gachi_janchi.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -62,21 +59,10 @@ public class AuthService {
       throw new IllegalArgumentException("Invalid credentials");
     }
 
-    String jwt = jwtUtil.generateToken(loginRequest.getEmail());
-    String refreshToken = generateRefreshToken(loginRequest.getEmail());
+    String jwt = jwtUtil.generateAccessToken(loginRequest.getEmail());
+    String refreshToken = jwtUtil.generateRefreshToken(loginRequest.getEmail());
 
 //    return jwtUtil.generateToken(loginRequest.getEmail());
     return new LoginResponse(jwt, refreshToken);
-  }
-
-  public String generateRefreshToken(String email) {
-    String token = UUID.randomUUID().toString();
-    RefreshToken refreshToken = new RefreshToken();
-    refreshToken.setEmail(email);
-    refreshToken.setToken(token);
-    refreshToken.setExpiration(System.currentTimeMillis() + 2592000000L); // 30일
-    refreshTokenRepository.save(refreshToken);
-
-    return token;
   }
 }

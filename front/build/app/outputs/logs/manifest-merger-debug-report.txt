@@ -23,6 +23,8 @@ INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/sr
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml:1:1-44:12
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml:1:1-44:12
 MERGED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml:1:1-44:12
+MERGED from [:flutter_secure_storage] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/flutter_secure_storage/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-11:12
+MERGED from [:path_provider_android] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/giho/.gradle/caches/transforms-3/5de6074afbd2a69aeaf7c22135e20731/transformed/fragment-1.7.1/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.window:window:1.2.0] /Users/giho/.gradle/caches/transforms-3/74c9d9d1a2f6d78205f82fad4fd6ed16/transformed/jetified-window-1.2.0/AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.window:window-java:1.2.0] /Users/giho/.gradle/caches/transforms-3/000301bc4c818912cd2696cfe3dc6b72/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:17:1-21:12
@@ -40,14 +42,15 @@ MERGED from [androidx.core:core:1.13.1] /Users/giho/.gradle/caches/transforms-3/
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/giho/.gradle/caches/transforms-3/28d6debf16a0be6e9bb34a18c66655da/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/giho/.gradle/caches/transforms-3/f174d69ab679ae36f86b047c6eef4cea/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
 MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/giho/.gradle/caches/transforms-3/59cef933f6e9da35d3becd4d288b3bc7/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.security:security-crypto:1.1.0-alpha06] /Users/giho/.gradle/caches/transforms-3/50e9f3920239d98fab70c6111bb4e46e/transformed/jetified-security-crypto-1.1.0-alpha06/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/giho/.gradle/caches/transforms-3/9a712b1ac511ef3e9db992c47dec9879/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:17:1-55:12
 MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/giho/.gradle/caches/transforms-3/a83bd4d25a293fc398a6bad215c970c4/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
 MERGED from [androidx.tracing:tracing:1.2.0] /Users/giho/.gradle/caches/transforms-3/98ab846f9cd1a99f0968158d613cf0df/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/giho/.gradle/caches/transforms-3/79d7c3e9b636d9d98f070d68ae61d461/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/giho/.gradle/caches/transforms-3/0e0b20e3901a02fbe02a3f3dc10d30e8/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/giho/.gradle/caches/transforms-3/88d51b6fda8e62fe53530bf5cf72dd69/transformed/jetified-core-1.0.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/giho/.gradle/caches/transforms-3/82b2db36e685e460b3cc317b24455ee0/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:2:1-7:12
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/debug/AndroidManifest.xml:1:1-7:12
@@ -82,6 +85,10 @@ uses-sdk
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml
+MERGED from [:flutter_secure_storage] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/flutter_secure_storage/intermediates/merged_manifest/debug/AndroidManifest.xml:6:5-9:53
+MERGED from [:flutter_secure_storage] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/flutter_secure_storage/intermediates/merged_manifest/debug/AndroidManifest.xml:6:5-9:53
+MERGED from [:path_provider_android] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:path_provider_android] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/path_provider_android/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/giho/.gradle/caches/transforms-3/5de6074afbd2a69aeaf7c22135e20731/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.fragment:fragment:1.7.1] /Users/giho/.gradle/caches/transforms-3/5de6074afbd2a69aeaf7c22135e20731/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.window:window:1.2.0] /Users/giho/.gradle/caches/transforms-3/74c9d9d1a2f6d78205f82fad4fd6ed16/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
@@ -116,26 +123,30 @@ MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/giho/.gradle/cac
 MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/giho/.gradle/caches/transforms-3/f174d69ab679ae36f86b047c6eef4cea/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
 MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/giho/.gradle/caches/transforms-3/59cef933f6e9da35d3becd4d288b3bc7/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
 MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/giho/.gradle/caches/transforms-3/59cef933f6e9da35d3becd4d288b3bc7/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.security:security-crypto:1.1.0-alpha06] /Users/giho/.gradle/caches/transforms-3/50e9f3920239d98fab70c6111bb4e46e/transformed/jetified-security-crypto-1.1.0-alpha06/AndroidManifest.xml:20:5-44
+MERGED from [androidx.security:security-crypto:1.1.0-alpha06] /Users/giho/.gradle/caches/transforms-3/50e9f3920239d98fab70c6111bb4e46e/transformed/jetified-security-crypto-1.1.0-alpha06/AndroidManifest.xml:20:5-44
 MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/giho/.gradle/caches/transforms-3/9a712b1ac511ef3e9db992c47dec9879/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/giho/.gradle/caches/transforms-3/9a712b1ac511ef3e9db992c47dec9879/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/giho/.gradle/caches/transforms-3/a83bd4d25a293fc398a6bad215c970c4/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
 MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/giho/.gradle/caches/transforms-3/a83bd4d25a293fc398a6bad215c970c4/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
 MERGED from [androidx.tracing:tracing:1.2.0] /Users/giho/.gradle/caches/transforms-3/98ab846f9cd1a99f0968158d613cf0df/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.tracing:tracing:1.2.0] /Users/giho/.gradle/caches/transforms-3/98ab846f9cd1a99f0968158d613cf0df/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
-MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/giho/.gradle/caches/transforms-3/79d7c3e9b636d9d98f070d68ae61d461/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/giho/.gradle/caches/transforms-3/79d7c3e9b636d9d98f070d68ae61d461/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/giho/.gradle/caches/transforms-3/d93a505afcabe9f0d4dd161a727848bc/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/giho/.gradle/caches/transforms-3/0e0b20e3901a02fbe02a3f3dc10d30e8/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/giho/.gradle/caches/transforms-3/0e0b20e3901a02fbe02a3f3dc10d30e8/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/giho/.gradle/caches/transforms-3/88d51b6fda8e62fe53530bf5cf72dd69/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/giho/.gradle/caches/transforms-3/88d51b6fda8e62fe53530bf5cf72dd69/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/giho/.gradle/caches/transforms-3/e3027b6556e260bf663c116ae336b570/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/giho/.gradle/caches/transforms-3/82b2db36e685e460b3cc317b24455ee0/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
 MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/giho/.gradle/caches/transforms-3/82b2db36e685e460b3cc317b24455ee0/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/debug/AndroidManifest.xml
 INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/debug/AndroidManifest.xml
+	tools:overrideLibrary
+		ADDED from [:flutter_secure_storage] /Users/giho/project/gachi_janchi/gachi_janchi/front/build/flutter_secure_storage/intermediates/merged_manifest/debug/AndroidManifest.xml:9:9-50
 	android:targetSdkVersion
 		INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/debug/AndroidManifest.xml

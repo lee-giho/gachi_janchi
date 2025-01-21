@@ -2,9 +2,8 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.User;
-import com.gachi_janchi.repository.RefreshTokenRepository;
 import com.gachi_janchi.repository.UserRepository;
-import com.gachi_janchi.util.JwtUtil;
+import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +15,10 @@ public class AuthService {
   private UserRepository userRepository;
 
   @Autowired
-  private RefreshTokenRepository refreshTokenRepository;
+  private JwtProvider jwtProvider;
 
   @Autowired
-  private JwtUtil jwtUtil;
+  private TokenService tokenService;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -40,27 +39,18 @@ public class AuthService {
     return new RegisterResponse("User registered successfully");
   }
 
-  // 닉네임 및 전화번호 추가 로직
-  public NickNameAndPhoneNumberResponse updateAdditionalInfo(NickNameAndPhoneNumberRequest nickNameAndPhoneNumberRequest) {
-    User user = userRepository.findByEmail(nickNameAndPhoneNumberRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-    // 닉네임과 전화번호 업데이트
-    user.setNickName(nickNameAndPhoneNumberRequest.getNickName());
-    user.setPhoneNumber(nickNameAndPhoneNumberRequest.getPhoneNumber());
-    userRepository.save(user);
-
-    return new NickNameAndPhoneNumberResponse("User additional info updated successfully");
-  }
-
   public LoginResponse login(LoginRequest loginRequest) {
-    User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + loginRequest.getEmail()));
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      throw new IllegalArgumentException("Invalid credentials");
+      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다. - " + loginRequest.getPassword());
     }
 
-    String jwt = jwtUtil.generateAccessToken(loginRequest.getEmail());
-    String refreshToken = jwtUtil.generateRefreshToken(loginRequest.getEmail());
+    String jwt = jwtProvider.generateAccessToken(user);
+    String refreshToken = jwtProvider.generateRefreshToken(user);
+
+    // refreshToken 데이터베이스에 저장
+    tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
 //    return jwtUtil.generateToken(loginRequest.getEmail());
     return new LoginResponse(jwt, refreshToken);

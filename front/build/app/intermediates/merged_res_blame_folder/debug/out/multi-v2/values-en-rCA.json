@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-25:/values-en-rCA/values-en-rCA.xml",
+            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-26:/values-en-rCA/values-en-rCA.xml",
             "map": [
                 {
                     "source": "/Users/giho/.gradle/caches/transforms-3/086c473bebb59200bcc85eb781f585fe/transformed/core-1.13.1/res/values-en-rCA/values-en-rCA.xml",

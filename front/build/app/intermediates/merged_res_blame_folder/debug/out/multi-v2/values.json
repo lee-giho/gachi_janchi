@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-25:/values/values.xml",
+            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-26:/values/values.xml",
             "map": [
                 {
                     "source": "/Users/giho/.gradle/caches/transforms-3/775f00740f1a14ddfa2ff78bb0387110/transformed/lifecycle-viewmodel-2.7.0/res/values/values.xml",

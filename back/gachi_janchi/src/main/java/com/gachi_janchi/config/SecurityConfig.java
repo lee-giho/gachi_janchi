@@ -1,11 +1,10 @@
 package com.gachi_janchi.config;
 
-import com.gachi_janchi.service.CustomUserDetailsService;
+import com.gachi_janchi.service.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,7 +20,7 @@ public class SecurityConfig {
   private JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Autowired
-  private CustomUserDetailsService customUserDetailsService;
+  private UserDetailsService userDetailsService;
 
   // 비밀번호 암호화를 위한 PasswordEncoder 빈 설정
   @Bean
@@ -41,7 +40,7 @@ public class SecurityConfig {
     http
             .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll() // 인증 없이 접근 가능
+                    .requestMatchers("/api/auth/**", "/api/user/logout").permitAll() // 인증 없이 접근 가능
                     .anyRequest().authenticated() // 나머지 요청은 인증 필요
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

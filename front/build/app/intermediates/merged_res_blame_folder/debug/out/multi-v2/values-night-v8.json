@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-25:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.example.gachi_janchi.app-mergeDebugResources-26:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
                     "source": "/Users/giho/project/gachi_janchi/gachi_janchi/front/android/app/src/main/res/values-night/styles.xml",

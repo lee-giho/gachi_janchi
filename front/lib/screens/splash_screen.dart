@@ -68,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<bool> validateAccessToken(String accessToken) async {
     
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/token-validation");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/token-validation");
     final headers = {'Authorization': 'Bearer $accessToken'};
 
     try {
@@ -99,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<bool> refreshAccessToken(String refreshAccessToken) async {
     
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/token-validation");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/token-refresh");
     final headers = {'Authorization': 'Bearer $refreshAccessToken'};
 
     try {

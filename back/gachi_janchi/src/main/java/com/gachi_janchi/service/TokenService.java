@@ -2,29 +2,68 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.TokenRefreshResponse;
 import com.gachi_janchi.dto.TokenValidationResponse;
-import com.gachi_janchi.util.JwtUtil;
+import com.gachi_janchi.entity.RefreshToken;
+import com.gachi_janchi.entity.User;
+import com.gachi_janchi.repository.RefreshTokenRepository;
+import com.gachi_janchi.repository.UserRepository;
+import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TokenService {
 
   @Autowired
-  private JwtUtil jwtUtil;
+  private JwtProvider jwtProvider;
+
+  @Autowired
+  private RefreshTokenRepository refreshTokenRepository;
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @Value("${REFRESH_TOKEN_EXP}")
+  private long refreshTokenExp;
 
   // accessToken 유효성 검사
   public TokenValidationResponse validateAccessToken(String accessToken) {
-    return new TokenValidationResponse(jwtUtil.validateToken(accessToken));
+    return new TokenValidationResponse(jwtProvider.validateToken(accessToken));
   }
 
   // refreshToken으로 새로운 accessToken 발급
   public TokenRefreshResponse refreshAccessToken(String refreshToken) {
-    if (!jwtUtil.validateToken(refreshToken)) {
+    if (!jwtProvider.validateToken(refreshToken)) {
       throw new IllegalArgumentException("Invalid refresh token");
     }
 
     // refreshToken이 유효한 경우, 새로운 accessToken을 발급
-    String email = jwtUtil.extractUsername(refreshToken);
-    return new TokenRefreshResponse(jwtUtil.generateAccessToken(email));
+    String email = jwtProvider.getUserEmail(refreshToken);
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+    return new TokenRefreshResponse(jwtProvider.generateAccessToken(user));
+  }
+
+  // 로그인 시 refreshToken 저장
+  public void saveRefreshToken(String email, String refreshToken) {
+    RefreshToken refreshTokenEntity = new RefreshToken();
+    refreshTokenEntity.setEmail(email);
+    refreshTokenEntity.setToken(refreshToken);
+    refreshTokenEntity.setExpiration(System.currentTimeMillis() + refreshTokenExp); // 30일
+    refreshTokenRepository.save(refreshTokenEntity);
+  }
+
+  // 로그아웃 시 refreshToken 삭제
+  @Transactional
+  public boolean deleteRefreshToken(String refreshToken) {
+    try {
+      System.out.println("refreshToken: " + refreshToken);
+      // refreshToken이 유효한지 확인하고 삭제
+      refreshTokenRepository.deleteByToken(refreshToken);
+      return true;
+    } catch (Exception e) {
+      System.out.println("refreshToken 삭제 실패: " + e.getMessage());
+      return false;
+    }
   }
 }

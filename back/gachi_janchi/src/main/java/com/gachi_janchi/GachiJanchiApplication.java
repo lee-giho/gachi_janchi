@@ -15,6 +15,9 @@ public class GachiJanchiApplication {
     // MYSQL_PASSWORD를 환경 변수로 설정
     System.setProperty("MYSQL_PASSWORD", dotenv.get("MYSQL_PASSWORD"));
     System.setProperty("JWT_SECRET_KEY", dotenv.get("JWT_SECRET_KEY"));
+    System.setProperty("ACCESS_TOKEN_EXP", dotenv.get("ACCESS_TOKEN_EXP"));
+    System.setProperty("REFRESH_TOKEN_EXP", dotenv.get("REFRESH_TOKEN_EXP"));
+    System.setProperty("JWT_ISSUER", dotenv.get("JWT_ISSUER"));
 
     SpringApplication.run(GachiJanchiApplication.class, args);
   }

@@ -78,13 +78,15 @@ public class JwtProvider {
 
   // 유효한 토큰인지 확인
   public boolean validateToken(String token) {
+    System.out.println("validateToken: " + token);
     try {
       Jwts.parser()
               .setSigningKey(secretKey) // 비밀값으로 복호화
               .parseClaimsJws(token);
-
+      System.out.println("true");
       return true;
     } catch (Exception e) { // 복호화 과정에서 에러가 나면 유효하지 않은 토큰
+      System.out.println("false");
       return false;
     }
   }
@@ -100,6 +102,11 @@ public class JwtProvider {
   // 토큰에서 사용자 정보 추출
   public String getUserEmail(String token) {
     return getClaims(token).getSubject();
+  }
+
+  // 토큰에서 "Bearer " 추출
+  public String getTokenWithoutBearer(String token) {
+    return token.substring(7);
   }
 
   // 토큰에서 Claims 추출

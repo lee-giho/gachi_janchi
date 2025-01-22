@@ -28,12 +28,16 @@ public class TokenService {
   private long refreshTokenExp;
 
   // accessToken 유효성 검사
-  public TokenValidationResponse validateAccessToken(String accessToken) {
+  public TokenValidationResponse validateAccessToken(String token) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+    System.out.println("validateAccessToken: " + accessToken);
     return new TokenValidationResponse(jwtProvider.validateToken(accessToken));
   }
 
   // refreshToken으로 새로운 accessToken 발급
-  public TokenRefreshResponse refreshAccessToken(String refreshToken) {
+  public TokenRefreshResponse refreshAccessToken(String token) {
+    String refreshToken = jwtProvider.getTokenWithoutBearer(token);
+    System.out.println("refreshAccessToken: " + refreshToken);
     if (!jwtProvider.validateToken(refreshToken)) {
       throw new IllegalArgumentException("Invalid refresh token");
     }

@@ -37,19 +37,23 @@ class _SplashScreenState extends State<SplashScreen> {
       bool isValid = await validateAccessToken(accessToken);
       if (isValid) {
         // accessToken이 유효하면 홈 화면으로 이동
+        print("accessToken 유효, 홈으로 이동");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen())
         );
       } else {
         // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
+        print("accessToken이 만료, refreshToken으로 새로운 accessToken 요청");
         bool isRefreshed = await refreshAccessToken(refreshToken);
         if (isRefreshed) {
+          print("새로운 accessToken 발급 완료, 홈으로 이동");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen())
           );
         } else {
+          print("새로운 accessToken 발급 실패, 로그인화면으로 이동");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LoginScreen())
@@ -57,6 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       }
     } else {
+      print("토큰이 없음, 로그인화면으로 이동");
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen())

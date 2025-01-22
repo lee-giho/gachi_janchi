@@ -30,28 +30,18 @@ public class UserController {
   // 로그아웃 엔드포인트
   @DeleteMapping("/logout")
   public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
-    try {
-      // Bearer 접두사 제거
-      if (refreshToken != null ||refreshToken.startsWith("Bearer ")) {
-        refreshToken = refreshToken.substring(7 ); // "Bearer " 이후의 토큰만 추출
-      }
-      // refreshToken 삭제
-      boolean isLoggedOut = tokenService.deleteRefreshToken(refreshToken);
-
-      if (isLoggedOut) {
-        return ResponseEntity.ok("로그아웃 성공");
-      } else {
-        return ResponseEntity.status(400).body("로그아웃 실패");
-      }
-    } catch (Exception e) {
-      return ResponseEntity.status(400).body("로그아웃 처리 중 오류 발생");
+    boolean isLoggedOut = userService.logout(refreshToken);
+    if (isLoggedOut) {
+      return ResponseEntity.ok("로그아웃 성공");
+    } else {
+      return ResponseEntity.status(400).body("로그아웃 실패");
     }
-
   }
 
   // accessToken 검증 엔드포인트
   @GetMapping("/token-validation")
   public ResponseEntity<TokenValidationResponse> validateAccessToken(@RequestHeader("Authorization") String accessToken) {
+    System.out.println("token-validation 엔드포인트");
     TokenValidationResponse tokenValidationResponse = tokenService.validateAccessToken(accessToken);
     return ResponseEntity.ok(tokenValidationResponse);
   }
@@ -59,6 +49,7 @@ public class UserController {
   // refreshToken을 사용하여 새로운 accessToken 발급 엔드포인트
   @PostMapping("/token-refresh")
   public ResponseEntity<TokenRefreshResponse> refreshAccessToken(@RequestHeader("Authorization") String refreshToken) {
+    System.out.println("token-refresh 엔드포인트");
     TokenRefreshResponse tokenRefreshResponse = tokenService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(tokenRefreshResponse);
   }

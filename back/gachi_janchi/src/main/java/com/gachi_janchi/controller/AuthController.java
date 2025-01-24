@@ -13,6 +13,8 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
+
+
   // 회원가입 엔드포인트
   @PostMapping("/register")
   public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
@@ -27,5 +29,10 @@ public class AuthController {
     return ResponseEntity.ok(loginResponse);
   }
 
-
+  // 구글 로그인 엔드포인트
+  @PostMapping("/login/google")
+  public ResponseEntity<GoogleLoginResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {
+    GoogleLoginResponse googleLoginResponse = authService.googleLogin(googleLoginRequest);
+    return ResponseEntity.ok(googleLoginResponse);
+  }
 }

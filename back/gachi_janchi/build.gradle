@@ -25,6 +25,24 @@ repositories {
 
 dependencies {
     dependencies {
+        // Google API Client Library for Java
+        implementation 'com.google.api-client:google-api-client:2.7.2'
+
+        // Google OAuth Client Library
+        implementation 'com.google.oauth-client:google-oauth-client:1.36.0'
+
+        // Google HTTP Client Library
+        implementation 'com.google.http-client:google-http-client:1.43.3'
+
+        // Google HTTP Client with Apache
+        implementation 'com.google.http-client:google-http-client-apache-v2:1.43.3'
+
+        // Google HTTP Client with Jackson2
+        implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
+
+        // OAuth2
+        implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
         // Spring Boot Starter
         implementation 'org.springframework.boot:spring-boot-starter'
 

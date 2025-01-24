@@ -94,21 +94,56 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> handleGoogleSignIn() async {
     try {
-      GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account == null) {
+        print("구글 로그인 취소됨");
+        return;
+      }
 
-      if (googleUser != null) {
-        // 사용자의 이메일과 이름을 가져옴
-        String name = googleUser.displayName ?? 'No Name';
-        String email = googleUser.email;
+      final GoogleSignInAuthentication auth = await account.authentication;
+      final String? idToken = auth.idToken;
 
-        // idToken을 서버로 전달하여 인증 처리
-        GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        String idToken = googleAuth.idToken!;
+      print("idToken: ${idToken}");
 
-        print("idToken: $idToken");
+      if (idToken == null) {
+        print("idToken 획득 실패");
+        return;
+      }
+
+      // .env에서 서버 URL 가져오기
+      final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/login/google");
+      final headers = {'Content-Type': 'application/json'};
+      
+      // Spring boot로 idToken 전달
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'idToken': idToken
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("로그인 성공");
+        // 로그인 성공 처리
+        final data = json.decode(response.body);
+        String accessToken = data['accessToken'];
+        String refreshToken = data['refreshToken'];
+
+        // 토큰을 secure_storage에 저장
+        await SecureStorage.saveAccessToken(accessToken);
+        await SecureStorage.saveRefreshToken(refreshToken);
+
+        // 로그인 성공 후 홈 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen())
+        );
+      } else {
+        print("구글 로그인 실패");
       }
     } catch (e) {
-      print("구글 로그인 실패: $e");
+      print("구글 로그인 중 오류 발생: $e");
     }
   }
 

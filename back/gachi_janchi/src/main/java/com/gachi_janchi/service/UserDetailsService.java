@@ -21,7 +21,7 @@ public class UserDetailsService implements org.springframework.security.core.use
     // User 엔티티를 스프링 시큐리티의 UserDetails로 변환하여 반환
     return org.springframework.security.core.userdetails.User.builder()
             .username(user.getEmail()) // 이메일
-            .password(user.getPassword()) // 암호화된 비밀번호
+//            .password(user.getPassword()) // 암호화된 비밀번호
             .roles("USER") // 기본적인 역할 설정
             .build();
 

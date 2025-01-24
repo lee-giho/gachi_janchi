@@ -1,5 +1,6 @@
 package com.gachi_janchi.util;
 
+import com.gachi_janchi.entity.LocalAccount;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.service.UserDetailsService;
 import io.jsonwebtoken.*;
@@ -51,7 +52,7 @@ public class JwtProvider {
             .setIssuedAt(now) // 내용 iat : 현재 시간
             .setExpiration(expireDate) // 내용 exp : 만료 시간
             .setSubject(user.getEmail()) // 내용 sub : 유저 이메일
-            .claim("id", user.getId()) // 클레임 id : 유저 아이디
+            .claim("email", user.getEmail()) // 클레임 id : 유저 아이디
             .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 : 비밀값과 함께 해시값을 HS256 방식으로 암호화
             .compact();
   }
@@ -71,7 +72,7 @@ public class JwtProvider {
             .setIssuedAt(now) // 내용 iat : 현재 시간
             .setExpiration(expireDate) // 내용 exp : 만료 시간
             .setSubject(user.getEmail()) // 내용 sub : 유저 이메일
-            .claim("id", user.getId()) // 클레임 id : 유저 아이디
+            .claim("email", user.getEmail()) // 클레임 id : 유저 아이디
             .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 : 비밀값과 함께 해시값을 HS256 방식으로 암호화
             .compact();
   }

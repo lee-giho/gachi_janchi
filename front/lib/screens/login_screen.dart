@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
@@ -85,6 +86,29 @@ class _LoginScreenState extends State<LoginScreen> {
           content: Text("서버에 문제가 발생했습니다."),
         )
       );
+    }
+  }
+
+  // 구글 로그인
+  final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+
+  Future<void> handleGoogleSignIn() async {
+    try {
+      GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser != null) {
+        // 사용자의 이메일과 이름을 가져옴
+        String name = googleUser.displayName ?? 'No Name';
+        String email = googleUser.email;
+
+        // idToken을 서버로 전달하여 인증 처리
+        GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        String idToken = googleAuth.idToken!;
+
+        print("idToken: $idToken");
+      }
+    } catch (e) {
+      print("구글 로그인 실패: $e");
     }
   }
 
@@ -309,22 +333,46 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container( // 구글 로그인
-                            // width: screenWidth*0.7,
-                            height: 40,
-                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1
+                          Container( // 로그인 버튼
+                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                handleGoogleSignIn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                // minimumSize: Size(screenWidth*0.8, 50),
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                                )
                               ),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text("구글로 로그인")
+                              child: const Text(
+                                "구글",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              )
                             ),
                           ),
+                          // Container( // 구글 로그인
+                          //   // width: screenWidth*0.7,
+                          //   height: 40,
+                          //   // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.white,
+                          //     border: Border.all(
+                          //       color: Colors.black,
+                          //       width: 1
+                          //     ),
+                          //     borderRadius: BorderRadius.circular(5),
+                          //   ),
+                          //   child: const Center(
+                          //     child: Text("구글로 로그인")
+                          //   ),
+                          // ),
                           Container( // 네이버 로그인
                             // width: screenWidth*0.7,
                             height: 40,

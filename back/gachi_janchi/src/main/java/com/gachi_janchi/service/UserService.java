@@ -35,18 +35,18 @@ public class UserService {
   }
 
   // 로그아웃 처리 로직
-  public boolean logout(String token) {
-    String refreshToken = "";
-    try {
-      // Bearer 접두사 제거
-      if (token != null && token.startsWith("Bearer ")) {
-        refreshToken = jwtProvider.getTokenWithoutBearer(token);
-      }
-      // refreshToken 삭제
-      return tokenService.deleteRefreshToken(refreshToken);
-    } catch (Exception e) {
-      System.out.println("로그아웃 처리 중 오류 발생: " + e.getMessage());
-      return false;
-    }
-  }
+//  public boolean logout(String token) {
+//    String refreshToken = "";
+//    try {
+//      // Bearer 접두사 제거
+//      if (token != null && token.startsWith("Bearer ")) {
+//        refreshToken = jwtProvider.getTokenWithoutBearer(token);
+//      }
+//      // refreshToken 삭제
+//      return tokenService.deleteRefreshToken(refreshToken);
+//    } catch (Exception e) {
+//      System.out.println("로그아웃 처리 중 오류 발생: " + e.getMessage());
+//      return false;
+//    }
+//  }
 }

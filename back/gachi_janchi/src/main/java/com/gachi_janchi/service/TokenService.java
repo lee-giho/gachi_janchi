@@ -50,25 +50,25 @@ public class TokenService {
   }
 
   // 로그인 시 refreshToken 저장
-  public void saveRefreshToken(String email, String refreshToken) {
-    RefreshToken refreshTokenEntity = new RefreshToken();
-    refreshTokenEntity.setEmail(email);
-    refreshTokenEntity.setToken(refreshToken);
-    refreshTokenEntity.setExpiration(System.currentTimeMillis() + refreshTokenExp); // 30일
-    refreshTokenRepository.save(refreshTokenEntity);
-  }
+//  public void saveRefreshToken(String email, String refreshToken) {
+//    RefreshToken refreshTokenEntity = new RefreshToken();
+//    refreshTokenEntity.setEmail(email);
+//    refreshTokenEntity.setToken(refreshToken);
+//    refreshTokenEntity.setExpiration(System.currentTimeMillis() + refreshTokenExp); // 30일
+//    refreshTokenRepository.save(refreshTokenEntity);
+//  }
 
   // 로그아웃 시 refreshToken 삭제
-  @Transactional
-  public boolean deleteRefreshToken(String refreshToken) {
-    try {
-      System.out.println("refreshToken: " + refreshToken);
-      // refreshToken이 유효한지 확인하고 삭제
-      refreshTokenRepository.deleteByToken(refreshToken);
-      return true;
-    } catch (Exception e) {
-      System.out.println("refreshToken 삭제 실패: " + e.getMessage());
-      return false;
-    }
-  }
+//  @Transactional
+//  public boolean deleteRefreshToken(String refreshToken) {
+//    try {
+//      System.out.println("refreshToken: " + refreshToken);
+//      // refreshToken이 유효한지 확인하고 삭제
+//      refreshTokenRepository.deleteByToken(refreshToken);
+//      return true;
+//    } catch (Exception e) {
+//      System.out.println("refreshToken 삭제 실패: " + e.getMessage());
+//      return false;
+//    }
+//  }
 }

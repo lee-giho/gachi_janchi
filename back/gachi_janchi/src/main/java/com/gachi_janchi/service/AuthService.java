@@ -10,7 +10,6 @@ import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.GoogleTokenVerifier;
 import com.gachi_janchi.util.JwtProvider;
 import com.gachi_janchi.util.NaverTokenVerifier;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -79,7 +78,7 @@ public class AuthService {
     String refreshToken = jwtProvider.generateRefreshToken(user);
 
     // refreshToken 데이터베이스에 저장
-    tokenService.saveRefreshToken(localAccount.getEmail(), refreshToken);
+//    tokenService.saveRefreshToken(localAccount.getEmail(), refreshToken);
 
 //    return jwtUtil.generateToken(loginRequest.getEmail());
     return new LoginResponse(jwt, refreshToken);
@@ -115,7 +114,7 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
         // refreshToken 데이터베이스에 저장
-        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
+//        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
 
         return new GoogleLoginResponse(jwt, refreshToken);
       } else {
@@ -129,7 +128,7 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
         // refreshToken 데이터베이스에 저장
-        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
+//        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
         return new GoogleLoginResponse(jwt, refreshToken);
       }
@@ -169,7 +168,7 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
         // refreshToken 데이터베이스에 저장
-        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
+//        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
 
         return new NaverLoginResponse(jwt, refreshToken);
       } else {
@@ -183,7 +182,7 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
         // refreshToken 데이터베이스에 저장
-        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
+//        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
         return new NaverLoginResponse(jwt, refreshToken);
       }

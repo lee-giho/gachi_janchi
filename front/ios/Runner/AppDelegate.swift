@@ -46,14 +46,14 @@ import NaverThirdPartyLogin
   }
 
   // 앱이 백그라운드로 전환될 때 호출
-  override func applicationDidEnterBackground(_ application: UIApplication) {
-    super.applicationDidEnterBackground(application)
+  // override func applicationDidEnterBackground(_ application: UIApplication) {
+  //   super.applicationDidEnterBackground(application)
 
-    // 네이버 로그아웃 처리
-    if let thirdConn = NaverThirdPartyLoginConnection.getSharedInstance() {
-        thirdConn.requestDeleteToken() // 네이버 로그아웃 요청
-    } else {
-        print("NaverThirdPartyLoginConnection instance is nil")
-    }
-  }
+  //   // 네이버 로그아웃 처리
+  //   if let thirdConn = NaverThirdPartyLoginConnection.getSharedInstance() {
+  //       thirdConn.requestDeleteToken() // 네이버 로그아웃 요청
+  //   } else {
+  //       print("NaverThirdPartyLoginConnection instance is nil")
+  //   }
+  // }
 }

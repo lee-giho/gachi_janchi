@@ -28,15 +28,15 @@ public class UserController {
   }
 
   // 로그아웃 엔드포인트
-  @DeleteMapping("/logout")
-  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
-    boolean isLoggedOut = userService.logout(refreshToken);
-    if (isLoggedOut) {
-      return ResponseEntity.ok("로그아웃 성공");
-    } else {
-      return ResponseEntity.status(400).body("로그아웃 실패");
-    }
-  }
+//  @DeleteMapping("/logout")
+//  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
+//    boolean isLoggedOut = userService.logout(refreshToken);
+//    if (isLoggedOut) {
+//      return ResponseEntity.ok("로그아웃 성공");
+//    } else {
+//      return ResponseEntity.status(400).body("로그아웃 실패");
+//    }
+//  }
 
   // accessToken 검증 엔드포인트
   @GetMapping("/token-validation")

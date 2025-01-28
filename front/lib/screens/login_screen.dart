@@ -22,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   // final screenWidth = ScreenSize().width;
   // final screenHeight = ScreenSize().height;
 
+  bool? isAutoLogin = false;
+
   // 아이디 & 비밀번호 입력 값 저장
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -30,9 +32,13 @@ class _LoginScreenState extends State<LoginScreen> {
   FocusNode emailFocus = FocusNode();
   FocusNode passwordFocus = FocusNode();
 
-  bool? _isAutoLogin = false;
-
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  // 자동로그인 상태 저장 함수
+  void saveIsAutoLogin(bool? isAutoLogin) async {
+    // 토큰을 secure_storage에 저장
+    await SecureStorage.saveIsAutoLogin(isAutoLogin);
+  }
 
   // 로그인 함수
   Future<void> login() async {
@@ -135,6 +141,9 @@ class _LoginScreenState extends State<LoginScreen> {
         await SecureStorage.saveAccessToken(accessToken);
         await SecureStorage.saveRefreshToken(refreshToken);
 
+        // 로그인 타입 저장
+        await SecureStorage.saveLoginType("google");
+
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
@@ -179,6 +188,9 @@ class _LoginScreenState extends State<LoginScreen> {
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
         await SecureStorage.saveRefreshToken(refreshToken);
+
+        // 로그인 타입 저장
+        await SecureStorage.saveLoginType("naver");
 
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
@@ -315,11 +327,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)
                                   ),
-                                  value: _isAutoLogin,
+                                  value: isAutoLogin,
                                   onChanged: (value) {
                                     setState(() {
-                                      _isAutoLogin = value;
+                                      isAutoLogin = value;
                                     });
+                                    saveIsAutoLogin(isAutoLogin);
+                                    print("isAutoLogin: ${isAutoLogin}");
                                   }
                                 ),
                                 const Text(

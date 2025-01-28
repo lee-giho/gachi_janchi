@@ -23,49 +23,125 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   // 자동 로그인 체크 및 상태 확인
+  // 소셜 로그인일 경우, isAutoLogin 여부 상관 없이 토큰이 있다면 로그인
+  // 로컬 로그인일 경우, isAutoLogin 여부에 따라 로그인이 되거나 토큰을 삭제하고 로그인 화면으로 이동
   Future<void> checkLoginStatus() async {
+
+    String? loginType = await SecureStorage.getLoginType();
+    bool? isAutoLogin = await SecureStorage.getIsAutoLogin() ?? false;
 
     String? accessToken = await SecureStorage.getAccessToken();
     String? refreshToken = await SecureStorage.getRefreshToken();
 
     print("유저 접속");
+    print("loginType: ${loginType}");
+    print("isAutoLogin: ${isAutoLogin}");
+
     print("accessToken: ${accessToken}");
     print("refreshToken: ${refreshToken}");
-
-    if (accessToken != null && refreshToken != null) {
-      // 토큰이 있다면 유효성 검사 후 로그인 처리
-      bool isValid = await validateAccessToken(accessToken);
-      if (isValid) {
-        // accessToken이 유효하면 홈 화면으로 이동
-        print("accessToken 유효, 홈으로 이동");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen())
-        );
-      } else {
-        // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
-        print("accessToken이 만료, refreshToken으로 새로운 accessToken 요청");
-        bool isRefreshed = await refreshAccessToken(refreshToken);
-        if (isRefreshed) {
-          print("새로운 accessToken 발급 완료, 홈으로 이동");
+    
+    // 소셜 로그인일 경우
+    if (loginType == "google" || loginType == "naver") {
+      if (accessToken != null && refreshToken != null) {
+        // 토큰이 있다면 유효성 검사 후 로그인 처리
+        bool isValid = await validateAccessToken(accessToken);
+        if (isValid) {
+          // accessToken이 유효하면 홈 화면으로 이동
+          print("accessToken 유효, 홈으로 이동");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen())
           );
         } else {
-          print("새로운 accessToken 발급 실패, 로그인화면으로 이동");
+          // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
+          print("accessToken이 만료, refreshToken으로 새로운 accessToken 요청");
+          bool isRefreshed = await refreshAccessToken(refreshToken);
+          if (isRefreshed) {
+            print("새로운 accessToken 발급 완료, 홈으로 이동");
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen())
+            );
+          } else {
+            print("refreshToken이 만료, 새로운 accessToken 발급 실패, 로그인화면으로 이동");
+            
+            await SecureStorage.deleteTokens();
+
+            await SecureStorage.saveIsAutoLogin(false);
+
+            await SecureStorage.saveLoginType("");
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen())
+            );
+          }
+        }
+      } else {
+        print("토큰이 없음, 로그인화면으로 이동");
+        await SecureStorage.saveIsAutoLogin(false);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen())
+        );
+      }
+    } else { // 로컬 로그인일 경우
+      // 자동로그인이 true일 경우
+      if (isAutoLogin) {
+
+        print("자동로그인 O");
+
+        if (accessToken != null && refreshToken != null) {
+          // 토큰이 있다면 유효성 검사 후 로그인 처리
+          bool isValid = await validateAccessToken(accessToken);
+          if (isValid) {
+            // accessToken이 유효하면 홈 화면으로 이동
+            print("accessToken 유효, 홈으로 이동");
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen())
+            );
+          } else {
+            // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
+            print("accessToken이 만료, refreshToken으로 새로운 accessToken 요청");
+            bool isRefreshed = await refreshAccessToken(refreshToken);
+            if (isRefreshed) {
+              print("새로운 accessToken 발급 완료, 홈으로 이동");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen())
+              );
+            } else {
+              print("refreshToken이 만료, 새로운 accessToken 발급 실패, 로그인화면으로 이동");
+            
+              await SecureStorage.deleteTokens();
+
+              await SecureStorage.saveIsAutoLogin(false);
+
+              await SecureStorage.saveLoginType("");
+              
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen())
+              );
+            }
+          }
+        } else {
+          print("토큰이 없음, 로그인화면으로 이동");
+          await SecureStorage.saveIsAutoLogin(false);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const LoginScreen())
           );
         }
+      } else {
+        print("자동로그인 X");
+        await SecureStorage.deleteTokens();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen())
+        );
       }
-    } else {
-      print("토큰이 없음, 로그인화면으로 이동");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen())
-      );
     }
   }
 

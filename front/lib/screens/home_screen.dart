@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -67,6 +68,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // 네이버 로그아웃
+  Future<void> handleNaverLogout() async {
+    try {
+      // 1. 로그아웃 요청
+      await FlutterNaverLogin.logOut();
+
+      // 2. 네이버 서버의 인증 토큰 삭제
+      await FlutterNaverLogin.logOutAndDeleteToken();
+
+    } catch (e) {
+      print("네이버 로그아웃 오류: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +104,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     logout();
                   },
                   child: Text("로그아웃")
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    handleNaverLogout();
+                    logout();
+                  },
+                  child: Text("네이버 로그아웃")
                 ),
               ],
             ),

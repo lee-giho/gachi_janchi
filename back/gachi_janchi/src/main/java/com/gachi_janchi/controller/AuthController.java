@@ -35,4 +35,11 @@ public class AuthController {
     GoogleLoginResponse googleLoginResponse = authService.googleLogin(googleLoginRequest);
     return ResponseEntity.ok(googleLoginResponse);
   }
+
+  // 네이버 로그인 엔드포인트
+  @PostMapping("/login/naver")
+  public ResponseEntity<NaverLoginResponse> naverLogin(@RequestBody NaverLoginRequest naverLoginRequest) {
+    NaverLoginResponse naverLoginResponse = authService.naverLogin(naverLoginRequest);
+    return ResponseEntity.ok(naverLoginResponse);
+  }
 }

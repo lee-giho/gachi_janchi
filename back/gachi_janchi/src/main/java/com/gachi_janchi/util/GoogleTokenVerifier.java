@@ -21,7 +21,7 @@ public class GoogleTokenVerifier {
 
   private final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo";
 
-  public Map<String, Object> verifyToken(String idToken) {
+  public Map<String, Object> getGoogleUserInfo(String idToken) {
     String url = GOOGLE_TOKEN_INFO_URL + "?id_token=" + idToken;
 
     // RestTemplate을 사용하여 Google 엔드포인트 호출

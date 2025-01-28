@@ -9,14 +9,17 @@ import com.gachi_janchi.repository.SocialAccountRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.GoogleTokenVerifier;
 import com.gachi_janchi.util.JwtProvider;
+import com.gachi_janchi.util.NaverTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 @Service
+@Transactional
 public class AuthService {
 
   @Autowired
@@ -39,6 +42,9 @@ public class AuthService {
 
   @Autowired
   private GoogleTokenVerifier googleTokenVerifier;
+
+  @Autowired
+  private NaverTokenVerifier naverTokenVerifier;
 
   // 회원가입 로직
   public RegisterResponse register(RegisterRequest registerRequest) {
@@ -82,7 +88,7 @@ public class AuthService {
   public GoogleLoginResponse googleLogin(GoogleLoginRequest googleLoginRequest) {
     try {
       // Google ID Token 검증
-      Map<String, Object> tokenInfo =  googleTokenVerifier.verifyToken(googleLoginRequest.getIdToken());
+      Map<String, Object> tokenInfo =  googleTokenVerifier.getGoogleUserInfo(googleLoginRequest.getIdToken());
 
       // 사용자 정보 가져오기
       String email = (String) tokenInfo.get("email");
@@ -131,5 +137,59 @@ public class AuthService {
       System.out.println("구글 idToken 검증 실패");
       return new GoogleLoginResponse(null, null);
     }
+  }
+
+  public NaverLoginResponse naverLogin(NaverLoginRequest naverLoginRequest) {
+    try {
+      System.out.println("naverLoginRequest.getAccessToken(): " + naverLoginRequest.getAccessToken());
+      // Naver accessToken 검증
+      Map<String, Object> tokenInfo = naverTokenVerifier.getNaverUserInfo(naverLoginRequest.getAccessToken());
+
+      // 네이버 사용자 정보 가져오기
+      String email = (String) tokenInfo.get("email");
+      String name = (String) tokenInfo.get("name");
+
+      if (email == null || name == null) {
+        throw new IllegalArgumentException("유효하지 않은 사용자 정보");
+      }
+
+      // 사용자 저장 또는 업데이트
+      if (!userRepository.existsByEmail(email) && !socialAccountRepository.existsByEmail(email)) {
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        userRepository.save(user);
+
+        SocialAccount socialAccount = new SocialAccount();
+        socialAccount.setEmail(email);
+        socialAccount.setProvider("naver");
+        socialAccountRepository.save(socialAccount);
+
+        String jwt = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+
+        // refreshToken 데이터베이스에 저장
+        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
+
+        return new NaverLoginResponse(jwt, refreshToken);
+      } else {
+        System.out.println("이미 존재하는 사용자입니다.");
+
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+
+        String jwt = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+
+        // refreshToken 데이터베이스에 저장
+        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
+
+        return new NaverLoginResponse(jwt, refreshToken);
+      }
+    } catch (Exception e) {
+      System.out.println("네이버 accessToken 검증 실패");
+    }
+    return new NaverLoginResponse(null, null);
   }
 }

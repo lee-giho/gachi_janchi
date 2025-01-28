@@ -19,6 +19,7 @@ public class GachiJanchiApplication {
     System.setProperty("REFRESH_TOKEN_EXP", dotenv.get("REFRESH_TOKEN_EXP"));
     System.setProperty("JWT_ISSUER", dotenv.get("JWT_ISSUER"));
     System.setProperty("GOOGLE_WEB_CLIENT_ID", dotenv.get("GOOGLE_WEB_CLIENT_ID"));
+    System.setProperty("NAVER_USER_INFO_URL", dotenv.get("NAVER_USER_INFO_URL"));
 
     SpringApplication.run(GachiJanchiApplication.class, args);
   }

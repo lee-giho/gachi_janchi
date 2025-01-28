@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -124,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        print("로그인 성공");
+        print("구글 로그인 성공");
         // 로그인 성공 처리
         final data = json.decode(response.body);
         String accessToken = data['accessToken'];
@@ -144,6 +145,51 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       print("구글 로그인 중 오류 발생: $e");
+    }
+  }
+
+  // 네이버 로그인
+  Future<void> handleNaverSignIn() async {
+    try {
+      // 1. 로그인 (토큰 가져오기)
+      await FlutterNaverLogin.logIn(); // 네이버 로그인 시도
+      NaverAccessToken token = await FlutterNaverLogin.currentAccessToken; // 토큰 가져오기
+      print("네이버 로그인 성공: ${token.accessToken}");
+
+      // // .env에서 서버 URL 가져오기
+      final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/login/naver");
+      final headers = {'Content-Type': 'application/json'};
+
+      // Spring boot로 token 전달
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'accessToken': token.accessToken
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("네이버 로그인 성공");
+        // 로그인 성공 처리
+        final data = json.decode(response.body);
+        String accessToken = data['accessToken'];
+        String refreshToken = data['refreshToken'];
+
+        // 토큰을 secure_storage에 저장
+        await SecureStorage.saveAccessToken(accessToken);
+        await SecureStorage.saveRefreshToken(refreshToken);
+
+        // 로그인 성공 후 홈 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen())
+        );
+      }
+
+      
+    } catch (e) {
+      print("네이버 로그인 중 오류 발생: $e");
     }
   }
 
@@ -368,7 +414,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container( // 로그인 버튼
+                          Container( // 구글 로그인 버튼
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                               onPressed: () {
@@ -408,22 +454,46 @@ class _LoginScreenState extends State<LoginScreen> {
                           //     child: Text("구글로 로그인")
                           //   ),
                           // ),
-                          Container( // 네이버 로그인
-                            // width: screenWidth*0.7,
-                            height: 40,
-                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1
+                          Container( // 네이버 로그인 버튼
+                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                handleNaverSignIn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                // minimumSize: Size(screenWidth*0.8, 50),
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color.fromARGB(255, 0, 182, 67),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                                )
                               ),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text("네이버로 로그인")
+                              child: const Text(
+                                "네이버",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              )
                             ),
                           ),
+                          // Container( // 네이버 로그인
+                          //   // width: screenWidth*0.7,
+                          //   height: 40,
+                          //   // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.green,
+                          //     border: Border.all(
+                          //       color: Colors.black,
+                          //       width: 1
+                          //     ),
+                          //     borderRadius: BorderRadius.circular(5),
+                          //   ),
+                          //   child: const Center(
+                          //     child: Text("네이버로 로그인")
+                          //   ),
+                          // ),
                           Container( // 카카오 로그인
                             // width: screenWidth*0.7,
                             height: 40,

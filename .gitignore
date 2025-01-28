@@ -53,6 +53,9 @@ app.*.map.json
 /front/ios/Runner/Info.plist
 *.plist
 
+# 네이버 로그인
+/front/android/app/src/main/res/values/strings.xml
+
 # Created by https://www.toptal.com/developers/gitignore/api/flutter,android,swift,xcode,dart,androidstudio,visualstudio,intellij,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=flutter,android,swift,xcode,dart,androidstudio,visualstudio,intellij,macos
 

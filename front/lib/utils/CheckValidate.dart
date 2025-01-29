@@ -51,4 +51,17 @@ class CheckValidate {
       return null;
     }
   }
+  
+  String? validateCode(FocusNode focusNode, String? code) {
+    String pattern = r'^\d{6}$'; // 숫자 6자리 정규식
+    RegExp regExp = RegExp(pattern);
+
+    if (code == null || code.isEmpty) {
+      return "인증번호를 입력하세요.";
+    } else if (!regExp.hasMatch(code)) {
+      return "6자리 숫자를 입력하세요.";
+    } else {
+      return null; // 유효한 인증번호
+    }
+  }
 }

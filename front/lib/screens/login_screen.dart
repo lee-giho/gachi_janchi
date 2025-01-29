@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:gachi_janchi/screens/find_password.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -210,6 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           // padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
           padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
           // width: screenWidth,
@@ -377,9 +379,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const HomeScreen())
+                                  );
+                                },
                                 child: const Text(
-                                  "비밀번호 찾기",
+                                  "아이디 찾기",
                                   style: TextStyle(
                                     color: Color.fromARGB(255, 41, 41, 41)
                                   ),
@@ -390,11 +397,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const HomeScreen())
+                                    MaterialPageRoute(builder: (context) => const FindPassword())
                                   );
                                 },
                                 child: const Text(
-                                  "아이디 찾기",
+                                  "비밀번호 찾기",
                                   style: TextStyle(
                                     color: Color.fromARGB(255, 41, 41, 41)
                                   ),

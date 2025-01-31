@@ -25,6 +25,13 @@ repositories {
 
 dependencies {
     dependencies {
+
+        // 이메일 발송을 위한 Spring Boot Starter Mail
+        implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+        // HTML 템플릿을 사용하여 이메일을 꾸미기 위한 Thymeleaf
+        implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
         // Google API Client Library for Java
         implementation 'com.google.api-client:google-api-client:2.7.2'
 
@@ -53,9 +60,6 @@ dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
         // MySQL Driver (MySQL 데이터베이스 사용)
-//        runtimeOnly 'com.mysql:mysql-connector-j'
-//        runtimeOnly 'mysql:mysql-connector-java'
-//        implementation 'mysql:mysql-connector-java:8.0.33'
         runtimeOnly 'com.mysql:mysql-connector-j'
 
         // JWT (JSON Web Token 라이브러리)

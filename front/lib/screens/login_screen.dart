@@ -43,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // 로그인 함수
   Future<void> login() async {
+    print("로그인 요청");
+
     String email = emailController.text;
     String password = passwordController.text;
 
@@ -51,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final headers = {'Content-Type': 'application/json'};
 
     try {
+      print("로그인 요청 보내기 시작");
       final response = await http.post(
         apiAddress,
         headers: headers,

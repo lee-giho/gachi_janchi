@@ -1,6 +1,12 @@
 import 'dart:async';
-
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart'  as http;
+import 'dart:convert';
+
 import 'package:gachi_janchi/utils/checkValidate.dart';
 
 class FindPassword extends StatefulWidget {
@@ -11,6 +17,19 @@ class FindPassword extends StatefulWidget {
 }
 
 class _FindPasswordState extends State<FindPassword> {
+
+  Dio dio = Dio();
+  late CookieJar cookieJar;
+  String sessionId = "";
+  
+  @override
+  void initState() {
+    super.initState();
+
+    // 쿠키 저장용 CookieJar 초기화
+    cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
+  }
 
   // 이름 & 이메일 & 인증번호 입력 값 저장
   var nameController = TextEditingController();
@@ -29,6 +48,7 @@ class _FindPasswordState extends State<FindPassword> {
 
   // 인증번호 전송 상태
   bool isCodeSent = false;
+
 
   // 인증번호 유효성 상태
   bool isCodeValid = false;
@@ -51,9 +71,88 @@ class _FindPasswordState extends State<FindPassword> {
   // 인증번호 전송 함수
   Future<void> sendVerificationCode() async {
     print("인증번호 전송");
-    setState(() {
-      isCodeSent = true;
-    });
+
+    String email = emailController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/code");
+
+    try {
+      final response = await dio.post(
+        apiAddress.toString(),
+        data: {
+          'email': email,
+          'type': 'password'
+        }
+      );
+
+      if (response.statusCode == 200) {
+        startTimer();
+        // 인증번호 메일 보내기 성공 처리
+        print("인증번호 보내기 성공");
+
+        setState(() {
+          if (isCodeSent && isCodeCheck) {
+            isCodeCheck = false;
+            print("인증번호 재전송, isCodeCheck: ${isCodeCheck}");
+          }
+          isCodeSent = true;
+          sessionId = response.data['sessionId']; // 세션 ID 저장
+        });        
+      } else {
+        print("인증번호 보내기 실패: ${response.data}");
+      }
+    } catch (e) {
+      // 예외 처리
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("인증번호 전송 오류"),
+          content: Text("서버에 문제가 발생했습니다."),
+        )
+      );
+    }
+  }
+
+  // 인증번호 확인 요청 함수
+  Future<void> checkVerificationCode() async {
+    print("인증번호 확인 요청");
+    
+    String verificationCode = codeController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/verify");
+
+    try {
+      final response = await dio.post(
+        apiAddress.toString(),
+        data: {
+          'verificationCode': verificationCode
+        },
+        options: Options(
+          headers: {'sessionId': sessionId}, // 세션 ID 헤더 추가
+        )
+      );
+
+      if(response.statusCode == 200) {
+        // 인증번호 확인 성공 처리
+        print("인증번호 확인 성공");
+        setState(() {
+          isCodeCheck = true;
+        });
+      } else {
+        print("인증번호 확인 실패: ${response.data}");
+      }
+    } catch (e) {
+      // 예외 처리
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("인증번호 전송 오류"),
+          content: Text("서버에 문제가 발생했습니다."),
+        )
+      );
+    }
   }
 
   // 인증번호 상태를 개별적으로 검증하는 함수
@@ -61,14 +160,6 @@ class _FindPasswordState extends State<FindPassword> {
     final isValid = CheckValidate().validateCode(codeFocus, code) == null && (remainingTime > 0 && remainingTime < 180);
     setState(() {
       isCodeValid = isValid;
-    });
-  }
-
-  // 인증번호 확인 함수
-  Future<void> checkVerificationCode() async {
-    print("인증번호 확인");
-    setState(() {
-      isCodeCheck = true;
     });
   }
 
@@ -119,6 +210,7 @@ class _FindPasswordState extends State<FindPassword> {
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   child: Form(
+                    key: formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,9 +303,7 @@ class _FindPasswordState extends State<FindPassword> {
                                             ElevatedButton(
                                               onPressed: isEmailValid 
                                                 ? () {
-                                                    print("isEmailValid: ${isEmailValid}");
                                                     sendVerificationCode();
-                                                    startTimer();
                                                   }
                                                 : null,
                                               style: ElevatedButton.styleFrom(
@@ -319,15 +409,11 @@ class _FindPasswordState extends State<FindPassword> {
               ),
               Container(
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      print("비밀번호 찾기");
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("입력 정보를 다시 확인해주세요."))
-                      );
+                  onPressed: (formKey.currentState?.validate() ?? false) && isCodeSent && isCodeCheck
+                  ? () {
+                      print("비밀번호 찾기 버튼 클릭");
                     }
-                  },
+                  : null,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
                     backgroundColor: const Color.fromRGBO(122, 11, 11, 1),

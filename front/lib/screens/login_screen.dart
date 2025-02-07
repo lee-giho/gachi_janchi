@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:gachi_janchi/screens/find_password.dart';
-import 'package:gachi_janchi/screens/home_screen.dart';
+import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart'  as http;
@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen())
+          MaterialPageRoute(builder: (context) => const TestScreen())
         );
       } else {
         // 로그인 실패 처리
@@ -100,18 +100,27 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // 구글 로그인
-  final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  
 
   Future<void> handleGoogleSignIn() async {
     try {
+      print("구글 로그인 클릭");
+      // 구글 로그인
+      final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+      print("googleSignIn: ${googleSignIn}");
+
       final GoogleSignInAccount? account = await googleSignIn.signIn();
+      print("account: ${account}");
+
       if (account == null) {
         print("구글 로그인 취소됨");
         return;
       }
 
       final GoogleSignInAuthentication auth = await account.authentication;
+      print("auth: ${auth.toString()}");
+
+
       final String? idToken = auth.idToken;
 
       print("idToken: ${idToken}");
@@ -151,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen())
+          MaterialPageRoute(builder: (context) => const TestScreen())
         );
       } else {
         print("구글 로그인 실패");
@@ -199,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen())
+          MaterialPageRoute(builder: (context) => const TestScreen())
         );
       }
 
@@ -385,7 +394,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const HomeScreen())
+                                    MaterialPageRoute(builder: (context) => const TestScreen())
                                   );
                                 },
                                 child: const Text(

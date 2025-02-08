@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
-import 'package:gachi_janchi/screens/find_password.dart';
+import 'package:gachi_janchi/screens/find_password_screen.dart';
+import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -76,7 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TestScreen())
+          // MaterialPageRoute(builder: (context) => const TestScreen())
+          MaterialPageRoute(builder: (context) => const HomeScreen())
         );
       } else {
         // 로그인 실패 처리
@@ -160,7 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TestScreen())
+          // MaterialPageRoute(builder: (context) => const TestScreen())
+          MaterialPageRoute(builder: (context) => const HomeScreen())
         );
       } else {
         print("구글 로그인 실패");
@@ -208,7 +211,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 성공 후 홈 화면으로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TestScreen())
+          // MaterialPageRoute(builder: (context) => const TestScreen())
+          MaterialPageRoute(builder: (context) => const HomeScreen())
         );
       }
 

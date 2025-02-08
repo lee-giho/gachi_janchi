@@ -6,6 +6,7 @@ import io.flutter.embedding.android.FlutterActivity;
 public class MainActivity extends FlutterActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) { // ✅ Bundle 오류 해결
+        // intent.putExtra("background_mode", "transparent");
         super.onCreate(savedInstanceState);
     }
 

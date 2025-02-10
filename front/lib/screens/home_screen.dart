@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 40,
                       child: Row(
                         children: [
-                          Expanded( // 검색어 입력 부분
+                          Expanded( // 검색어 입력 부분 
                             child: TextField(
                               controller: searchKeywordController,
                               focusNode: searchKeywordFocus,

@@ -16,6 +16,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     requestLocationPermission();
     super.initState();
+    // FocusNode에 리스너 추가
+    searchKeywordFocus.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    searchKeywordFocus.dispose();
+    super.dispose();
   }
 
   // 위치 권한 요청
@@ -63,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Align(
               alignment: Alignment.center,
               child: Container(
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(15),
@@ -82,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      width: 240,
+                      width: 280,
                       height: 40,
                       child: Row(
                         children: [
@@ -108,16 +119,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-                          IconButton( // 검색어 삭제 부분
+                          if (searchKeywordFocus.hasFocus) 
+                            IconButton( // 검색어 삭제 부분
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Icons.clear,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                searchKeywordController.clear(); // TextField 내용 비우기
+                              },
+                            ),
+                          IconButton( // 검색 버튼 부분
                             visualDensity: VisualDensity.compact,
                             padding: EdgeInsets.zero,
-                             icon: const Icon(
-                              Icons.clear,
+                            icon: const Icon(
+                              Icons.search,
                               size: 20,
-                             ),
-                             onPressed: () {
-                              searchKeywordController.clear(); // TextField 내용 비우기
-                             },
+                            ),
+                            onPressed: () {
+
+                            },
                           )
                         ],
                       ),

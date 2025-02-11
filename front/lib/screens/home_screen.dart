@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,6 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
 
+  void qrScanData() async{
+    // QrCodeScanner 화면으로 이동
+    // QR코드 스캔한 결과를 value로 받아서 사용
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const QrCodeScanner(),
+        settings: RouteSettings(name: 'qr_scan')
+      )
+    )
+    .then((value) {
+      print('QR value: ${value}');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
             child: Align(
               alignment: Alignment.center,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+              child: Container( // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(15),
@@ -82,13 +97,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 400,
                 height: 50,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset(
+                    Image.asset( // 가치, 잔치 로고
                       'assets/images/gachi_janchi_logo.png',
                       fit: BoxFit.contain,
                       height: 40,
                     ),
-                    Container(
+                    Container( // 검색어 입력 TextField, 검색어 삭제 버튼, 검색 버튼 감싸는 Container
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(15),
@@ -139,12 +155,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               size: 20,
                             ),
                             onPressed: () {
-
+                              print("검색 버튼 클릭!!!!!!");
                             },
                           )
                         ],
                       ),
                     ), 
+                    IconButton( // QR코드 버튼 부분
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.qr_code_scanner,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        print("QR코드 스캐너 버튼 클릭!!!!!!");
+                        qrScanData();
+                      },
+                    )
                   ],
                 ),
               ),

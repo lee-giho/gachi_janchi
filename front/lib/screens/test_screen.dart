@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
+import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
@@ -143,6 +144,15 @@ class _HomeScreenState extends State<TestScreen> {
                     logout();
                   },
                   child: Text("네이버 로그아웃")
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MainScreen())
+                    );
+                  },
+                  child: Text("메인 화면으로 이동")
                 ),
               ],
             ),

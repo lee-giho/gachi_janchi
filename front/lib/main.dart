@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/screens/splash_screen.dart';
+import 'package:gachi_janchi/utils/navigatorObserver.dart';
 import 'utils/screen_size.dart';
 
 void main() async {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          navigatorObservers: [MyNavigatorObserver()],
           title: 'Flutter Login',
           theme: ThemeData(
             primarySwatch: Colors.blue,

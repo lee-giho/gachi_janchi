@@ -1,7 +1,7 @@
 package com.gachi_janchi.controller;
 
-import com.gachi_janchi.dto.NickNameAndPhoneNumberRequest;
-import com.gachi_janchi.dto.NickNameAndPhoneNumberResponse;
+import com.gachi_janchi.dto.NickNameAddRequest;
+import com.gachi_janchi.dto.NickNameAddResponse;
 import com.gachi_janchi.dto.TokenRefreshResponse;
 import com.gachi_janchi.dto.TokenValidationResponse;
 import com.gachi_janchi.service.TokenService;
@@ -22,9 +22,9 @@ public class UserController {
 
   // 닉네임 및 전화번호 업데이트 엔드포인트
   @PostMapping("/update-info")
-  public ResponseEntity<NickNameAndPhoneNumberResponse> updateAdditionalInfo(@RequestBody NickNameAndPhoneNumberRequest nickNameAndPhoneNumberRequest) {
-    NickNameAndPhoneNumberResponse nickNameAndPhoneNumberResponse =  userService.updateAdditionalInfo(nickNameAndPhoneNumberRequest);
-    return ResponseEntity.ok(nickNameAndPhoneNumberResponse);
+  public ResponseEntity<NickNameAddResponse> updateAdditionalInfo(@RequestBody NickNameAddRequest nickNameAddRequest) {
+    NickNameAddResponse nickNameAddResponse =  userService.updateAdditionalInfo(nickNameAddRequest);
+    return ResponseEntity.ok(nickNameAddResponse);
   }
 
   // 로그아웃 엔드포인트

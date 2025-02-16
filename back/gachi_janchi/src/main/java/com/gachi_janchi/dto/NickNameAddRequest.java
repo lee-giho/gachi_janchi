@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NickNameAndPhoneNumberRequest {
+public class NickNameAddRequest {
   private String email;
   private String nickName;
-  private String phoneNumber;
 }

@@ -154,6 +154,15 @@ class _HomeScreenState extends State<TestScreen> {
                   },
                   child: Text("메인 화면으로 이동")
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MainScreen())
+                    );
+                  },
+                  child: Text("메인 화면으로 이동")
+                ),
               ],
             ),
           ),

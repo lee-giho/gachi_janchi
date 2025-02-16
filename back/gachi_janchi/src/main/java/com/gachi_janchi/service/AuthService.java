@@ -55,6 +55,7 @@ public class AuthService {
     User user = new User();
     user.setEmail(registerRequest.getEmail());
     user.setName(registerRequest.getName());
+    user.setType("local");
     userRepository.save(user);
 
     // 새로운 로컬 사용자 생성 및 저장 - local_account
@@ -102,6 +103,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(email);
         user.setName(name);
+        user.setType("social");
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();
@@ -157,6 +159,7 @@ public class AuthService {
         User user = new User();
         user.setEmail(email);
         user.setName(name);
+        user.setType("social");
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();

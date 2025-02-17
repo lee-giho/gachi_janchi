@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -32,9 +33,6 @@ public class AuthService {
 
   @Autowired
   private JwtProvider jwtProvider;
-
-  @Autowired
-  private TokenService tokenService;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -74,10 +72,10 @@ public class AuthService {
     if (!passwordEncoder.matches(loginRequest.getPassword(), localAccount.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다. - " + loginRequest.getPassword());
     }
-    System.out.println("닉네임 확인");
-    // 닉네임이 있는 경우
-    boolean ExistsNickName = user.getNickName() != null && !user.getNickName().isEmpty();
-    System.out.println("닉네임 확인: " + ExistsNickName);
+
+    // 닉네임을 입력한 사용자인지 확인
+    boolean existNickName = user.getNickName() != null && !user.getNickName().isEmpty();
+
     String jwt = jwtProvider.generateAccessToken(user);
     String refreshToken = jwtProvider.generateRefreshToken(user);
 
@@ -85,7 +83,7 @@ public class AuthService {
 //    tokenService.saveRefreshToken(localAccount.getEmail(), refreshToken);
 
 //    return jwtUtil.generateToken(loginRequest.getEmail());
-    return new LoginResponse(jwt, refreshToken, ExistsNickName);
+    return new LoginResponse(jwt, refreshToken, existNickName);
   }
 
   public GoogleLoginResponse googleLogin(GoogleLoginRequest googleLoginRequest) {
@@ -120,8 +118,8 @@ public class AuthService {
 
         // refreshToken 데이터베이스에 저장
 //        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
-
-        return new GoogleLoginResponse(jwt, refreshToken);
+        
+        return new GoogleLoginResponse(jwt, refreshToken, false);
       } else {
         System.out.println("이미 존재하는 사용자입니다.");
 
@@ -135,11 +133,17 @@ public class AuthService {
         // refreshToken 데이터베이스에 저장
 //        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
-        return new GoogleLoginResponse(jwt, refreshToken);
+        // 이메일로 사용자 찾기
+        User existUser = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+
+        // 닉네임을 입력한 사용자인지 확인
+        boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();
+        
+        return new GoogleLoginResponse(jwt, refreshToken, existNickName);
       }
     } catch (Exception e) {
       System.out.println("구글 idToken 검증 실패");
-      return new GoogleLoginResponse(null, null);
+      return new GoogleLoginResponse(null, null, false);
     }
   }
 
@@ -176,7 +180,7 @@ public class AuthService {
         // refreshToken 데이터베이스에 저장
 //        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
 
-        return new NaverLoginResponse(jwt, refreshToken);
+        return new NaverLoginResponse(jwt, refreshToken, false);
       } else {
         System.out.println("이미 존재하는 사용자입니다.");
 
@@ -190,11 +194,17 @@ public class AuthService {
         // refreshToken 데이터베이스에 저장
 //        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
-        return new NaverLoginResponse(jwt, refreshToken);
+        // 이메일로 사용자 찾기
+        User existUser = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+
+        // 닉네임을 입력한 사용자인지 확인
+        boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();
+        
+        return new NaverLoginResponse(jwt, refreshToken, existNickName);
       }
     } catch (Exception e) {
       System.out.println("네이버 accessToken 검증 실패");
     }
-    return new NaverLoginResponse(null, null);
+    return new NaverLoginResponse(null, null, false);
   }
 }

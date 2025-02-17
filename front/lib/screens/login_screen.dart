@@ -73,15 +73,15 @@ class _LoginScreenState extends State<LoginScreen> {
         String accessToken = data['accessToken'];
         String refreshToken = data['refreshToken'];
         print("여기까지");
-        bool existsNickName = data['existsNickName'];
+        bool existNickName = data['existNickName'];
 
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
         await SecureStorage.saveRefreshToken(refreshToken);
 
-        print("isExistsNickName: ${existsNickName}");
+        print("isexistNickName: ${existNickName}");
 
-        if (existsNickName) {
+        if (existNickName) {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
           Navigator.pushReplacement(
             context,
@@ -169,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final data = json.decode(response.body);
         String accessToken = data['accessToken'];
         String refreshToken = data['refreshToken'];
+        bool existNickName = data['existNickName'];
 
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
@@ -177,12 +178,23 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 타입 저장
         await SecureStorage.saveLoginType("google");
 
-        // 로그인 성공 후 홈 화면으로 이동
-        Navigator.pushReplacement(
-          context,
-          // MaterialPageRoute(builder: (context) => const TestScreen())
-          MaterialPageRoute(builder: (context) => const MainScreen())
-        );
+        print("existNickName: ${existNickName}");
+
+        if (existNickName) {
+          // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
+          Navigator.pushReplacement(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const MainScreen())
+          );
+        } else {
+          // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
+          Navigator.push(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const NicknameRegistrationScreen())
+          );
+        }
       } else {
         print("구글 로그인 실패");
       }
@@ -218,6 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final data = json.decode(response.body);
         String accessToken = data['accessToken'];
         String refreshToken = data['refreshToken'];
+        bool existNickName = data['existNickName'];
 
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
@@ -226,12 +239,21 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 타입 저장
         await SecureStorage.saveLoginType("naver");
 
-        // 로그인 성공 후 홈 화면으로 이동
-        Navigator.pushReplacement(
-          context,
-          // MaterialPageRoute(builder: (context) => const TestScreen())
-          MaterialPageRoute(builder: (context) => const MainScreen())
-        );
+        if (existNickName) {
+          // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
+          Navigator.pushReplacement(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const MainScreen())
+          );
+        } else {
+          // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
+          Navigator.push(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const NicknameRegistrationScreen())
+          );
+        }
       }
 
       

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -50,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
           print("accessToken 유효, 홈으로 이동");
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const MainScreen())
           );
         } else {
           // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
@@ -60,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
             print("새로운 accessToken 발급 완료, 홈으로 이동");
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TestScreen())
+              MaterialPageRoute(builder: (context) => const MainScreen())
             );
           } else {
             print("refreshToken이 만료, 새로운 accessToken 발급 실패, 로그인화면으로 이동");
@@ -99,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
             print("accessToken 유효, 홈으로 이동");
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const TestScreen())
+              MaterialPageRoute(builder: (context) => const MainScreen())
             );
           } else {
             // accessToken이 만료되었으면 refreshToken으로 새로운 accessToken을 받아옴
@@ -109,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
               print("새로운 accessToken 발급 완료, 홈으로 이동");
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const TestScreen())
+                MaterialPageRoute(builder: (context) => const MainScreen())
               );
             } else {
               print("refreshToken이 만료, 새로운 accessToken 발급 실패, 로그인화면으로 이동");

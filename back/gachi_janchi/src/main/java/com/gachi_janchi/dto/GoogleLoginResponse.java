@@ -10,4 +10,5 @@ import lombok.Setter;
 public class GoogleLoginResponse {
   private String accessToken;
   private String refreshToken;
+  private boolean ExistNickName;
 }

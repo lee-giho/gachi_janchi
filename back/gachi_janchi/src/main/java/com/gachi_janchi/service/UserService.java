@@ -24,7 +24,9 @@ public class UserService {
   TokenService tokenService;
 
   // 닉네임 추가 로직
-  public NickNameAddResponse updateNickName(NickNameAddRequest nickNameAddRequest, String accessToken) {
+  public NickNameAddResponse updateNickName(NickNameAddRequest nickNameAddRequest, String token) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+
     String email = jwtProvider.getUserEmail(accessToken);
 
     User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));

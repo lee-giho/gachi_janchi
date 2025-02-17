@@ -65,7 +65,7 @@ class CheckValidate {
     }
   }
 
-  String? validateNickName(FocusNode focusNode, String? nickName) {
+  String? validateNickName(FocusNode focusNode, String? nickName, bool? nickNameValid) {
     String pattern = r'^[^\s](\S*(\s\S+)*)?$';
     RegExp regExp = RegExp(pattern);
     if (nickName == null || nickName.isEmpty) {
@@ -75,7 +75,11 @@ class CheckValidate {
       focusNode.requestFocus();
       return "앞/뒤 공백 없이 한 글자 이상 입력해주세요.";
     } else {
-      return null;
+      if (nickNameValid == false) {
+        return "중복확인을 해주세요.";
+      } else {
+        return null;
+      }
     }
   }
 }

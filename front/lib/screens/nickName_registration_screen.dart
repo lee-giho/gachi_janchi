@@ -52,11 +52,61 @@ class _NicknameRegistrationScreenState extends State<NicknameRegistrationScreen>
           nickNameValid = true;
         });
         
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("사용 가능한 닉네임입니다."))
+        );
       } else {
         print("닉네임 중복 O");
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("중복된 닉네임입니다."))
+        );
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
+  // 닉네임 저장 요청 함수
+  Future<void> saveNickName() async {
+    print("닉네임 저장");
+    
+    String nickName = nickNameController.text;
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/nick-name");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      final response = await http.patch(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'nickName': nickName
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("닉네임 저장 성공");
+        // 닉네임 저장 성공 후 메인 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          // MaterialPageRoute(builder: (context) => const TestScreen())
+          MaterialPageRoute(builder: (context) => const MainScreen())
+        );
+
+      } else {
+        print("닉네임 저장 실패");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("닉네임 저장에 실패했습니다. 입력 정보를 다시 확인해주세요."))
         );
       }
     } catch (e) {
@@ -126,7 +176,15 @@ class _NicknameRegistrationScreenState extends State<NicknameRegistrationScreen>
                                       keyboardType: TextInputType.text,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       validator: (value) {
-                                        return CheckValidate().validateNickName(nickNameFocus, value);
+                                        return CheckValidate().validateNickName(nickNameFocus, value, nickNameValid);
+                                      },
+                                      onChanged: (value) {
+                                        // 닉네임이 변경될 때마다 중복 확인 결과 초기화
+                                        if (nickNameValid) {
+                                          setState(() {
+                                            nickNameValid = false;
+                                          });
+                                        }
                                       },
                                       decoration: const InputDecoration(
                                         hintText: "닉네임을 입력해주세요."
@@ -165,7 +223,13 @@ class _NicknameRegistrationScreenState extends State<NicknameRegistrationScreen>
                 ),
                 Container(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: (formKey.currentState?.validate() ?? false) && nickNameValid
+                    ? () {
+                        print("시작하기 버튼 클릭");
+
+                        saveNickName();
+                      }
+                    : null,
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                       backgroundColor: const Color.fromRGBO(122, 11, 11, 1),

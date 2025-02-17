@@ -4,6 +4,7 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:gachi_janchi/screens/find_password_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
+import 'package:gachi_janchi/screens/nickName_registration_screen.dart';
 import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -68,19 +69,35 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         // 로그인 성공 처리
         final data = json.decode(response.body);
+        print(data);
         String accessToken = data['accessToken'];
         String refreshToken = data['refreshToken'];
+        print("여기까지");
+        bool existsNickName = data['existsNickName'];
 
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
         await SecureStorage.saveRefreshToken(refreshToken);
 
-        // 로그인 성공 후 홈 화면으로 이동
-        Navigator.pushReplacement(
-          context,
-          // MaterialPageRoute(builder: (context) => const TestScreen())
-          MaterialPageRoute(builder: (context) => const MainScreen())
-        );
+        print("isExistsNickName: ${existsNickName}");
+
+        if (existsNickName) {
+          // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
+          Navigator.pushReplacement(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const MainScreen())
+          );
+        } else {
+          // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
+          Navigator.push(
+            context,
+            // MaterialPageRoute(builder: (context) => const TestScreen())
+            MaterialPageRoute(builder: (context) => const NicknameRegistrationScreen())
+          );
+        }
+
+        
       } else {
         // 로그인 실패 처리
         showDialog(

@@ -1,5 +1,6 @@
 package com.gachi_janchi.service;
 
+import com.gachi_janchi.dto.CheckNickNameDuplicationResponse;
 import com.gachi_janchi.dto.NickNameAddRequest;
 import com.gachi_janchi.dto.NickNameAddResponse;
 import com.gachi_janchi.entity.User;
@@ -23,14 +24,23 @@ public class UserService {
   TokenService tokenService;
 
   // 닉네임 추가 로직
-  public NickNameAddResponse updateAdditionalInfo(NickNameAddRequest nickNameAddRequest) {
-    User user = userRepository.findByEmail(nickNameAddRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+  public NickNameAddResponse updateNickName(NickNameAddRequest nickNameAddRequest, String accessToken) {
+    String email = jwtProvider.getUserEmail(accessToken);
 
-    // 닉네임과 전화번호 업데이트
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    // 닉네임 업데이트
     user.setNickName(nickNameAddRequest.getNickName());
     userRepository.save(user);
 
     return new NickNameAddResponse("User additional info updated successfully");
+  }
+
+  // 닉네임 중복 확인 로직
+  public CheckNickNameDuplicationResponse checkNickNameDuplication(String nickName) {
+    boolean isDuplication = userRepository.existsByNickName(nickName);
+
+    return new CheckNickNameDuplicationResponse(isDuplication);
   }
 
   // 로그아웃 처리 로직

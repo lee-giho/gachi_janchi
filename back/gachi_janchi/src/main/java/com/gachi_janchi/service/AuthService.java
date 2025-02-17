@@ -74,7 +74,10 @@ public class AuthService {
     if (!passwordEncoder.matches(loginRequest.getPassword(), localAccount.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다. - " + loginRequest.getPassword());
     }
-
+    System.out.println("닉네임 확인");
+    // 닉네임이 있는 경우
+    boolean ExistsNickName = user.getNickName() != null && !user.getNickName().isEmpty();
+    System.out.println("닉네임 확인: " + ExistsNickName);
     String jwt = jwtProvider.generateAccessToken(user);
     String refreshToken = jwtProvider.generateRefreshToken(user);
 
@@ -82,7 +85,7 @@ public class AuthService {
 //    tokenService.saveRefreshToken(localAccount.getEmail(), refreshToken);
 
 //    return jwtUtil.generateToken(loginRequest.getEmail());
-    return new LoginResponse(jwt, refreshToken);
+    return new LoginResponse(jwt, refreshToken, ExistsNickName);
   }
 
   public GoogleLoginResponse googleLogin(GoogleLoginRequest googleLoginRequest) {

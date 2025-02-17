@@ -1,9 +1,6 @@
 package com.gachi_janchi.controller;
 
-import com.gachi_janchi.dto.NickNameAddRequest;
-import com.gachi_janchi.dto.NickNameAddResponse;
-import com.gachi_janchi.dto.TokenRefreshResponse;
-import com.gachi_janchi.dto.TokenValidationResponse;
+import com.gachi_janchi.dto.*;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +18,17 @@ public class UserController {
   private UserService userService;
 
   // 닉네임 및 전화번호 업데이트 엔드포인트
-  @PostMapping("/update-info")
-  public ResponseEntity<NickNameAddResponse> updateAdditionalInfo(@RequestBody NickNameAddRequest nickNameAddRequest) {
-    NickNameAddResponse nickNameAddResponse =  userService.updateAdditionalInfo(nickNameAddRequest);
+  @PatchMapping("/nick-name")
+  public ResponseEntity<NickNameAddResponse> updateNickName(@RequestHeader("Authorization") String accessToken, @RequestBody NickNameAddRequest nickNameAddRequest) {
+    NickNameAddResponse nickNameAddResponse =  userService.updateNickName(nickNameAddRequest, accessToken);
     return ResponseEntity.ok(nickNameAddResponse);
+  }
+
+  // 닉네임 중복확인 엔드포인트
+  @GetMapping("duplication/nick-name")
+  public ResponseEntity<CheckNickNameDuplicationResponse> checkNickNameDuplication(@RequestParam("nickName") String nickName) {
+    CheckNickNameDuplicationResponse checkNickNameDuplicationResponse = userService.checkNickNameDuplication(nickName);
+    return ResponseEntity.ok(checkNickNameDuplicationResponse);
   }
 
   // 로그아웃 엔드포인트

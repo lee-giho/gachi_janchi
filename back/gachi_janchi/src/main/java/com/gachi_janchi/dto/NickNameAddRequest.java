@@ -6,6 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NickNameAddRequest {
-  private String email;
   private String nickName;
 }

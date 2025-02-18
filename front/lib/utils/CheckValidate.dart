@@ -28,6 +28,28 @@ class CheckValidate {
     }
   }
 
+  String? validateId(FocusNode focusNode, String? id, bool? idValid) {
+    String pattern = r'^[a-zA-Z0-9]{6,12}$';
+    RegExp regExp = RegExp(pattern);
+    if (id == null || id.isEmpty) {
+      focusNode.requestFocus();
+      return "아이디를 입력해주세요.";
+    } else if (id.length < 6) {
+      return "6자리 이상 입력해주세요.";
+    } else if (id.length > 12) {
+      return "12자리 이하로 입력해주세요.";
+    } else if (!regExp.hasMatch(id)) {
+      focusNode.requestFocus();
+      return "영문 6글자 이상 12자 이하로 입력해주세요.";
+    } else {
+      if (idValid == false) {
+        return "중복확인을 해주세요.";
+      } else {
+        return null;
+      }
+    }
+  }
+
   String? validatePassword(FocusNode focusNode, String? password) {
     String pattern = r'^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,15}$';
     RegExp regExp = RegExp(pattern);
@@ -35,8 +57,10 @@ class CheckValidate {
       return "비밀번호를 입력해주세요.";
     } else if (password.length < 8) {
       return "8자리 이상 입력해주세요.";
+    } else if (password.length > 15) {
+      return "15자리 이하로 입력해주세요.";
     } else if (!regExp.hasMatch(password)) {
-      return "특수문자, 문자, 숫자 포함 8자 이상 15자 이내로 입력해주세요.";
+      return "특수문자, 문자, 숫자 포함 8자 이상 15자 이하로 입력해주세요.";
     } else {
       return null;
     }

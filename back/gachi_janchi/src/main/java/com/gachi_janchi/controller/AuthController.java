@@ -13,7 +13,13 @@ public class AuthController {
   @Autowired
   private AuthService authService;
 
-
+  // 아이디 중복확인 엔드포인트
+  @GetMapping("duplication/id")
+  public ResponseEntity<CheckIdDuplicationResponse> checkIdDuplication(@RequestParam("id") String id) {
+    System.out.print("아이디 중복 확인");
+    CheckIdDuplicationResponse checkIdDuplicationResponse = authService.checkIdDuplication(id);
+    return ResponseEntity.ok(checkIdDuplicationResponse);
+  }
 
   // 회원가입 엔드포인트
   @PostMapping("/register")

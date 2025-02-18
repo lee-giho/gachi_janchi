@@ -11,9 +11,12 @@ import lombok.Data;
 @Table(name = "local_account")
 public class LocalAccount {
   @Id
-  @Column(name = "email", nullable = false, unique = true)
-  private String email;
+  @Column(name = "id", nullable = false, unique = true)
+  private String id;
 
   @Column(name = "password", nullable = false)
   private String password;
+
+  @Column(name = "email", nullable = false)
+  private String email;
 }

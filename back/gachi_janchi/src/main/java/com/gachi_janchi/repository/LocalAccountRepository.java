@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface LocalAccountRepository extends JpaRepository<LocalAccount, String> {
   Optional<LocalAccount> findByEmail(String email);
-  boolean existsByEmail(String email);
+  boolean existsById(String Id);
 }

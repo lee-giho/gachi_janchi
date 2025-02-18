@@ -47,19 +47,33 @@ class _NicknameRegistrationScreenState extends State<NicknameRegistrationScreen>
       );
 
       if (response.statusCode == 200) {
-        print("닉네임 중복 X");
-        setState(() {
-          nickNameValid = true;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("사용 가능한 닉네임입니다."))
-        );
+        print("닉네임 중복 확인 완료");
+
+        final data = json.decode(response.body);
+        bool isDuplication = data['duplication'];
+
+        if (isDuplication) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("중복된 닉네임입니다."))
+          );
+
+          setState(() {
+            nickNameValid = false;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("사용 가능한 닉네임입니다."))
+          );
+
+          setState(() {
+            nickNameValid = true;
+          });
+        }
       } else {
-        print("닉네임 중복 O");
+        print("닉네임 중복 확인 실패");
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("중복된 닉네임입니다."))
+          const SnackBar(content: Text("닉네임 중복 확인 실패"))
         );
       }
     } catch (e) {

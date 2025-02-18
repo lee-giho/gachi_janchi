@@ -43,6 +43,13 @@ public class AuthService {
   @Autowired
   private NaverTokenVerifier naverTokenVerifier;
 
+  // 아이디 중복 확인 로직
+  public CheckIdDuplicationResponse checkIdDuplication(String id) {
+    boolean isDuplication = localAccountRepository.existsById(id);
+    System.out.println("id 중복확인: " + isDuplication);
+    return new CheckIdDuplicationResponse(isDuplication);
+  }
+
   // 회원가입 로직
   public RegisterResponse register(RegisterRequest registerRequest) {
     if (userRepository.existsByEmail(registerRequest.getEmail())) {
@@ -59,6 +66,7 @@ public class AuthService {
     // 새로운 로컬 사용자 생성 및 저장 - local_account
     LocalAccount localAccount = new LocalAccount();
     localAccount.setEmail(registerRequest.getEmail());
+    localAccount.setId(registerRequest.getId());
     localAccount.setPassword(passwordEncoder.encode(registerRequest.getPassword())); // 비밀번호 암호화
     localAccountRepository.save(localAccount);
 

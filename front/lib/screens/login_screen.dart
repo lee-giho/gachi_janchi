@@ -584,7 +584,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(5),
                             ),
                             child: const Center(
-                              child: Text("테스트 화면 들어가기 확인 수정 pull")
+                              child: Text("테스트 화면")
                             ),
                           ),
                         ],

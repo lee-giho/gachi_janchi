@@ -584,7 +584,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(5),
                             ),
                             child: const Center(
-                              child: Text("카카오로 로그인")
+                              child: Text("테스트 화면")
                             ),
                           ),
                         ],

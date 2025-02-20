@@ -37,6 +37,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // 아이디 중복확인 여부
   bool idValid = false;
 
+  // 아이디 입력 검증
+  bool idInputValid = false;
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   // 아이디 중복확인 요청 함수
@@ -286,6 +289,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                       idValid = false;
                                                     });
                                                   }
+
+                                                  setState(() {
+                                                    idInputValid = CheckValidate().checkIdInput(value);  
+                                                  });
+                                                  
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "아이디를 입력해주세요.",
@@ -294,9 +302,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ),
                                             const SizedBox(width: 10),
                                             ElevatedButton(
-                                              onPressed: () {
-                                                checkIdDuplication();
-                                              },
+                                              onPressed: idInputValid
+                                              ? () {
+                                                  checkIdDuplication();
+                                                }
+                                              : null,
                                               style: ElevatedButton.styleFrom(
                                                 minimumSize: const Size(100, 50),
                                                 backgroundColor: const Color.fromRGBO(122, 11, 11, 1) ,

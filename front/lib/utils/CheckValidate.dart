@@ -50,6 +50,12 @@ class CheckValidate {
     }
   }
 
+  bool checkIdInput(String id) {
+    String pattern = r'^[a-zA-Z0-9]{6,12}$';
+    RegExp regExp = RegExp(pattern);
+    return regExp.hasMatch(id); // true이면 유효한 아이디, false이면 비유효한 아이디
+  }
+
   String? validatePassword(FocusNode focusNode, String? password) {
     String pattern = r'^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,15}$';
     RegExp regExp = RegExp(pattern);

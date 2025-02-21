@@ -190,7 +190,7 @@ class _NicknameRegistrationScreenState extends State<NicknameRegistrationScreen>
                                       keyboardType: TextInputType.text,
                                       autovalidateMode: AutovalidateMode.onUserInteraction,
                                       validator: (value) {
-                                        return CheckValidate().validateNickName(nickNameFocus, value, nickNameValid);
+                                        return CheckValidate().validateNickName(value, nickNameValid);
                                       },
                                       onChanged: (value) {
                                         // 닉네임이 변경될 때마다 중복 확인 결과 초기화

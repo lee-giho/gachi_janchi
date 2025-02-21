@@ -34,6 +34,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   FocusNode passwordFocus = FocusNode();
   FocusNode rePasswordFocus = FocusNode();
 
+  // 상태값 추가
+  bool isNameValid = false;
+  bool isEmailValid = false;
+  bool isIdValid = false;
+  bool isPasswordValid = false;
+  bool isRePasswordValid = false;
+
   // 아이디 중복확인 여부
   bool idValid = false;
 
@@ -41,6 +48,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool idInputValid = false;
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  // 입력 상태 체크 함수
+  void checkFormValid() {
+    setState(() {
+      isNameValid = CheckValidate().validateName(nameController.text) == null;
+      isEmailValid = CheckValidate().validateEmail(emailController.text) == null;
+      isIdValid = CheckValidate().validateId(idController.text, idValid) == null;
+      isPasswordValid = CheckValidate().validatePassword(passwordController.text) == null;
+      isRePasswordValid = CheckValidate().validateRePassword(passwordController.text, rePasswordController.text) == null;
+    });
+  }
+
+  // 회원가입 버튼 활성화 조건
+  bool get isFormValid {
+    return isNameValid && isEmailValid && isIdValid && isPasswordValid && isRePasswordValid && idValid;
+  }
 
   // 아이디 중복확인 요청 함수
   Future<void> checkIdDuplication() async {
@@ -147,6 +170,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void dispose() {
+    // TextEditingController dispose
+    nameController.dispose();
+    emailController.dispose();
+    idController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    emailFocus.dispose();
+    idFocus.dispose();
+    passwordFocus.dispose();
+    rePasswordFocus.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
@@ -213,11 +253,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           keyboardType: TextInputType.text,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateName(nameFocus, value);
+                                            return CheckValidate().validateName(value);
+                                          },
+                                          onFieldSubmitted: (value) {
+                                            checkFormValid();
                                           },
                                           onChanged: (value) {
-                                            setState(() {
-                                            });
+                                            isNameValid = CheckValidate().validateName(value) == null;
                                           },
                                           decoration: const InputDecoration(
                                             hintText: "이름을 입력해주세요.",
@@ -245,11 +287,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           keyboardType: TextInputType.emailAddress,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateEmail(emailFocus, value);
+                                            return CheckValidate().validateEmail(value);
+                                          },
+                                          onFieldSubmitted: (value) {
+                                            checkFormValid();
                                           },
                                           onChanged: (value) {
-                                            setState(() {
-                                            });
+                                            isEmailValid = CheckValidate().validateEmail(value) == null;
                                           },
                                           decoration: const InputDecoration(
                                             hintText: "이메일을 입력해주세요.",
@@ -280,20 +324,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 keyboardType: TextInputType.text,
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateId(idFocus, value, idValid);
+                                                  return CheckValidate().validateId(value, idValid);
+                                                },
+                                                onFieldSubmitted: (value) {
+                                                  checkFormValid();
                                                 },
                                                 onChanged: (value) {
-                                                  // 아이디가 변경될 때마다 중복 확인 결과 초기화
-                                                  if (idValid) {
-                                                    setState(() {
-                                                      idValid = false;
-                                                    });
-                                                  }
-
                                                   setState(() {
-                                                    idInputValid = CheckValidate().checkIdInput(value);  
+                                                  idInputValid = CheckValidate().checkIdInput(value);  
                                                   });
                                                   
+                                                  isIdValid = CheckValidate().validateId(value, idValid) == null;
+                                                  idValid = false; // 값이 변경되면 중복확인 필요
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "아이디를 입력해주세요.",
@@ -346,11 +388,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           focusNode: passwordFocus,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validatePassword(passwordFocus, value);
+                                            return CheckValidate().validatePassword(value);
+                                          },
+                                          onFieldSubmitted: (value) {
+                                            checkFormValid();
                                           },
                                           onChanged: (value) {
-                                            setState(() {
-                                            });
+                                            isPasswordValid = CheckValidate().validatePassword(value) == null;
                                           },
                                           obscureText: true,
                                           decoration: const InputDecoration(
@@ -378,11 +422,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           focusNode: rePasswordFocus,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateRePassword(rePasswordFocus, passwordController.text, value);
+                                            return CheckValidate().validateRePassword(passwordController.text, value);
+                                          },
+                                          onFieldSubmitted: (value) {
+                                            checkFormValid();
                                           },
                                           onChanged: (value) {
-                                            setState(() {
-                                            });
+                                            isRePasswordValid = CheckValidate().validateRePassword(passwordController.text, value) == null;
                                           },
                                           obscureText: true,
                                           decoration: const InputDecoration(
@@ -416,7 +462,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     //     );
                     //   }
                     // },
-                    onPressed: (formKey.currentState?.validate() ?? false) && idValid
+                    onPressed: isFormValid
                     ? () {
                         signUp();
                       }

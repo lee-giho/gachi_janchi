@@ -29,11 +29,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool? isAutoLogin = false;
 
   // 아이디 & 비밀번호 입력 값 저장
-  var emailController = TextEditingController();
+  var idController = TextEditingController();
   var passwordController = TextEditingController();
 
   // 아이디 & 비밀번호 FocusNode
-  FocusNode emailFocus = FocusNode();
+  FocusNode idFocus = FocusNode();
   FocusNode passwordFocus = FocusNode();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     print("로그인 요청");
 
-    String email = emailController.text;
+    String id = idController.text;
     String password = passwordController.text;
 
     // .env에서 서버 URL 가져오기
@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
         apiAddress,
         headers: headers,
         body: json.encode({
-          'email': email,
+          'id': id,
           'password': password
         })
       );
@@ -297,26 +297,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  "이메일",
+                                  "아이디",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: emailController,
-                                  focusNode: emailFocus,
+                                  controller: idController,
+                                  focusNode: idFocus,
                                   keyboardType: TextInputType.emailAddress,
                                   autovalidateMode: AutovalidateMode.onUnfocus,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "이메일을 입력해주세요.";
+                                      return "아이디를 입력해주세요.";
                                     } else {
                                       return null;
                                     }
                                   },
                                   decoration: const InputDecoration(
-                                    hintText: "이메일을 입력해주세요.",
+                                    hintText: "아이디를 입력해주세요.",
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(Radius.circular(5)),
                                       borderSide: BorderSide(color: Color.fromRGBO(121, 55, 64, 0.612))
@@ -408,7 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  print("id: ${emailController.text}");
+                                  print("id: ${idController.text}");
                                   print("password: ${passwordController.text}");
                                   login();
                                 }        

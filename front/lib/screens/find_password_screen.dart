@@ -62,7 +62,7 @@ class _FindPasswordState extends State<FindPassword> {
 
   // 이메일 상태를 개별적으로 검증하는 함수
   void validateEmail(String email) {
-    final isValid = CheckValidate().validateEmail(emailFocus, email) == null;
+    final isValid = CheckValidate().validateEmail(email) == null;
     setState(() {
       isEmailValid = isValid;
     });
@@ -157,7 +157,7 @@ class _FindPasswordState extends State<FindPassword> {
 
   // 인증번호 상태를 개별적으로 검증하는 함수
   void validateCode(String code) {
-    final isValid = CheckValidate().validateCode(codeFocus, code) == null && (remainingTime > 0 && remainingTime < 180);
+    final isValid = CheckValidate().validateCode(code) == null && (remainingTime > 0 && remainingTime < 180);
     setState(() {
       isCodeValid = isValid;
     });
@@ -261,7 +261,7 @@ class _FindPasswordState extends State<FindPassword> {
                                           keyboardType: TextInputType.text,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateName(nameFocus, value);
+                                            return CheckValidate().validateName(value);
                                           },
                                           decoration: const InputDecoration(
                                             hintText: "이름을 입력해주세요."
@@ -292,7 +292,7 @@ class _FindPasswordState extends State<FindPassword> {
                                                 onChanged: validateEmail, // 입력할 때마다 이메일 유효성 검7
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateEmail(emailFocus, value);
+                                                  return CheckValidate().validateEmail(value);
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "이메일을 입력해주세요."
@@ -362,7 +362,7 @@ class _FindPasswordState extends State<FindPassword> {
                                                 onChanged: validateCode, // 입력할 때마다 인증번호 유효성 검사
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateCode(codeFocus, value);
+                                                  return CheckValidate().validateCode(value);
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "인증번호를 입력해주세요."

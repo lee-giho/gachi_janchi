@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:gachi_janchi/screens/find_id_screen.dart';
 import 'package:gachi_janchi/screens/find_password_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
@@ -438,7 +439,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const TestScreen())
+                                    MaterialPageRoute(builder: (context) => const FindIdScreen())
                                   );
                                 },
                                 child: const Text(

@@ -453,7 +453,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const FindPassword())
+                                    MaterialPageRoute(builder: (context) => const FindPasswordScreen())
                                   );
                                 },
                                 child: const Text(
@@ -571,20 +571,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           //     child: Text("네이버로 로그인")
                           //   ),
                           // ),
-                          Container( // 카카오 로그인
-                            // width: screenWidth*0.7,
-                            height: 40,
-                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                            decoration: BoxDecoration(
-                              color: Colors.yellow,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1
+                          Container( // 테스트 화면
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const TestScreen())
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                // minimumSize: Size(screenWidth*0.8, 50),
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color.fromARGB(255, 95, 95, 95),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                                )
                               ),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text("테스트 화면")
+                              child: const Text(
+                                "테스트 화면",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              )
                             ),
                           ),
                         ],

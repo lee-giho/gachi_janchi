@@ -184,6 +184,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     idFocus.dispose();
     passwordFocus.dispose();
     rePasswordFocus.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -191,301 +193,294 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
-        child: Form(
-          key: formKey,
-          child: Container( // 전체 화면
-            padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    // padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
-                    // width: screenWidth,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container( // 페이지 타이틀
-                              margin: const EdgeInsets.fromLTRB(0, 0, 0, 50),
-                              child: const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "우리 가치,",
-                                    style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
+        child: GestureDetector(
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Form(
+            key: formKey,
+            child: Container( // 전체 화면
+              padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      // padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
+                      // width: screenWidth,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container( // 페이지 타이틀
+                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 50),
+                                child: const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "우리 가치,",
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    "잔치를 시작해 볼까요?",
-                                    style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
+                                    Text(
+                                      "잔치를 시작해 볼까요?",
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Container( // 이름 & 이메일 & 비밀번호 & 비밀번호 확인 입력 부분
-                              child: Column(
-                                children: [
-                                  Container( // 이름 입력 부분
-                                    // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "이름 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        TextFormField(
-                                          controller: nameController,
-                                          focusNode: nameFocus,
-                                          keyboardType: TextInputType.text,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                                          validator: (value) {
-                                            return CheckValidate().validateName(value);
-                                          },
-                                          onFieldSubmitted: (value) {
-                                            checkFormValid();
-                                          },
-                                          onChanged: (value) {
-                                            isNameValid = CheckValidate().validateName(value) == null;
-                                          },
-                                          decoration: const InputDecoration(
-                                            hintText: "이름을 입력해주세요.",
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container( // 이메일 입력 부분
-                                    // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "이메일 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        TextFormField(
-                                          controller: emailController,
-                                          focusNode: emailFocus,
-                                          keyboardType: TextInputType.emailAddress,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                                          validator: (value) {
-                                            return CheckValidate().validateEmail(value);
-                                          },
-                                          onFieldSubmitted: (value) {
-                                            checkFormValid();
-                                          },
-                                          onChanged: (value) {
-                                            isEmailValid = CheckValidate().validateEmail(value) == null;
-                                          },
-                                          decoration: const InputDecoration(
-                                            hintText: "이메일을 입력해주세요.",
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container( // 아이디 입력 부분
-                                    // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "아이디 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                controller: idController,
-                                                focusNode: idFocus,
-                                                keyboardType: TextInputType.text,
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                validator: (value) {
-                                                  return CheckValidate().validateId(value, idValid);
-                                                },
-                                                onFieldSubmitted: (value) {
-                                                  checkFormValid();
-                                                },
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                  idInputValid = CheckValidate().checkIdInput(value);  
-                                                  });
-                                                  
-                                                  isIdValid = CheckValidate().validateId(value, idValid) == null;
-                                                  idValid = false; // 값이 변경되면 중복확인 필요
-                                                },
-                                                decoration: const InputDecoration(
-                                                  hintText: "아이디를 입력해주세요.",
-                                                ),
-                                              ),
+                              Container( // 이름 & 이메일 & 비밀번호 & 비밀번호 확인 입력 부분
+                                child: Column(
+                                  children: [
+                                    Container( // 이름 입력 부분
+                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "이름 *",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
                                             ),
-                                            const SizedBox(width: 10),
-                                            ElevatedButton(
-                                              onPressed: idInputValid
-                                              ? () {
-                                                  checkIdDuplication();
-                                                }
-                                              : null,
-                                              style: ElevatedButton.styleFrom(
-                                                minimumSize: const Size(100, 50),
-                                                backgroundColor: const Color.fromRGBO(122, 11, 11, 1) ,
-                                                foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(5)
-                                                )
-                                              ),
-                                              child: const Text(
-                                                "중복확인",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold
+                                          ),
+                                          TextFormField(
+                                            controller: nameController,
+                                            focusNode: nameFocus,
+                                            keyboardType: TextInputType.text,
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            validator: (value) {
+                                              return CheckValidate().validateName(value);
+                                            },
+                                            onChanged: (value) {
+                                              checkFormValid();
+                                            },
+                                            decoration: const InputDecoration(
+                                              hintText: "이름을 입력해주세요.",
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container( // 이메일 입력 부분
+                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "이메일 *",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          TextFormField(
+                                            controller: emailController,
+                                            focusNode: emailFocus,
+                                            keyboardType: TextInputType.emailAddress,
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            validator: (value) {
+                                              return CheckValidate().validateEmail(value);
+                                            },
+                                            onChanged: (value) {
+                                              checkFormValid();
+                                            },
+                                            decoration: const InputDecoration(
+                                              hintText: "이메일을 입력해주세요.",
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container( // 아이디 입력 부분
+                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "아이디 *",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextFormField(
+                                                  controller: idController,
+                                                  focusNode: idFocus,
+                                                  keyboardType: TextInputType.text,
+                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                  validator: (value) {
+                                                    return CheckValidate().validateId(value, idValid);
+                                                  },
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                    idInputValid = CheckValidate().checkIdInput(value);  
+                                                    });
+                                                    
+                                                    isIdValid = CheckValidate().validateId(value, idValid) == null;
+                                                    idValid = false; // 값이 변경되면 중복확인 필요
+                                                  },
+                                                  decoration: const InputDecoration(
+                                                    hintText: "아이디를 입력해주세요.",
+                                                  ),
                                                 ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              ElevatedButton(
+                                                onPressed: idInputValid
+                                                ? () {
+                                                    checkIdDuplication();
+                                                    setState(() {
+                                                      idValid = true;
+                                                    });
+                                                  }
+                                                : null,
+                                                style: ElevatedButton.styleFrom(
+                                                  minimumSize: const Size(100, 50),
+                                                  backgroundColor: const Color.fromRGBO(122, 11, 11, 1) ,
+                                                  foregroundColor: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(5)
+                                                  )
+                                                ),
+                                                child: const Text(
+                                                  "중복확인",
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold
+                                                  ),
+                                                )
                                               )
-                                            )
-                                          ],
-                                        ),
-                                      ],
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Container( // 비밀번호 입력 부분
-                                    // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "비밀번호 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
+                                    Container( // 비밀번호 입력 부분
+                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "비밀번호 *",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                            ),
                                           ),
-                                        ),
-                                        TextFormField(
-                                          controller: passwordController,
-                                          focusNode: passwordFocus,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                                          validator: (value) {
-                                            return CheckValidate().validatePassword(value);
-                                          },
-                                          onFieldSubmitted: (value) {
-                                            checkFormValid();
-                                          },
-                                          onChanged: (value) {
-                                            isPasswordValid = CheckValidate().validatePassword(value) == null;
-                                          },
-                                          obscureText: true,
-                                          decoration: const InputDecoration(
-                                            hintText: "비밀번호를 입력해주세요.",
+                                          TextFormField(
+                                            controller: passwordController,
+                                            focusNode: passwordFocus,
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            validator: (value) {
+                                              return CheckValidate().validatePassword(value);
+                                            },
+                                            onChanged: (value) {
+                                              checkFormValid();
+                                            },
+                                            obscureText: true,
+                                            decoration: const InputDecoration(
+                                              hintText: "비밀번호를 입력해주세요.",
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Container( // 비밀번호 확인 입력 부분
-                                    // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "비밀번호 확인 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
+                                    Container( // 비밀번호 확인 입력 부분
+                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
+                                      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "비밀번호 확인 *",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold
+                                            ),
                                           ),
-                                        ),
-                                        TextFormField(
-                                          controller: rePasswordController,
-                                          focusNode: rePasswordFocus,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                                          validator: (value) {
-                                            return CheckValidate().validateRePassword(passwordController.text, value);
-                                          },
-                                          onFieldSubmitted: (value) {
-                                            checkFormValid();
-                                          },
-                                          onChanged: (value) {
-                                            isRePasswordValid = CheckValidate().validateRePassword(passwordController.text, value) == null;
-                                          },
-                                          obscureText: true,
-                                          decoration: const InputDecoration(
-                                            hintText: "비밀번호를 한 번 더 입력해주세요.",
+                                          TextFormField(
+                                            controller: rePasswordController,
+                                            focusNode: rePasswordFocus,
+                                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                                            validator: (value) {
+                                              return CheckValidate().validateRePassword(passwordController.text, value);
+                                            },
+                                            onChanged: (value) {
+                                              checkFormValid();
+                                            },
+                                            obscureText: true,
+                                            decoration: const InputDecoration(
+                                              hintText: "비밀번호를 한 번 더 입력해주세요.",
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  child: ElevatedButton(
-                    // onPressed: () {
-                    //   if (formKey.currentState!.validate()) {
-                    //     // ScaffoldMessenger.of(context).showSnackBar(
-                    //     //   SnackBar(content: Text("폼이 유효합니다."))
-                    //     // );
-                    //     signUp();
-                    //     Navigator.pop(context);
-                    //   } else {
-                    //     ScaffoldMessenger.of(context).showSnackBar(
-                    //       const SnackBar(content: Text("입력 정보를 다시 확인해주세요."))
-                    //     );
-                    //   }
-                    // },
-                    onPressed: isFormValid
-                    ? () {
-                        signUp();
-                      }
-                    : null,
-                    style: ElevatedButton.styleFrom(
-                      // minimumSize: Size(screenWidth*0.8, 50),
-                      minimumSize: const Size.fromHeight(50),
-                      backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5)
+                  Container(
+                    child: ElevatedButton(
+                      // onPressed: () {
+                      //   if (formKey.currentState!.validate()) {
+                      //     // ScaffoldMessenger.of(context).showSnackBar(
+                      //     //   SnackBar(content: Text("폼이 유효합니다."))
+                      //     // );
+                      //     signUp();
+                      //     Navigator.pop(context);
+                      //   } else {
+                      //     ScaffoldMessenger.of(context).showSnackBar(
+                      //       const SnackBar(content: Text("입력 정보를 다시 확인해주세요."))
+                      //     );
+                      //   }
+                      // },
+                      onPressed: isFormValid
+                      ? () {
+                          signUp();
+                        }
+                      : null,
+                      style: ElevatedButton.styleFrom(
+                        // minimumSize: Size(screenWidth*0.8, 50),
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)
+                        )
+                      ),
+                      child: const Text(
+                        "회원가입",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold
+                        ),
                       )
                     ),
-                    child: const Text(
-                      "회원가입",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold
-                      ),
-                    )
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         )

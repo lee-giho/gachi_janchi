@@ -9,14 +9,14 @@ import 'dart:convert';
 
 import 'package:gachi_janchi/utils/checkValidate.dart';
 
-class FindPassword extends StatefulWidget {
-  const FindPassword({super.key});
+class FindPasswordScreen extends StatefulWidget {
+  const FindPasswordScreen({super.key});
 
   @override
-  State<FindPassword> createState() => _FindPasswordState();
+  State<FindPasswordScreen> createState() => _FindPasswordState();
 }
 
-class _FindPasswordState extends State<FindPassword> {
+class _FindPasswordState extends State<FindPasswordScreen> {
 
   Dio dio = Dio();
   late CookieJar cookieJar;

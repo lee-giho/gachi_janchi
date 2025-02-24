@@ -52,20 +52,20 @@ public class AuthService {
 
   // 회원가입 로직
   public RegisterResponse register(RegisterRequest registerRequest) {
-    if (userRepository.existsByEmail(registerRequest.getEmail())) {
-      throw new IllegalArgumentException("Email already in use"); // 중복된 이메일 예외 처리
+    if (userRepository.existsById(registerRequest.getId())) {
+      throw new IllegalArgumentException("id already in use"); // 중복된 이메일 예외 처리
     }
 
     // 새로운 사용자 생성 및 저장 - users
     User user = new User();
-    user.setEmail(registerRequest.getEmail());
+    user.setId(registerRequest.getId()); // 로컬 로그인을 하는 사용자는 users 테이블의 id는 id로 들어간다.
     user.setName(registerRequest.getName());
+    user.setEmail(registerRequest.getEmail());
     user.setType("local");
     userRepository.save(user);
 
     // 새로운 로컬 사용자 생성 및 저장 - local_account
     LocalAccount localAccount = new LocalAccount();
-    localAccount.setEmail(registerRequest.getEmail());
     localAccount.setId(registerRequest.getId());
     localAccount.setPassword(passwordEncoder.encode(registerRequest.getPassword())); // 비밀번호 암호화
     localAccountRepository.save(localAccount);
@@ -74,8 +74,8 @@ public class AuthService {
   }
 
   public LoginResponse login(LoginRequest loginRequest) {
-    User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + loginRequest.getEmail()));
-    LocalAccount localAccount = localAccountRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + loginRequest.getEmail()));
+    User user = userRepository.findById(loginRequest.getId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + loginRequest.getId()));
+    LocalAccount localAccount = localAccountRepository.findById(loginRequest.getId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + loginRequest.getId()));
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), localAccount.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다. - " + loginRequest.getPassword());
@@ -100,23 +100,23 @@ public class AuthService {
       Map<String, Object> tokenInfo =  googleTokenVerifier.getGoogleUserInfo(googleLoginRequest.getIdToken());
 
       // 사용자 정보 가져오기
-      String email = (String) tokenInfo.get("email");
+      String id = (String) tokenInfo.get("email"); // 소셜 로그인을 하는 사용자는 users 테이블의 id는 email로 들어간다.
       String name = (String) tokenInfo.get("name");
 
-      if (email == null || name == null) {
+      if (id == null || name == null) {
         throw new IllegalArgumentException("유효하지 않은 사용자 정보");
       }
 
       // 사용자 저장 또는 업데이트 - social_account
-      if (!userRepository.existsByEmail(email) && !socialAccountRepository.existsByEmail(email)) {
+      if (!userRepository.existsById(id) && !socialAccountRepository.existsByEmail(id)) {
         User user = new User();
-        user.setEmail(email);
+        user.setId(id);
         user.setName(name);
         user.setType("social");
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();
-        socialAccount.setEmail(email);
+        socialAccount.setEmail(id);
         socialAccount.setProvider("google");
         socialAccountRepository.save(socialAccount);
 
@@ -132,7 +132,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(email);
+        user.setEmail(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);
@@ -142,7 +142,7 @@ public class AuthService {
 //        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
         // 이메일로 사용자 찾기
-        User existUser = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+        User existUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + id));
 
         // 닉네임을 입력한 사용자인지 확인
         boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();
@@ -162,23 +162,23 @@ public class AuthService {
       Map<String, Object> tokenInfo = naverTokenVerifier.getNaverUserInfo(naverLoginRequest.getAccessToken());
 
       // 네이버 사용자 정보 가져오기
-      String email = (String) tokenInfo.get("email");
+      String id = (String) tokenInfo.get("email"); // 소셜 로그인을 하는 사용자는 users 테이블의 id는 email로 들어간다.
       String name = (String) tokenInfo.get("name");
 
-      if (email == null || name == null) {
+      if (id == null || name == null) {
         throw new IllegalArgumentException("유효하지 않은 사용자 정보");
       }
 
       // 사용자 저장 또는 업데이트
-      if (!userRepository.existsByEmail(email) && !socialAccountRepository.existsByEmail(email)) {
+      if (!userRepository.existsById(id) && !socialAccountRepository.existsByEmail(id)) {
         User user = new User();
-        user.setEmail(email);
+        user.setId(id);
         user.setName(name);
         user.setType("social");
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();
-        socialAccount.setEmail(email);
+        socialAccount.setEmail(id);
         socialAccount.setProvider("naver");
         socialAccountRepository.save(socialAccount);
 
@@ -193,7 +193,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(email);
+        user.setEmail(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);
@@ -203,7 +203,7 @@ public class AuthService {
 //        tokenService.saveRefreshToken(user.getEmail(), refreshToken);
 
         // 이메일로 사용자 찾기
-        User existUser = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+        User existUser = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + id));
 
         // 닉네임을 입력한 사용자인지 확인
         boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();

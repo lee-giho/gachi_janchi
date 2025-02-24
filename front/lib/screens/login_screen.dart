@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:gachi_janchi/screens/find_id_screen.dart';
 import 'package:gachi_janchi/screens/find_password_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
@@ -29,11 +30,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool? isAutoLogin = false;
 
   // 아이디 & 비밀번호 입력 값 저장
-  var emailController = TextEditingController();
+  var idController = TextEditingController();
   var passwordController = TextEditingController();
 
   // 아이디 & 비밀번호 FocusNode
-  FocusNode emailFocus = FocusNode();
+  FocusNode idFocus = FocusNode();
   FocusNode passwordFocus = FocusNode();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -48,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     print("로그인 요청");
 
-    String email = emailController.text;
+    String id = idController.text;
     String password = passwordController.text;
 
     // .env에서 서버 URL 가져오기
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
         apiAddress,
         headers: headers,
         body: json.encode({
-          'email': email,
+          'id': id,
           'password': password
         })
       );
@@ -297,26 +298,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  "이메일",
+                                  "아이디",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
                                 TextFormField(
-                                  controller: emailController,
-                                  focusNode: emailFocus,
+                                  controller: idController,
+                                  focusNode: idFocus,
                                   keyboardType: TextInputType.emailAddress,
                                   autovalidateMode: AutovalidateMode.onUnfocus,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "이메일을 입력해주세요.";
+                                      return "아이디를 입력해주세요.";
                                     } else {
                                       return null;
                                     }
                                   },
                                   decoration: const InputDecoration(
-                                    hintText: "이메일을 입력해주세요.",
+                                    hintText: "아이디를 입력해주세요.",
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(Radius.circular(5)),
                                       borderSide: BorderSide(color: Color.fromRGBO(121, 55, 64, 0.612))
@@ -408,7 +409,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  print("id: ${emailController.text}");
+                                  print("id: ${idController.text}");
                                   print("password: ${passwordController.text}");
                                   login();
                                 }        
@@ -438,7 +439,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const TestScreen())
+                                    MaterialPageRoute(builder: (context) => const FindIdScreen())
                                   );
                                 },
                                 child: const Text(
@@ -453,7 +454,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const FindPassword())
+                                    MaterialPageRoute(builder: (context) => const FindPasswordScreen())
                                   );
                                 },
                                 child: const Text(
@@ -571,20 +572,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           //     child: Text("네이버로 로그인")
                           //   ),
                           // ),
-                          Container( // 카카오 로그인
-                            // width: screenWidth*0.7,
-                            height: 40,
-                            // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                            decoration: BoxDecoration(
-                              color: Colors.yellow,
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 1
+                          Container( // 테스트 화면
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const TestScreen())
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                // minimumSize: Size(screenWidth*0.8, 50),
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor: const Color.fromARGB(255, 95, 95, 95),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                                )
                               ),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text("테스트 화면")
+                              child: const Text(
+                                "테스트 화면",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              )
                             ),
                           ),
                         ],

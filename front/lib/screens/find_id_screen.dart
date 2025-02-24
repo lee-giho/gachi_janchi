@@ -4,24 +4,23 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/utils/checkValidate.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 
-import 'package:gachi_janchi/utils/checkValidate.dart';
-
-class FindPasswordScreen extends StatefulWidget {
-  const FindPasswordScreen({super.key});
+class FindIdScreen extends StatefulWidget {
+  const FindIdScreen({super.key});
 
   @override
-  State<FindPasswordScreen> createState() => _FindPasswordState();
+  State<FindIdScreen> createState() => _FindIdScreenState();
 }
 
-class _FindPasswordState extends State<FindPasswordScreen> {
+class _FindIdScreenState extends State<FindIdScreen> {
 
   Dio dio = Dio();
   late CookieJar cookieJar;
   String sessionId = "";
-  
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +29,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
   }
-
+  
   // 이름 & 이메일 & 인증번호 입력 값 저장
   var nameController = TextEditingController();
   var emailController = TextEditingController();
@@ -82,7 +81,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
         apiAddress.toString(),
         data: {
           'email': email,
-          'type': 'password'
+          'type': 'id'
         }
       );
 
@@ -194,6 +193,17 @@ class _FindPasswordState extends State<FindPasswordScreen> {
   @override
   void dispose() {
     timer?.cancel(); // 화면 종료 시 타이머 취소
+
+    // TextEditingController dispose
+    nameController.dispose();
+    emailController.dispose();
+    codeController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    emailFocus.dispose();
+    codeFocus.dispose();
+
     super.dispose();
   }
 
@@ -231,7 +241,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                     ),
                                   ),
                                   Text(
-                                    "비밀번호를 찾아볼까요?",
+                                    "아이디를 찾아볼까요?",
                                     style: TextStyle(
                                       fontSize: 30,
                                       fontWeight: FontWeight.bold
@@ -401,17 +411,17 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                               ),
                             )
                           ],
-                        ),
+                        )
                       ],
                     )
                   ),
-                ),
+                )
               ),
               Container(
                 child: ElevatedButton(
                   onPressed: (formKey.currentState?.validate() ?? false) && isCodeSent && isCodeCheck
                   ? () {
-                      print("비밀번호 찾기 버튼 클릭");
+                      print("아이디 찾기 버튼 클릭");
                     }
                   : null,
                   style: ElevatedButton.styleFrom(
@@ -423,7 +433,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                     )
                   ),
                   child: const Text(
-                    "비밀번호 찾기",
+                    "아이디 찾기",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold

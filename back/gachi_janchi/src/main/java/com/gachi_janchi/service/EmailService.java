@@ -101,6 +101,8 @@ public class EmailService {
     switch (type) {
       case "password":
         return "[가치, 잔치] 비밀번호 찾기 인증번호";
+      case "id":
+        return "[가치, 잔치] 아이디 찾기 인증번호";
       default:
         return "인증번호";
     }
@@ -118,6 +120,8 @@ public class EmailService {
     switch (type) {
       case "password":
         return "sendCode_findPassword"; // 비밀번호 찾기 템플릿
+      case "id":
+        return "sendCode_findId"; // 아이디 찾기 템플릿
       default:
         return "sendCode_default"; // 기본 템플릿
     }

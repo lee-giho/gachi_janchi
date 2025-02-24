@@ -11,9 +11,7 @@ class _RankingScreenState extends State<RankingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Text("랭킹 페이지")
-      ),
+      body: SafeArea(child: Text("랭킹 페이지2")),
     );
   }
 }

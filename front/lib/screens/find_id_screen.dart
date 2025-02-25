@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/find_id_result_screen.dart';
 import 'package:gachi_janchi/utils/checkValidate.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
@@ -199,9 +200,21 @@ class _FindIdScreenState extends State<FindIdScreen> {
         print("아이디 찾기 요청 완료");
         
         final data = json.decode(response.body);
-        String id = data['id'];
+        String findId = data['id'];
 
-        print("find id: ${id}");
+        print("find id: ${findId}");
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FindIdResultScreen(
+              data: {
+                "id": findId,
+                "name": nameController.text
+              },
+            ),
+          ),
+        );
       } else {
         print("아이디를 찾을 수 없습니다.");
       }

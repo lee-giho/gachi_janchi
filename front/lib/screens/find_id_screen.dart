@@ -42,15 +42,14 @@ class _FindIdScreenState extends State<FindIdScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  // 이메일 유효성 상태
+  // 이메일 입력 유효성 상태
   bool isEmailValid = false;
+
+  // 인증번호 입력 유효성 상태
+  bool isCodeValid = false;
 
   // 인증번호 전송 상태
   bool isCodeSent = false;
-
-
-  // 인증번호 유효성 상태
-  bool isCodeValid = false;
 
   // 인증번호 확인 상태
   bool isCodeCheck = false;
@@ -59,11 +58,10 @@ class _FindIdScreenState extends State<FindIdScreen> {
   int remainingTime = 180; // 3분(180초)
   Timer? timer;
 
-  // 이메일 상태를 개별적으로 검증하는 함수
-  void validateEmail(String email) {
-    final isValid = CheckValidate().validateEmail(email) == null;
+  void checkFormValid() {
     setState(() {
-      isEmailValid = isValid;
+      isEmailValid = CheckValidate().validateEmail(emailController.text) == null;
+      isCodeValid = CheckValidate().validateCode(codeController.text) == null && (remainingTime > 0 && remainingTime < 180);
     });
   }
 
@@ -154,14 +152,6 @@ class _FindIdScreenState extends State<FindIdScreen> {
     }
   }
 
-  // 인증번호 상태를 개별적으로 검증하는 함수
-  void validateCode(String code) {
-    final isValid = CheckValidate().validateCode(code) == null && (remainingTime > 0 && remainingTime < 180);
-    setState(() {
-      isCodeValid = isValid;
-    });
-  }
-
   // 타이머 시작 함수
   void startTimer() {
     
@@ -188,6 +178,39 @@ class _FindIdScreenState extends State<FindIdScreen> {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
     final secs = (seconds % 60).toString().padLeft(2, '0');
     return "$minutes:$secs";
+  }
+
+  // 아이디 찾기 요청 함수
+  Future<void> findId() async {
+    final name = nameController.text;
+    final email = emailController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/id?name=${name}&email=${email}");
+    final headers = {'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        print("아이디 찾기 요청 완료");
+        
+        final data = json.decode(response.body);
+        String id = data['id'];
+
+        print("find id: ${id}");
+      } else {
+        print("아이디를 찾을 수 없습니다.");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
   }
 
   @override
@@ -299,7 +322,9 @@ class _FindIdScreenState extends State<FindIdScreen> {
                                                 controller: emailController,
                                                 focusNode: emailFocus,
                                                 keyboardType: TextInputType.emailAddress,
-                                                onChanged: validateEmail, // 입력할 때마다 이메일 유효성 검7
+                                                onChanged: (value) {
+                                                  checkFormValid();
+                                                },
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
                                                   return CheckValidate().validateEmail(value);
@@ -369,7 +394,9 @@ class _FindIdScreenState extends State<FindIdScreen> {
                                                 focusNode: codeFocus,
                                                 keyboardType: TextInputType.number,
                                                 maxLength: 6,
-                                                onChanged: validateCode, // 입력할 때마다 인증번호 유효성 검사
+                                                onChanged: (value) {
+                                                  checkFormValid();
+                                                }, // 입력할 때마다 인증번호 유효성 검사
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
                                                   return CheckValidate().validateCode(value);
@@ -422,6 +449,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   onPressed: (formKey.currentState?.validate() ?? false) && isCodeSent && isCodeCheck
                   ? () {
                       print("아이디 찾기 버튼 클릭");
+                      findId();
                     }
                   : null,
                   style: ElevatedButton.styleFrom(

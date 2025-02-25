@@ -215,4 +215,11 @@ public class AuthService {
     }
     return new NaverLoginResponse(null, null, false);
   }
+
+  public FindIdResponse findId(String name, String email) {
+    User user = userRepository.findByNameAndEmail(name, email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + name));
+    System.out.println("user" + user);
+    System.out.println("userId: " + user.getId());
+    return new FindIdResponse(user.getId());
+  }
 }

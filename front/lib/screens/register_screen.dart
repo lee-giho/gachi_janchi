@@ -328,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   },
                                                   onChanged: (value) {
                                                     setState(() {
-                                                    idInputValid = CheckValidate().checkIdInput(value);  
+                                                      idInputValid = CheckValidate().checkIdInput(value);  
                                                     });
                                                     
                                                     isIdValid = CheckValidate().validateId(value, idValid) == null;

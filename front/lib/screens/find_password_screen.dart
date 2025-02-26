@@ -31,13 +31,15 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
   }
 
-  // 이름 & 이메일 & 인증번호 입력 값 저장
+  // 이름 & 아이디 & 이메일 & 인증번호 입력 값 저장
   var nameController = TextEditingController();
+  var idController = TextEditingController();
   var emailController = TextEditingController();
   var codeController = TextEditingController();
 
-  // 이름 & 이메일 & 인증번호 FocusNode
+  // 이름 & 아이디 & 이메일 & 인증번호 FocusNode
   FocusNode nameFocus = FocusNode();
+  FocusNode idFocus = FocusNode();
   FocusNode emailFocus = FocusNode();
   FocusNode codeFocus = FocusNode();
 
@@ -191,6 +193,39 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     return "$minutes:$secs";
   }
 
+  // 비밀번호 찾기 요청 함수
+  Future<void> findPassword() async {
+    final name = nameController.text;
+    final id = idController.text;
+    final email = emailController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/id?name=${name}&email=${email}");
+    final headers = {'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.patch(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          'name': name,
+          'id': id,
+          'email': email
+        })
+      );
+
+      if (response.statusCode == 200) {
+        // 비밀번호 찾기 성공 처리
+        print("비밀번호 찾기 요청 성공");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
   @override
   void dispose() {
     timer?.cancel(); // 화면 종료 시 타이머 취소
@@ -265,6 +300,33 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                           },
                                           decoration: const InputDecoration(
                                             hintText: "이름을 입력해주세요."
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container( // 아이디 입력 부분
+                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "아이디 *",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold
+                                          ),
+                                        ),
+                                        TextFormField(
+                                          controller: idController,
+                                          focusNode: idFocus,
+                                          keyboardType: TextInputType.text,
+                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          validator: (value) {
+                                            return CheckValidate().validateName(value);
+                                          },
+                                          decoration: const InputDecoration(
+                                            hintText: "아이디를 입력해주세요."
                                           ),
                                         )
                                       ],

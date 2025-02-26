@@ -200,23 +200,34 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     final email = emailController.text;
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/id?name=${name}&email=${email}");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/password?name=${name}&id=${id}&email=${email}");
     final headers = {'Content-Type': 'application/json'};
 
     try {
-      final response = await http.patch(
+      final response = await http.get(
         apiAddress,
         headers: headers,
-        body: json.encode({
-          'name': name,
-          'id': id,
-          'email': email
-        })
       );
 
       if (response.statusCode == 200) {
         // 비밀번호 찾기 성공 처리
         print("비밀번호 찾기 요청 성공");
+
+        final data = json.decode(response.body);
+
+        bool isExistUser = data['existUser'];
+
+        print("isExistUser: ${isExistUser}");
+
+        if (isExistUser) { // 이름, 아이디, 이메일로 사용자를 찾은 경우 비밀번호 변경 페이지로 넘어감
+          print("사용자 찾기 성공");
+        } else { // 사용자를 찾을 수 없는 경우 오류 메시지 발생
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("사용자를 찾을 수 없습니다. 입력값을 다시 확인해주세요."))
+          );
+        }
+      } else {
+        print("사용자를 찾을 수 없습니다.");
       }
     } catch (e) {
       // 예외 처리
@@ -474,6 +485,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                   onPressed: (formKey.currentState?.validate() ?? false) && isCodeSent && isCodeCheck
                   ? () {
                       print("비밀번호 찾기 버튼 클릭");
+                      findPassword();
                     }
                   : null,
                   style: ElevatedButton.styleFrom(

@@ -216,10 +216,20 @@ public class AuthService {
     return new NaverLoginResponse(null, null, false);
   }
 
+  // 사용자가 입력한 이름과 이메일로 아이디 찾기 메서드
   public FindIdResponse findId(String name, String email) {
     User user = userRepository.findByNameAndEmail(name, email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + name));
     System.out.println("user" + user);
     System.out.println("userId: " + user.getId());
     return new FindIdResponse(user.getId());
   }
+
+  // 사용자가 입력한 이름과 아이디, 이메일과 일치하는 사용자 찾기 메서드
+  public FindPasswordResponse findUserForFindPassword(String name, String id, String email) {
+    boolean isExistUser = userRepository.existsByNameAndIdAndEmail(name, id, email);
+    System.out.println("isExistUser: " + isExistUser);
+    return new FindPasswordResponse(isExistUser);
+  }
+
+
 }

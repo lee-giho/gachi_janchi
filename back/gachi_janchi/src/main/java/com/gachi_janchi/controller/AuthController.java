@@ -42,6 +42,13 @@ public class AuthController {
     return ResponseEntity.ok(findIdResponse);
   }
 
+  // 비밀번호 찾기 엔드포인트
+  @GetMapping("/password")
+  public ResponseEntity<FindPasswordResponse> findPassword(@RequestParam("name") String name, @RequestParam("id") String id, @RequestParam("email") String email ) {
+    FindPasswordResponse findPasswordResponse = authService.findUserForFindPassword(name, id, email);
+    return ResponseEntity.ok(findPasswordResponse);
+  }
+
   // 구글 로그인 엔드포인트
   @PostMapping("/login/google")
   public ResponseEntity<GoogleLoginResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {

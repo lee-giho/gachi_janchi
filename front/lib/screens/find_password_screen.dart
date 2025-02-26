@@ -241,6 +241,18 @@ class _FindPasswordState extends State<FindPasswordScreen> {
   void dispose() {
     timer?.cancel(); // 화면 종료 시 타이머 취소
     super.dispose();
+
+    // TextEditingController dispose
+    nameController.dispose();
+    idController.dispose();
+    emailController.dispose();
+    codeController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    idFocus.dispose();
+    emailFocus.dispose();
+    codeFocus.dispose();
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
@@ -36,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     print("status: $status");
     log("status: $status");
 
-    if(status.isPermanentlyDenied) {
+    if (status.isPermanentlyDenied) {
       await openAppSettings();
     }
   }
@@ -44,16 +43,14 @@ class _HomeScreenState extends State<HomeScreen> {
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
 
-  void qrScanData() async{
+  void qrScanData() async {
     // QrCodeScanner 화면으로 이동
     // QR코드 스캔한 결과를 value로 받아서 사용
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const QrCodeScanner(),
-        settings: RouteSettings(name: 'qr_scan')
-      )
-    )
-    .then((value) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (context) => const QrCodeScanner(),
+            settings: RouteSettings(name: 'qr_scan')))
+        .then((value) {
       print('QR value: ${value}');
     });
   }
@@ -61,50 +58,52 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          NaverMap(
-            options: const NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition( // 첫 로딩 포지션
-                target: NLatLng(37.5667070936, 126.97876548263318),
-                zoom: 15,
-                bearing: 0,
-                tilt: 0
-              ),
+      body: Stack(children: [
+        NaverMap(
+          options: const NaverMapViewOptions(
+              initialCameraPosition: NCameraPosition(
+                  // 첫 로딩 포지션
+                  target: NLatLng(37.5667070936, 126.97876548263318),
+                  zoom: 15,
+                  bearing: 0,
+                  tilt: 0),
               locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
-            ),
-            onSymbolTapped: (symbolInfo) {
-              log("symbolInfo: ${symbolInfo.caption}");
-            },
-            onMapReady: (controller) {
-              log("준비완료!");
-            },
-          ),
-          // 검색바
-          Positioned(
+              ),
+          onSymbolTapped: (symbolInfo) {
+            log("symbolInfo: ${symbolInfo.caption}");
+          },
+          onMapReady: (controller) {
+            log("준비완료!");
+          },
+        ),
+        // 검색바
+        Positioned(
             top: 60,
             left: 0,
-            right: 0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
+            right:
+                0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
             child: Align(
               alignment: Alignment.center,
-              child: Container( // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
+              child: Container(
+                // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.white
-                ),
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white),
                 width: 400,
                 height: 50,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset( // 가치, 잔치 로고
+                    Image.asset(
+                      // 가치, 잔치 로고
                       'assets/images/gachi_janchi_logo.png',
                       fit: BoxFit.contain,
                       height: 40,
                     ),
-                    Container( // 검색어 입력 TextField, 검색어 삭제 버튼, 검색 버튼 감싸는 Container
+                    Container(
+                      // 검색어 입력 TextField, 검색어 삭제 버튼, 검색 버튼 감싸는 Container
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(15),
@@ -113,30 +112,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 40,
                       child: Row(
                         children: [
-                          Expanded( // 검색어 입력 부분 
+                          Expanded(
+                            // 검색어 입력 부분
                             child: TextField(
                               controller: searchKeywordController,
                               focusNode: searchKeywordFocus,
                               keyboardType: TextInputType.text,
                               decoration: const InputDecoration(
-                                hintText: "찾고 있는 잔치집이 있나요?",
-                                hintStyle: TextStyle(
-                                  fontSize: 15
-                                ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                                  borderSide: BorderSide(color: Color.fromRGBO(121, 55, 64, 0))
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                                  borderSide: BorderSide(color: Color.fromRGBO(122, 11, 11, 0))
-                                )
-                              ),
+                                  hintText: "찾고 있는 잔치집이 있나요?",
+                                  hintStyle: TextStyle(fontSize: 15),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 10),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5)),
+                                      borderSide: BorderSide(
+                                          color:
+                                              Color.fromRGBO(121, 55, 64, 0))),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5)),
+                                      borderSide: BorderSide(
+                                          color:
+                                              Color.fromRGBO(122, 11, 11, 0)))),
                             ),
                           ),
-                          if (searchKeywordFocus.hasFocus) 
-                            IconButton( // 검색어 삭제 부분
+                          if (searchKeywordFocus.hasFocus)
+                            IconButton(
+                              // 검색어 삭제 부분
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
                               icon: const Icon(
@@ -144,10 +147,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: 20,
                               ),
                               onPressed: () {
-                                searchKeywordController.clear(); // TextField 내용 비우기
+                                searchKeywordController
+                                    .clear(); // TextField 내용 비우기
                               },
                             ),
-                          IconButton( // 검색 버튼 부분
+                          IconButton(
+                            // 검색 버튼 부분
                             visualDensity: VisualDensity.compact,
                             padding: EdgeInsets.zero,
                             icon: const Icon(
@@ -160,8 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           )
                         ],
                       ),
-                    ), 
-                    IconButton( // QR코드 버튼 부분
+                    ),
+                    IconButton(
+                      // QR코드 버튼 부분
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       icon: const Icon(
@@ -176,10 +182,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-            )
-          )
-        ]
-      ),
+            ))
+      ]),
     );
   }
 }

@@ -43,35 +43,31 @@ class _MainScreenState extends State<MainScreen> {
             label: '홈',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.military_tech,
-              size: 30,
-            ),
-            label: '랭킹'
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.star,
-              size: 30,
-            ),
-            label: '즐겨찾기'
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.history,
-              size: 30,
+              icon: Icon(
+                Icons.military_tech,
+                size: 30,
               ),
-            label: '방문내역'
-          ),
+              label: '랭킹'),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person,
-              size: 30,
-            ),
-            label: '마이페이지'
-          ),
+              icon: Icon(
+                Icons.star,
+                size: 30,
+              ),
+              label: '즐겨찾기'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.history,
+                size: 30,
+              ),
+              label: '방문내역'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.person,
+                size: 30,
+              ),
+              label: '마이페이지'),
         ],
-        selectedItemColor: Color.fromRGBO(122, 11, 11, 1),
+        selectedItemColor: Color.fromRGBO(138, 50, 50, 1),
         unselectedItemColor: Color.fromRGBO(31, 31, 31, 1),
         type: BottomNavigationBarType.fixed,
       ),

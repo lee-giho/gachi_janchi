@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/change_password_screen.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 
@@ -221,6 +222,18 @@ class _FindPasswordState extends State<FindPasswordScreen> {
 
         if (isExistUser) { // 이름, 아이디, 이메일로 사용자를 찾은 경우 비밀번호 변경 페이지로 넘어감
           print("사용자 찾기 성공");
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChangePasswordScreen(
+                data: {
+                  "id": id,
+                },
+              ),
+            ),
+          );
+
         } else { // 사용자를 찾을 수 없는 경우 오류 메시지 발생
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("사용자를 찾을 수 없습니다. 입력값을 다시 확인해주세요."))

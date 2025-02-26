@@ -3,6 +3,7 @@ package com.gachi_janchi.controller;
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +48,18 @@ public class AuthController {
   public ResponseEntity<FindPasswordResponse> findPassword(@RequestParam("name") String name, @RequestParam("id") String id, @RequestParam("email") String email ) {
     FindPasswordResponse findPasswordResponse = authService.findUserForFindPassword(name, id, email);
     return ResponseEntity.ok(findPasswordResponse);
+  }
+
+  // 비밀번호 변경 엔드포인트
+  @PatchMapping("/password")
+  public ResponseEntity<ChangePasswordResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+    ChangePasswordResponse changePasswordResponse = authService.changePassword(changePasswordRequest);
+    return switch (changePasswordResponse.getResponseMsg()) {
+      case "Success" -> ResponseEntity.ok(changePasswordResponse);
+      case "User not found" -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(changePasswordResponse);
+      case "Invalid data" -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(changePasswordResponse);
+      default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(changePasswordResponse);
+    };
   }
 
   // 구글 로그인 엔드포인트

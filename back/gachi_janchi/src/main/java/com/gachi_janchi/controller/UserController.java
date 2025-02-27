@@ -41,28 +41,6 @@ public class UserController {
 //      return ResponseEntity.status(400).body("로그아웃 실패");
 //    }
 //  }
-  @PutMapping("/update-nickname")
-  public UpdateNickNameResponse updateNickName(
-          @RequestHeader("Authorization") String token,
-          @RequestBody UpdateNickNameRequest request) {
-    return userService.updateNickName(request, token);
-  }
-
-  // 이름 변경 엔드포인트
-  @PutMapping("/update-name")
-  public UpdateNameResponse updateName(
-          @RequestHeader("Authorization") String token,
-          @RequestBody UpdateNameRequest request) {
-    return userService.updateName(request, token);
-  }
-
-  // 이메일 변경 엔드포인트 (선택사항)
-  @PutMapping("/update-email")
-  public UpdateEmailResponse updateEmail(
-          @RequestHeader("Authorization") String token,
-          @RequestBody UpdateEmailRequest request) {
-    return userService.updateEmail(request, token);
-  }
 
   // accessToken 검증 엔드포인트
   @GetMapping("/token-validation")

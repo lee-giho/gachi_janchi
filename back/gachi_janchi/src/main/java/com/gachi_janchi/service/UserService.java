@@ -1,14 +1,6 @@
 package com.gachi_janchi.service;
 
-import com.gachi_janchi.dto.CheckNickNameDuplicationResponse;
-import com.gachi_janchi.dto.NickNameAddRequest;
-import com.gachi_janchi.dto.NickNameAddResponse;
-import com.gachi_janchi.dto.UpdateEmailResponse;
-import com.gachi_janchi.dto.UpdateEmailRequest;
-import com.gachi_janchi.dto.UpdateNameRequest;
-import com.gachi_janchi.dto.UpdateNameResponse;
-import com.gachi_janchi.dto.UpdateNickNameResponse;
-import com.gachi_janchi.dto.UpdateNickNameRequest;
+import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
@@ -51,36 +43,21 @@ public class UserService {
     return new CheckNickNameDuplicationResponse(isDuplication);
   }
 
-  // 로그아웃 처리 로직
-//  public boolean logout(String token) {
-//    String refreshToken = "";
-//    try {
-//      // Bearer 접두사 제거
-//      if (token != null && token.startsWith("Bearer ")) {
-//        refreshToken = jwtProvider.getTokenWithoutBearer(token);
-//      }
-//      // refreshToken 삭제
-//      return tokenService.deleteRefreshToken(refreshToken);
-//    } catch (Exception e) {
-//      System.out.println("로그아웃 처리 중 오류 발생: " + e.getMessage());
-//      return false;
-//    }
-//  }
-
   // 닉네임 변경 로직
   public UpdateNickNameResponse updateNickName(UpdateNickNameRequest request, String token) {
-    String accessToken = jwtProvider.getTokenWithoutBearer(token);
-    String userId = jwtProvider.getUserId(accessToken);
+    // 1. Access Token에서 User ID 추출
+    String userId = jwtProvider.getUserId(token);
 
+    // 2. DB에서 User 엔티티 조회
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-    // 닉네임 중복 확인
+    // 3. 닉네임 중복 확인 (현재 사용 중인 닉네임은 제외)
     if (userRepository.existsByNickName(request.getNickname())) {
       return new UpdateNickNameResponse(false, "이미 사용 중인 닉네임입니다.");
     }
 
-    // 닉네임 업데이트
+    // 4. User 엔티티의 nickName 필드 수정
     user.setNickName(request.getNickname());
     userRepository.save(user);
 
@@ -89,13 +66,14 @@ public class UserService {
 
   // 이름 변경 로직
   public UpdateNameResponse updateName(UpdateNameRequest request, String token) {
-    String accessToken = jwtProvider.getTokenWithoutBearer(token);
-    String userId = jwtProvider.getUserId(accessToken);
+    // 1. Access Token에서 User ID 추출
+    String userId = jwtProvider.getTokenWithoutBearer(token);
 
+    // 2. DB에서 User 엔티티 조회
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-    // 이름 업데이트
+    // 3. 이름 업데이트 (중복 확인 없음)
     user.setName(request.getName());
     userRepository.save(user);
 
@@ -104,22 +82,22 @@ public class UserService {
 
   // 이메일 변경 로직
   public UpdateEmailResponse updateEmail(UpdateEmailRequest request, String token) {
-    String accessToken = jwtProvider.getTokenWithoutBearer(token);
-    String userId = jwtProvider.getUserId(accessToken);
+    // 1. Access Token에서 User ID 추출
+    String userId = jwtProvider.getTokenWithoutBearer(token);
 
+    // 2. DB에서 User 엔티티 조회
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-    // 이메일 중복 확인
+    // 3. 이메일 중복 확인 (현재 사용 중인 이메일은 제외)
     if (userRepository.existsByEmail(request.getEmail())) {
       return new UpdateEmailResponse(false, "이미 사용 중인 이메일입니다.");
     }
 
-    // 이메일 업데이트
+    // 4. User 엔티티의 email 필드 수정
     user.setEmail(request.getEmail());
     userRepository.save(user);
 
     return new UpdateEmailResponse(true, "이메일이 성공적으로 변경되었습니다.");
   }
-
 }

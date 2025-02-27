@@ -2,9 +2,11 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.LocalAccount;
+import com.gachi_janchi.entity.Role;
 import com.gachi_janchi.entity.SocialAccount;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.LocalAccountRepository;
+import com.gachi_janchi.repository.RoleRepository;
 import com.gachi_janchi.repository.SocialAccountRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.GoogleTokenVerifier;
@@ -15,8 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -27,6 +30,9 @@ public class AuthService {
 
   @Autowired
   private LocalAccountRepository localAccountRepository;
+
+  @Autowired
+  private RoleRepository roleRepository;
 
   @Autowired
   private SocialAccountRepository socialAccountRepository;
@@ -50,24 +56,32 @@ public class AuthService {
     return new CheckIdDuplicationResponse(isDuplication);
   }
 
-  // 회원가입 로직
+  // 회원가입 로직 (ROLE_USER 기본 부여)
   public RegisterResponse register(RegisterRequest registerRequest) {
     if (userRepository.existsById(registerRequest.getId())) {
-      throw new IllegalArgumentException("id already in use"); // 중복된 이메일 예외 처리
+      throw new IllegalArgumentException("id already in use");
     }
 
     // 새로운 사용자 생성 및 저장 - users
     User user = new User();
-    user.setId(registerRequest.getId()); // 로컬 로그인을 하는 사용자는 users 테이블의 id는 id로 들어간다.
+    user.setId(registerRequest.getId());
     user.setName(registerRequest.getName());
     user.setEmail(registerRequest.getEmail());
     user.setType("local");
+
+    // 기본 Role 설정 (ROLE_USER)
+    Role roleUser = roleRepository.findById("ROLE_USER")
+            .orElseThrow(() -> new IllegalArgumentException("기본 권한인 ROLE_USER가 설정되어 있지 않습니다."));
+    Set<Role> roles = new HashSet<>();
+    roles.add(roleUser);
+    user.setRoles(roles);
+
     userRepository.save(user);
 
     // 새로운 로컬 사용자 생성 및 저장 - local_account
     LocalAccount localAccount = new LocalAccount();
     localAccount.setId(registerRequest.getId());
-    localAccount.setPassword(passwordEncoder.encode(registerRequest.getPassword())); // 비밀번호 암호화
+    localAccount.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
     localAccountRepository.save(localAccount);
 
     return new RegisterResponse("User registered successfully");
@@ -118,6 +132,13 @@ public class AuthService {
         SocialAccount socialAccount = new SocialAccount();
         socialAccount.setEmail(id);
         socialAccount.setProvider("google");
+        // 기본 Role 설정 (ROLE_USER)
+        Role roleUser = roleRepository.findById("ROLE_USER")
+                .orElseThrow(() -> new IllegalArgumentException("기본 권한인 ROLE_USER가 설정되어 있지 않습니다."));
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleUser);
+        user.setRoles(roles);
+
         socialAccountRepository.save(socialAccount);
 
 //      userRepository.save(user);

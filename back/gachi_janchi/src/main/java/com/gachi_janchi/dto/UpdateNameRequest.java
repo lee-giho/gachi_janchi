@@ -1,10 +1,8 @@
 package com.gachi_janchi.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UpdateNameRequest {
     private String name;
 }

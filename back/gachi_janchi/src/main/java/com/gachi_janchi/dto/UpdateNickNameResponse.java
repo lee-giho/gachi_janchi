@@ -1,9 +1,9 @@
 package com.gachi_janchi.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class UpdateNickNameResponse {
     private boolean success;

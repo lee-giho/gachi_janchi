@@ -44,8 +44,8 @@ public class TokenService {
     }
 
     // refreshToken이 유효한 경우, 새로운 accessToken을 발급
-    String email = jwtProvider.getUserEmail(refreshToken);
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + email));
+    String id = jwtProvider.getUserId(refreshToken);
+    User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + id));
     return new TokenRefreshResponse(jwtProvider.generateAccessToken(user));
   }
 

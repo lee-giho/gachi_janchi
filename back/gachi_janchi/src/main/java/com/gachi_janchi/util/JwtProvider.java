@@ -51,8 +51,8 @@ public class JwtProvider {
             .setIssuer(issuer) // 내용 iss : gachi_janchi
             .setIssuedAt(now) // 내용 iat : 현재 시간
             .setExpiration(expireDate) // 내용 exp : 만료 시간
-            .setSubject(user.getEmail()) // 내용 sub : 유저 이메일
-            .claim("email", user.getEmail()) // 클레임 id : 유저 아이디
+            .setSubject(user.getId()) // 내용 sub : 유저 아이디
+            .claim("id", user.getId()) // 클레임 id : 유저 아이디
             .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 : 비밀값과 함께 해시값을 HS256 방식으로 암호화
             .compact();
   }
@@ -71,8 +71,8 @@ public class JwtProvider {
             .setIssuer(issuer) // 내용 iss : gachi_janchi
             .setIssuedAt(now) // 내용 iat : 현재 시간
             .setExpiration(expireDate) // 내용 exp : 만료 시간
-            .setSubject(user.getEmail()) // 내용 sub : 유저 이메일
-            .claim("email", user.getEmail()) // 클레임 id : 유저 아이디
+            .setSubject(user.getId()) // 내용 sub : 유저 아이디
+            .claim("id", user.getId()) // 클레임 id : 유저 아이디
             .signWith(SignatureAlgorithm.HS256, secretKey) // 서명 : 비밀값과 함께 해시값을 HS256 방식으로 암호화
             .compact();
   }
@@ -101,7 +101,7 @@ public class JwtProvider {
   }
 
   // 토큰에서 사용자 정보 추출
-  public String getUserEmail(String token) {
+  public String getUserId(String token) {
     return getClaims(token).getSubject();
   }
 

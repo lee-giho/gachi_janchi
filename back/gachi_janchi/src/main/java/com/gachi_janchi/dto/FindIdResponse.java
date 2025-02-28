@@ -1,13 +1,12 @@
 package com.gachi_janchi.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginRequest {
+@AllArgsConstructor
+public class FindIdResponse {
   private String id;
-  private String password;
-
-
 }

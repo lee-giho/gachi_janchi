@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 class CheckValidate {
-  String? validateName(FocusNode focusNode, String? name) {
+  String? validateName(String? name) {
     String pattern = r'^[^\s](\S*(\s\S+)*)?$';
     RegExp regExp = RegExp(pattern);
     if (name == null || name.isEmpty) {
-      focusNode.requestFocus();
       return "이름을 입력해주세요.";
     } else if (!regExp.hasMatch(name)) {
-      focusNode.requestFocus();
       return "앞/뒤 공백 없이 한 글자 이상 입력해주세요.";
     } else {
       return null;
@@ -16,7 +14,7 @@ class CheckValidate {
   }
   
 
-  String? validateEmail(FocusNode focusNode, String? email) {
+  String? validateEmail(String? email) {
     String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regExp = RegExp(pattern);
     if (email == null || email.isEmpty) {
@@ -28,18 +26,16 @@ class CheckValidate {
     }
   }
 
-  String? validateId(FocusNode focusNode, String? id, bool? idValid) {
+  String? validateId(String? id, bool? idValid) {
     String pattern = r'^[a-zA-Z0-9]{6,12}$';
     RegExp regExp = RegExp(pattern);
     if (id == null || id.isEmpty) {
-      focusNode.requestFocus();
       return "아이디를 입력해주세요.";
     } else if (id.length < 6) {
       return "6자리 이상 입력해주세요.";
     } else if (id.length > 12) {
       return "12자리 이하로 입력해주세요.";
     } else if (!regExp.hasMatch(id)) {
-      focusNode.requestFocus();
       return "영문 6글자 이상 12자 이하로 입력해주세요.";
     } else {
       if (idValid == false) {
@@ -50,7 +46,13 @@ class CheckValidate {
     }
   }
 
-  String? validatePassword(FocusNode focusNode, String? password) {
+  bool checkIdInput(String id) {
+    String pattern = r'^[a-zA-Z0-9]{6,12}$';
+    RegExp regExp = RegExp(pattern);
+    return regExp.hasMatch(id); // true이면 유효한 아이디, false이면 비유효한 아이디
+  }
+
+  String? validatePassword(String? password) {
     String pattern = r'^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,15}$';
     RegExp regExp = RegExp(pattern);
     if (password == null || password.isEmpty) {
@@ -66,7 +68,7 @@ class CheckValidate {
     }
   }
 
-  String? validateRePassword(FocusNode focusNode, String password, String? rePassword) {
+  String? validateRePassword(String password, String? rePassword) {
     if (rePassword == null || rePassword.isEmpty) {
       return "비밀번호 확인을 입력해주세요.";
     } else if (password != rePassword) {
@@ -76,7 +78,7 @@ class CheckValidate {
     }
   }
   
-  String? validateCode(FocusNode focusNode, String? code) {
+  String? validateCode(String? code) {
     String pattern = r'^\d{6}$'; // 숫자 6자리 정규식
     RegExp regExp = RegExp(pattern);
 
@@ -89,14 +91,12 @@ class CheckValidate {
     }
   }
 
-  String? validateNickName(FocusNode focusNode, String? nickName, bool? nickNameValid) {
+  String? validateNickName(String? nickName, bool? nickNameValid) {
     String pattern = r'^[^\s](\S*(\s\S+)*)?$';
     RegExp regExp = RegExp(pattern);
     if (nickName == null || nickName.isEmpty) {
-      focusNode.requestFocus();
       return "닉네임을 입력해주세요.";
     } else if (!regExp.hasMatch(nickName)) {
-      focusNode.requestFocus();
       return "앞/뒤 공백 없이 한 글자 이상 입력해주세요.";
     } else {
       if (nickNameValid == false) {

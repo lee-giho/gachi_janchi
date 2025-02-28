@@ -27,9 +27,9 @@ public class UserService {
   public NickNameAddResponse updateNickName(NickNameAddRequest nickNameAddRequest, String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
 
-    String email = jwtProvider.getUserEmail(accessToken);
+    String id = jwtProvider.getUserId(accessToken);
 
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
+    User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     // 닉네임 업데이트
     user.setNickName(nickNameAddRequest.getNickName());

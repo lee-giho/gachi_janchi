@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/change_password_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -30,13 +31,15 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
   }
 
-  // 이름 & 이메일 & 인증번호 입력 값 저장
+  // 이름 & 아이디 & 이메일 & 인증번호 입력 값 저장
   var nameController = TextEditingController();
+  var idController = TextEditingController();
   var emailController = TextEditingController();
   var codeController = TextEditingController();
 
-  // 이름 & 이메일 & 인증번호 FocusNode
+  // 이름 & 아이디 & 이메일 & 인증번호 FocusNode
   FocusNode nameFocus = FocusNode();
+  FocusNode idFocus = FocusNode();
   FocusNode emailFocus = FocusNode();
   FocusNode codeFocus = FocusNode();
 
@@ -180,10 +183,78 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     return "$minutes:$secs";
   }
 
+  // 비밀번호 찾기 요청 함수
+  Future<void> findPassword() async {
+    final name = nameController.text;
+    final id = idController.text;
+    final email = emailController.text;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/auth/password?name=${name}&id=${id}&email=${email}");
+    final headers = {'Content-Type': 'application/json'};
+
+    try {
+      final response = await http.get(
+        apiAddress,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        // 비밀번호 찾기 성공 처리
+        print("비밀번호 찾기 요청 성공");
+
+        final data = json.decode(response.body);
+
+        bool isExistUser = data['existUser'];
+
+        print("isExistUser: ${isExistUser}");
+
+        if (isExistUser) {
+          // 이름, 아이디, 이메일로 사용자를 찾은 경우 비밀번호 변경 페이지로 넘어감
+          print("사용자 찾기 성공");
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChangePasswordScreen(
+                data: {
+                  "id": id,
+                },
+              ),
+            ),
+          );
+        } else {
+          // 사용자를 찾을 수 없는 경우 오류 메시지 발생
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("사용자를 찾을 수 없습니다. 입력값을 다시 확인해주세요.")));
+        }
+      } else {
+        print("사용자를 찾을 수 없습니다.");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+    }
+  }
+
   @override
   void dispose() {
     timer?.cancel(); // 화면 종료 시 타이머 취소
     super.dispose();
+
+    // TextEditingController dispose
+    nameController.dispose();
+    idController.dispose();
+    emailController.dispose();
+    codeController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    idFocus.dispose();
+    emailFocus.dispose();
+    codeFocus.dispose();
   }
 
   @override

@@ -36,7 +36,6 @@ public class AuthController {
     return ResponseEntity.ok(loginResponse);
   }
 
-
   // 구글 로그인 엔드포인트
   @PostMapping("/login/google")
   public ResponseEntity<GoogleLoginResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {

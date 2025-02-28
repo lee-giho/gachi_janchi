@@ -13,6 +13,7 @@ import com.gachi_janchi.util.GoogleTokenVerifier;
 import com.gachi_janchi.util.JwtProvider;
 import com.gachi_janchi.util.NaverTokenVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -235,5 +236,44 @@ public class AuthService {
       System.out.println("네이버 accessToken 검증 실패");
     }
     return new NaverLoginResponse(null, null, false);
+  }
+
+  // 사용자가 입력한 이름과 이메일로 아이디 찾기 메서드
+  public FindIdResponse findId(String name, String email) {
+    User user = userRepository.findByNameAndEmail(name, email).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + name));
+    System.out.println("user" + user);
+    System.out.println("userId: " + user.getId());
+    return new FindIdResponse(user.getId());
+  }
+
+  // 사용자가 입력한 이름과 아이디, 이메일과 일치하는 사용자 찾기 메서드
+  public FindPasswordResponse findUserForFindPassword(String name, String id, String email) {
+    boolean isExistUser = userRepository.existsByNameAndIdAndEmail(name, id, email);
+    System.out.println("isExistUser: " + isExistUser);
+    return new FindPasswordResponse(isExistUser);
+  }
+
+  // 비밀번호 변경 메서드
+  public ChangePasswordResponse changePassword(ChangePasswordRequest changePasswordRequest) {
+    try {
+      LocalAccount localAccount = localAccountRepository.findById(changePasswordRequest.getId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + changePasswordRequest.getId()));
+
+      localAccount.setPassword(passwordEncoder.encode(changePasswordRequest.getPassword())); // 비밀번호 암호화
+      localAccountRepository.save(localAccount);
+
+      return new ChangePasswordResponse("Success");
+    } catch (IllegalArgumentException e) {
+      // 사용자를 찾을 수 없는 경우
+      System.out.println("비밀번호 변경 실패 - 사용자 없음: " + e);
+      return new ChangePasswordResponse("User not found");
+    } catch (DataIntegrityViolationException e) {
+      // 데이터 무결성 문제 발생 시
+      System.out.println("비밀번호 변경 실패 - 데이터 무결성 위반: " + e);
+      return new ChangePasswordResponse("Invalid data");
+    } catch (Exception e) {
+      // 기타 문제가 발생 시
+      System.out.println("비밀번호 변경 실패 - 서버 오류: " + e);
+      return new ChangePasswordResponse("Server error");
+    }
   }
 }

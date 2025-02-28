@@ -47,7 +47,7 @@ public class UserController {
     return ResponseEntity.ok(updateEmailResponse);
   }
 
-  // 닉네임 및 전화번호 업데이트 엔드포인트
+  // 닉네임 업데이트 엔드포인트
   @RequestMapping(value = "/nick-name", method = RequestMethod.PATCH)
   public ResponseEntity<NickNameAddResponse> updateNickName(@RequestHeader("Authorization") String accessToken, @RequestBody NickNameAddRequest nickNameAddRequest) {
     NickNameAddResponse nickNameAddResponse =  userService.updateNickName(nickNameAddRequest, accessToken);

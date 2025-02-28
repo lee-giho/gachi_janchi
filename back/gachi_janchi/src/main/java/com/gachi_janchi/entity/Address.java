@@ -13,4 +13,5 @@ public class Address {
   private String dong;
   private String roadName;
   private String buildingNumber;
+  private String detailed;
 }

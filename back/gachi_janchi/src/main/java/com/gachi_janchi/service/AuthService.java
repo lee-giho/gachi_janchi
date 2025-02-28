@@ -147,7 +147,7 @@ public class AuthService {
 
         // refreshToken 데이터베이스에 저장
 //        tokenService.saveRefreshToken(socialAccount.getEmail(), refreshToken);
-        
+
         return new GoogleLoginResponse(jwt, refreshToken, false);
       } else {
         System.out.println("이미 존재하는 사용자입니다.");
@@ -167,7 +167,7 @@ public class AuthService {
 
         // 닉네임을 입력한 사용자인지 확인
         boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();
-        
+
         return new GoogleLoginResponse(jwt, refreshToken, existNickName);
       }
     } catch (Exception e) {
@@ -228,7 +228,7 @@ public class AuthService {
 
         // 닉네임을 입력한 사용자인지 확인
         boolean existNickName = existUser.getNickName() != null && !existUser.getNickName().isEmpty();
-        
+
         return new NaverLoginResponse(jwt, refreshToken, existNickName);
       }
     } catch (Exception e) {

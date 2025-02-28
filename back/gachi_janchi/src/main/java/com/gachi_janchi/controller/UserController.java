@@ -16,14 +16,12 @@ public class UserController {
 
   @Autowired
   private UserService userService;
-
-
   // 닉네임 업데이트 엔드포인트
   @PatchMapping("/update-nickname")
   public ResponseEntity<UpdateNickNameResponse> updateNickName(
           @RequestHeader("Authorization") String accessToken,
           @RequestBody UpdateNickNameRequest updateNickNameRequest) {
-
+    System.out.print("안녕하세요.");
     UpdateNickNameResponse updateNickNameResponse = userService.updateNickName(updateNickNameRequest, accessToken);
     return ResponseEntity.ok(updateNickNameResponse);
   }
@@ -33,6 +31,7 @@ public class UserController {
   public ResponseEntity<UpdateNameResponse> updateName(
           @RequestHeader("Authorization") String accessToken,
           @RequestBody UpdateNameRequest updateNameRequest) {
+
 
     UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
     return ResponseEntity.ok(updateNameResponse);
@@ -47,6 +46,7 @@ public class UserController {
     UpdateEmailResponse updateEmailResponse = userService.updateEmail(updateEmailRequest, accessToken);
     return ResponseEntity.ok(updateEmailResponse);
   }
+
   // 닉네임 및 전화번호 업데이트 엔드포인트
   @RequestMapping(value = "/nick-name", method = RequestMethod.PATCH)
   public ResponseEntity<NickNameAddResponse> updateNickName(@RequestHeader("Authorization") String accessToken, @RequestBody NickNameAddRequest nickNameAddRequest) {
@@ -87,4 +87,5 @@ public class UserController {
     TokenRefreshResponse tokenRefreshResponse = tokenService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(tokenRefreshResponse);
   }
+
 }

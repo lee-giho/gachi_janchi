@@ -3,6 +3,7 @@ package com.gachi_janchi.controller;
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,7 @@ public class AuthController {
     LoginResponse loginResponse = authService.login(loginRequest);
     return ResponseEntity.ok(loginResponse);
   }
+
 
   // 구글 로그인 엔드포인트
   @PostMapping("/login/google")

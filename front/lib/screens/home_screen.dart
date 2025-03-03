@@ -32,6 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
     searchKeywordFocus.dispose();
     super.dispose();
   }
+  
+  var searchKeywordController = TextEditingController();
+  FocusNode searchKeywordFocus = FocusNode();
+
+  NaverMapController? mapController;
+  NLatLng? currentPosition;
 
   // 위치 권한 요청
   void requestLocationPermission() async {
@@ -44,9 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
       await openAppSettings();
     }
   }
-
-  var searchKeywordController = TextEditingController();
-  FocusNode searchKeywordFocus = FocusNode();
 
   void qrScanData() async{
     // QrCodeScanner 화면으로 이동
@@ -65,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // 음식점 리스트 요청하는 함수
   Future<void> getRestaurantList() async {
 
-  String? accessToken = await SecureStorage.getAccessToken();
+    String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
@@ -75,7 +78,43 @@ class _HomeScreenState extends State<HomeScreen> {
     };
 
     try {
-      final response = await  http.get(
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        print("음식점 리스트 요청 완료");
+
+        // 🔹 UTF-8로 디코딩
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+
+        print("RestaurantList: ${data}");
+      } else {
+        print("음식점 리스트를 불러올 수 없습니다.");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
+  Future<void> fetchRestaurantsInBounds(NLatLng target) async {
+
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurants/coordinate?lat=${target.latitude}&lng=${target.longitude}");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      final response = await http.get(
         apiAddress,
         headers: headers
       );
@@ -105,6 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           NaverMap(
+            onMapReady: (controller) {
+              mapController = controller; // mapController 초기화
+              log("준비완료!");
+            },
             options: const NaverMapViewOptions(
               initialCameraPosition: NCameraPosition( // 첫 로딩 포지션
                 target: NLatLng(37.5667070936, 126.97876548263318),
@@ -114,12 +157,30 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
             ),
+            onCameraChange: (reason, animated) async {
+              print("카메라 이동");
+              if (mapController != null) {
+                NCameraPosition position = await mapController!.getCameraPosition();
+                setState(() {
+                  currentPosition = position.target;
+                });
+                print("카메라 이동 중 위치: ${position.target.latitude}, ${position.target.longitude}");
+              }
+            },
+            onCameraIdle: () async {
+              if (mapController != null) {
+                NCameraPosition position = await mapController!.getCameraPosition();
+                setState(() {
+                  currentPosition = position.target;
+                });
+                print("카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
+              } else {
+                log("mapController가 초기화되지 않았습니다.");
+              }
+            },
             onSymbolTapped: (symbolInfo) {
               log("symbolInfo: ${symbolInfo.caption}");
-            },
-            onMapReady: (controller) {
-              log("준비완료!");
-            },
+            }
           ),
           // 검색바
           Positioned(

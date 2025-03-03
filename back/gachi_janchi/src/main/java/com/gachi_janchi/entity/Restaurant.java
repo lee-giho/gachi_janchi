@@ -20,6 +20,7 @@ public class Restaurant {
   private String imageUrl;
   private List<String> categories;
   private Address address;
+  private Location location;
   private String phoneNumber;
   private Map<String, String> businessHours;
   private Map<String, String> menu;

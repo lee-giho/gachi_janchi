@@ -39,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   NaverMapController? mapController;
   NLatLng? currentPosition;
 
+  List<dynamic> restaurants = [];
+
   // 위치 권한 요청
   void requestLocationPermission() async {
     await Permission.location.request();
@@ -102,12 +104,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> fetchRestaurantsInBounds(NLatLng target) async {
+  Future<void> fetchRestaurantsInBounds(NCameraPosition position) async {
 
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurants/coordinate?lat=${target.latitude}&lng=${target.longitude}");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/bounds?latitude=${position.target.latitude}&longitude=${position.target.longitude}&zoom=${position.zoom}");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
@@ -159,20 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             onCameraChange: (reason, animated) async {
               print("카메라 이동");
-              if (mapController != null) {
-                NCameraPosition position = await mapController!.getCameraPosition();
-                setState(() {
-                  currentPosition = position.target;
-                });
-                print("카메라 이동 중 위치: ${position.target.latitude}, ${position.target.longitude}");
-              }
             },
             onCameraIdle: () async {
               if (mapController != null) {
                 NCameraPosition position = await mapController!.getCameraPosition();
-                setState(() {
-                  currentPosition = position.target;
-                });
+                await fetchRestaurantsInBounds(position);
+                // setState(() {
+                //   currentPosition = position.target;
+                // });
                 print("카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
               } else {
                 log("mapController가 초기화되지 않았습니다.");

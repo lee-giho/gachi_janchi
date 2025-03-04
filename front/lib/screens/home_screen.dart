@@ -106,10 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchRestaurantsInBounds(NCameraPosition position) async {
 
+    // 현재 지도 화면의 경계 가져오기
+    NLatLngBounds bounds = await mapController!.getContentBounds();
+
+    double latMin = bounds.southWest.latitude;
+    double latMax = bounds.northEast.latitude;
+    double lonMin = bounds.southWest.longitude;
+    double lonMax = bounds.northEast.longitude;
+
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/bounds?latitude=${position.target.latitude}&longitude=${position.target.longitude}&zoom=${position.zoom}");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/bounds?latMin=$latMin&latMax=$latMax&lonMin=$lonMin&lonMax=$lonMax");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'

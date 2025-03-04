@@ -29,8 +29,8 @@ public class RestaurantController {
 
   // bounds를 기준으로 Restaurnat 리스트 가져오기
   @GetMapping("/bounds")
-  public ResponseEntity<RestaurantsByBoundsResponse> getRestaurantsByBounds(@RequestParam double latitude, @RequestParam double longitude, @RequestParam double zoom) {
-    RestaurantsByBoundsResponse restaurantsByBoundsResponse = restaurantService.findRestaurantsInBounds(latitude, longitude, zoom);
+  public ResponseEntity<RestaurantsByBoundsResponse> getRestaurantsByBounds(@RequestParam double latMin, @RequestParam double latMax, @RequestParam double lonMin, @RequestParam double lonMax) {
+    RestaurantsByBoundsResponse restaurantsByBoundsResponse = restaurantService.findRestaurantsInBounds(latMin, latMax, lonMin, lonMax);
     return ResponseEntity.ok(restaurantsByBoundsResponse);
   }
 }

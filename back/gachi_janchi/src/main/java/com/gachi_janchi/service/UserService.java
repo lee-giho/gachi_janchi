@@ -7,6 +7,7 @@ import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.gachi_janchi.dto.UserResponse;
 
 @Service
 @Transactional
@@ -21,6 +22,29 @@ public class UserService {
   @Autowired
   TokenService tokenService;
 
+
+  /**
+   * ✅ 사용자 정보 조회 (DTO를 여기서 반환)
+   */
+  public UserResponse getUserInfo(String token) {
+    // Bearer 제거
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+
+    // 토큰 유효성 검사
+    if (!jwtProvider.validateToken(accessToken)) {
+      throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+    }
+
+    // 토큰에서 사용자 ID 추출
+    String userId = jwtProvider.getUserId(accessToken);
+
+    // DB에서 User 엔티티 조회
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    // ✅ 여기서 DTO를 생성하여 반환 (한 번만 생성)
+    return new UserResponse(user.getNickName(), user.getName(), user.getEmail());
+  }
   /**
    * 닉네임 추가 로직
    */
@@ -56,40 +80,9 @@ public class UserService {
   }
 
   /**
-   * 닉네임 변경 로직
-   */
-  public UpdateNickNameResponse updateNickName(UpdateNickNameRequest request, String token) {
-    // Bearer 제거
-    String accessToken = jwtProvider.getTokenWithoutBearer(token);
-
-    // 토큰 유효성 검사
-    if (!jwtProvider.validateToken(accessToken)) {
-      return new UpdateNickNameResponse(false, "유효하지 않은 토큰입니다.");
-    }
-
-    // 토큰에서 User ID 추출
-    String userId = jwtProvider.getUserId(accessToken);
-
-    // DB에서 User 엔티티 조회
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-    // 닉네임 중복 확인 (현재 사용 중인 닉네임은 제외)
-    if (userRepository.existsByNickName(request.getNickname())) {
-      return new UpdateNickNameResponse(false, "이미 사용 중인 닉네임입니다.");
-    }
-
-    // User 엔티티의 nickName 필드 수정
-    user.setNickName(request.getNickname());
-    userRepository.save(user);
-
-    return new UpdateNickNameResponse(true, "닉네임이 성공적으로 변경되었습니다.");
-  }
-
-  /**
    * 이름 변경 로직
    */
-  public UpdateNameResponse updateName(UpdateNameRequest request, String token) {
+  public UpdateNameResponse updateName(UserResponse request, String token) {
     // Bearer 제거
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
 

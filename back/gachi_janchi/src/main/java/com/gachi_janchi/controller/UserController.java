@@ -16,21 +16,17 @@ public class UserController {
 
   @Autowired
   private UserService userService;
-  // 닉네임 업데이트 엔드포인트
-  @PatchMapping("/update-nickname")
-  public ResponseEntity<UpdateNickNameResponse> updateNickName(
-          @RequestHeader("Authorization") String accessToken,
-          @RequestBody UpdateNickNameRequest updateNickNameRequest) {
-    System.out.print("안녕하세요.");
-    UpdateNickNameResponse updateNickNameResponse = userService.updateNickName(updateNickNameRequest, accessToken);
-    return ResponseEntity.ok(updateNickNameResponse);
-  }
 
+
+  @GetMapping("/info")
+  public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
+    return ResponseEntity.ok(userService.getUserInfo(accessToken));
+  }
   // 이름 업데이트 엔드포인트
   @PatchMapping("/update-name")
   public ResponseEntity<UpdateNameResponse> updateName(
           @RequestHeader("Authorization") String accessToken,
-          @RequestBody UpdateNameRequest updateNameRequest) {
+          @RequestBody UserResponse updateNameRequest) {
 
 
     UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);

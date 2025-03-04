@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gachi_janchi/screens/test_screen.dart';
+import 'package:dio/dio.dart';
+import '../utils/secure_storage.dart';
+import 'test_screen.dart';
+import 'package:gachi_janchi/screens/login_screen.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -9,6 +12,128 @@ class MypageScreen extends StatefulWidget {
 }
 
 class _MypageScreenState extends State<MypageScreen> {
+  String nickname = "로딩 중...";
+  String title = "로딩 중...";
+  String name = "로딩 중...";
+  String email = "로딩 중...";
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo(); // 서버에서 사용자 정보 가져오기
+  }
+
+  /// ✅ 서버에서 사용자 정보를 가져오는 함수
+  Future<void> _fetchUserInfo() async {
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
+      return;
+    }
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      final response = await dio.get("http://localhost:8080/api/user/info");
+
+      if (response.statusCode == 200) {
+        var data = response.data;
+        setState(() {
+          nickname = data["nickname"] ?? "정보 없음";
+          title = data["title"] ?? "정보 없음";
+          name = data["name"] ?? "정보 없음";
+          email = data["email"] ?? "정보 없음";
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("데이터 로드 실패: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+    }
+  }
+
+  /// ✅ 정보 수정 다이얼로그
+  Future<void> _showEditDialog(String field, String currentValue) async {
+    TextEditingController controller =
+        TextEditingController(text: currentValue);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("$field 수정"),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: field,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("취소")),
+            TextButton(
+              onPressed: () {
+                _updateUserInfo(field, controller.text);
+                Navigator.pop(context);
+              },
+              child: const Text("저장"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// ✅ 서버에 업데이트 요청 보내기
+  Future<void> _updateUserInfo(String field, String newValue) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
+      return;
+    }
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      String apiUrl = "http://localhost:8080/api/user/update"; // 서버 엔드포인트
+      Map<String, dynamic> data = {
+        "field": field.toLowerCase(),
+        "value": newValue,
+      };
+
+      final response = await dio.patch(apiUrl, data: data);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          if (field == "닉네임") nickname = newValue;
+          if (field == "칭호") title = newValue;
+          if (field == "이름") name = newValue;
+          if (field == "이메일") email = newValue;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("정보가 성공적으로 업데이트되었습니다.")));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("업데이트 실패: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,16 +145,16 @@ class _MypageScreenState extends State<MypageScreen> {
             Navigator.pop(context);
           },
         ),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 2. 프로필 영역 (정사각형 & 중앙 배치)
+            // 프로필 영역
             Container(
               width: double.infinity,
-              height: 200, // 프로필 영역 높이 설정
+              height: 200,
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 111, 84, 84),
@@ -39,13 +164,12 @@ class _MypageScreenState extends State<MypageScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 프로필 이미지 (정사각형 & 원형 & 중앙 배치)
                     Container(
-                      width: 100, // 가로
-                      height: 100, // 세로 (가로와 동일하게)
+                      width: 100,
+                      height: 100,
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
-                        shape: BoxShape.circle, // 원형
+                        shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.person,
@@ -53,113 +177,46 @@ class _MypageScreenState extends State<MypageScreen> {
                         size: 50,
                       ),
                     ),
-                    const SizedBox(height: 10), // 텍스트와의 간격
-                    const Text(
-                      "프로필 이미지",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const SizedBox(height: 10),
+                    const Text("프로필 이미지", style: TextStyle(fontSize: 16)),
                   ],
                 ),
               ),
             ),
 
+            // 사용자 정보 표시 (클릭하면 수정 가능)
             Container(
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20), // 더 둥글게
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.3),
                     spreadRadius: 2,
                     blurRadius: 5,
-                    offset: const Offset(0, 3), // 그림자 방향
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20), // Table 내용물까지 둥글게
+                borderRadius: BorderRadius.circular(20),
                 child: Table(
                   columnWidths: const {
-                    0: FlexColumnWidth(1), // 왼쪽: 비율 1
-                    1: FlexColumnWidth(2), // 오른쪽: 비율 2
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(2),
                   },
                   border: TableBorder(
-                    horizontalInside:
-                        BorderSide(color: Colors.grey[300]!), // 내부 줄만 회색
+                    horizontalInside: BorderSide(color: Colors.grey[300]!),
                   ),
                   children: [
-                    _buildTableRow("닉네임", "사용자 닉네임"),
-                    _buildTableRow("칭호", "사용자 칭호"),
-                    _buildTableRow("이름", "사용자 이름"),
-                    _buildTableRow("이메일", "user@example.com"),
-                    _buildTableRow("비밀번호 변경", "********"),
+                    _buildEditableTableRow("닉네임", nickname),
+                    _buildEditableTableRow("칭호", title),
+                    _buildEditableTableRow("이름", name),
+                    _buildEditableTableRow("이메일", email),
                   ],
                 ),
-              ),
-            ),
-
-            // 4. 테스트 페이지 이동 버튼
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TestScreen()));
-              },
-              child: const Text(
-                "테스트 페이지",
-                style: TextStyle(color: Color.fromARGB(255, 41, 41, 41)),
-              ),
-            ),
-
-            // 5. 로그아웃 & 회원탈퇴 버튼
-            // 5. 로그아웃 & 회원탈퇴 버튼 (한 줄로 배치)
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  // 로그아웃 버튼
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // 로그아웃 로직 추가
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("로그아웃 되었습니다.")));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        minimumSize: const Size.fromHeight(50),
-                      ),
-                      child: const Text(
-                        "로그아웃",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10), // 버튼 간 간격
-                  // 회원 탈퇴 버튼
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // 회원탈퇴 로직 추가
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("회원탈퇴가 완료되었습니다.")));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        minimumSize: const Size.fromHeight(50),
-                      ),
-                      child: const Text(
-                        "회원 탈퇴",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -168,24 +225,24 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 
-  // Table Row 생성 함수
-  TableRow _buildTableRow(String label, String value) {
+  /// ✅ 클릭 가능한 테이블 행 생성 함수
+  TableRow _buildEditableTableRow(String label, String value) {
     return TableRow(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          alignment: Alignment.centerLeft, // 왼쪽 정렬
+          alignment: Alignment.centerLeft,
           color: Colors.grey[300],
-
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          child:
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
-        Container(
-          padding: const EdgeInsets.all(10),
-          alignment: Alignment.centerRight, // 오른쪽 정렬
-          child: Text(value),
+        GestureDetector(
+          onTap: () => _showEditDialog(label, value), // 클릭 시 다이얼로그 열기
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            alignment: Alignment.centerRight,
+            child: Text(value, style: const TextStyle(color: Colors.blue)),
+          ),
         ),
       ],
     );

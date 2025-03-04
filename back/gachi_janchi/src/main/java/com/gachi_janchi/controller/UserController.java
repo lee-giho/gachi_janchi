@@ -23,18 +23,16 @@ public class UserController {
     return ResponseEntity.ok(userService.getUserInfo(accessToken));
   }
   // 이름 업데이트 엔드포인트
-  @PatchMapping("/update-name")
+  @PatchMapping("/name")
   public ResponseEntity<UpdateNameResponse> updateName(
           @RequestHeader("Authorization") String accessToken,
           @RequestBody UserResponse updateNameRequest) {
-
-
     UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
     return ResponseEntity.ok(updateNameResponse);
   }
 
   // 이메일 업데이트 엔드포인트
-  @PatchMapping("/update-email")
+  @PatchMapping("/email")
   public ResponseEntity<UpdateEmailResponse> updateEmail(
           @RequestHeader("Authorization") String accessToken,
           @RequestBody UpdateEmailRequest updateEmailRequest) {

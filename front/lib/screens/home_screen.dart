@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FocusNode searchKeywordFocus = FocusNode();
 
   NaverMapController? mapController;
+  Set<NMarker> markers = {}; // 🔹 마커를 저장할 Set 선언
   NLatLng? currentPosition;
 
   List<dynamic> restaurants = [];
@@ -136,7 +137,14 @@ class _HomeScreenState extends State<HomeScreen> {
         final decodedData = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedData);
 
-        print("RestaurantList: ${data}");
+        print("API 응답 데이터: ${data}");
+
+        // 🔹 리스트만 전달하도록 수정
+        if (data.containsKey("restaurants")) {
+          updateMarkers(data["restaurants"]);
+        } else {
+          print("오류: 'restaurants' 키가 없음");
+        }
       } else {
         print("음식점 리스트를 불러올 수 없습니다.");
       }
@@ -147,6 +155,55 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
+  // 가져온 음식점 리스트를 마커로 변환하여 지도에 추가
+  void updateMarkers(List<dynamic> restaurantList) async {
+    Set<NMarker> newMarkers = {};
+
+    // 현재 지도 경계 가져오기
+    NLatLngBounds bounds = await mapController!.getContentBounds();
+    double latMin = bounds.southWest.latitude;
+    double latMax = bounds.northEast.latitude;
+    double lonMin = bounds.southWest.longitude;
+    double lonMax = bounds.northEast.longitude;
+
+    for (var restaurant in restaurantList) {
+      try {
+        double latitude = restaurant["location"]["latitude"];
+        double longitude = restaurant["location"]["longitude"];
+        String restaurantName = restaurant["restaurantName"];
+
+        // ✅ 현재 지도 영역 내에 있는지 확인
+        if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
+          NMarker marker = NMarker(
+            id: restaurantName,
+            position: NLatLng(latitude, longitude),
+            caption: NOverlayCaption(text: restaurantName),
+          );
+
+          newMarkers.add(marker);
+        }
+      } catch (e) {
+        print("마커 추가 중 오류 발생: $e");
+      }
+    }
+
+    // ✅ 기존 마커 제거하고 새로운 마커 추가
+    setState(() {
+      // 현재 보이는 영역 내 마커만 유지
+      markers.clear();
+    });
+
+    // 기존 마커 제거 후 새로운 마커 추가
+    mapController?.clearOverlays();
+    Set<NAddableOverlay<NOverlay<void>>> castedMarkers = newMarkers.cast<NAddableOverlay<NOverlay<void>>>();
+    mapController?.addOverlayAll(castedMarkers);
+
+    print("현재 적용된 마커 개수: ${newMarkers.length}");
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {

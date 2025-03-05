@@ -207,7 +207,37 @@ class _HomeScreenState extends State<HomeScreen> {
     print("현재 적용된 마커 개수: ${newMarkers.length}");
   }
 
+  String isRestaurantOpen(Map<String, dynamic> businessHours) { // 음식점이 영업중인지 확인하고 "영업중" 또는 "영업종료"를 반환하는 메서드
+    // 현재 요일 가져오기
+    DateTime now = DateTime.now();
+    List<String> weekDays = ["월", "화", "수", "목", "금", "토", "일"];
+    String today = weekDays[now.weekday - 1]; // Datetime의 요일은 1(월) ~ 7(일)
 
+    // 현재 요일의 영업시간 가져오기
+    String? todayHours = businessHours[today];
+
+    if (todayHours == null || todayHours == "휴무일") { // 영업 시간이 없거나 "휴무일"이면 영업 종료
+      return "영업종료";
+    }
+
+    // 영업시간 파싱 (ex. "11:30-21:30" -> "11:30", "21:30")
+    List<String> hours = todayHours.split("-");
+    if (hours.length != 2) { // 예상 형식이 아니면 영업 종료
+      return "영업종료";
+    }
+
+    // 영업 시작 시간
+    DateTime openTime = DateTime(now.year, now.month, now.day, int.parse(hours[0].split(":")[0]), int.parse(hours[0].split(":")[1]));
+    // 영업 종료 시간
+    DateTime closeTime = DateTime(now.year, now.month, now.day, int.parse(hours[1].split(":")[0]), int.parse(hours[1].split(":")[1]));
+
+    // 현재 시간과 비교하여 영업 여부 반환
+    if (now.isAfter(openTime) && now.isBefore(closeTime)) {
+      return "영업중";
+    } else {
+      return "영업종료";
+    }
+  }
 
 
   @override
@@ -433,6 +463,67 @@ class _HomeScreenState extends State<HomeScreen> {
                                         )
                                       ),
                                     )
+                              ),
+                              Expanded( // 음식점 사진 오른쪽에 정보가 나오는 부분
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Row(
+                                    children: [
+                                      Column( // 음식점 이름, 리뷰, 영업시간 등 정보 표시되는 부분
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text( // 음식점 이름
+                                            restaurant["restaurantName"],
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          const Row( // 리뷰 -> 추후 리뷰 작성이 생기면 실제 값으로 수정해야함
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.star,
+                                                size: 16,
+                                                color: Colors.amberAccent,
+                                                
+                                              ),
+                                              Text(
+                                                "4.8 (500)",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                          Row( // 음식점 영업중인지 아닌지
+                                            children: [
+                                              Icon(
+                                                Icons.schedule,
+                                                size: 10,
+                                                color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
+                                                  ? Colors.green 
+                                                  : Colors.red,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                isRestaurantOpen(restaurant["businessHours"]),
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
+                                                    ? Colors.green 
+                                                    : Colors.red,
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                )
                               )
                             ],
                           ),

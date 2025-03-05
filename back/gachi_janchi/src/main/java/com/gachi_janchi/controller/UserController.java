@@ -17,12 +17,45 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+
+  @GetMapping("/info")
+  public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
+    return ResponseEntity.ok(userService.getUserInfo(accessToken));
+  }
+
+  // 이름 업데이트 엔드포인트
+  @PatchMapping("/name")
+  public ResponseEntity<UpdateNameResponse> updateName(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestBody UpdateNameRequest updateNameRequest) {  // ✅ UpdateNameRequest 사용
+    UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
+    return ResponseEntity.ok(updateNameResponse);
+  }
+
+  // 이메일 업데이트 엔드포인트
+  @PatchMapping("/email")
+  public ResponseEntity<UpdateEmailResponse> updateEmail(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestBody UpdateEmailRequest updateEmailRequest) {
+
+    UpdateEmailResponse updateEmailResponse = userService.updateEmail(updateEmailRequest, accessToken);
+    return ResponseEntity.ok(updateEmailResponse);
+  }
+
   // 닉네임 업데이트 엔드포인트
   @RequestMapping(value = "/nick-name", method = RequestMethod.PATCH)
   public ResponseEntity<NickNameAddResponse> updateNickName(@RequestHeader("Authorization") String accessToken, @RequestBody NickNameAddRequest nickNameAddRequest) {
     NickNameAddResponse nickNameAddResponse =  userService.updateNickName(nickNameAddRequest, accessToken);
     return ResponseEntity.ok(nickNameAddResponse);
   }
+
+  @PatchMapping("/password")
+  public ResponseEntity<UpdatePasswordResponse> updatePassword(
+          @RequestHeader("Authorization") String token,
+          @RequestBody UpdatePasswordRequest request) {
+    return ResponseEntity.ok(userService.updatePassword(request, token));
+  }
+
 
   // 닉네임 중복확인 엔드포인트
   @GetMapping("duplication/nick-name")
@@ -31,6 +64,16 @@ public class UserController {
     return ResponseEntity.ok(checkNickNameDuplicationResponse);
   }
 
+
+   //✅ 회원 탈퇴 API (탈퇴 사유 포함)
+
+  @DeleteMapping
+  public ResponseEntity<DeleteUserResponse> deleteUser(
+          @RequestHeader("Authorization") String token,
+          @RequestBody DeleteUserRequest request) {
+    DeleteUserResponse response = userService.deleteUser(request, token);
+    return ResponseEntity.ok(response);
+  }
   // 로그아웃 엔드포인트
 //  @DeleteMapping("/logout")
 //  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
@@ -57,4 +100,5 @@ public class UserController {
     TokenRefreshResponse tokenRefreshResponse = tokenService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(tokenRefreshResponse);
   }
+
 }

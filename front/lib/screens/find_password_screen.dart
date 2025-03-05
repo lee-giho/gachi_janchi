@@ -5,7 +5,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/screens/change_password_screen.dart';
-import 'package:http/http.dart'  as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:gachi_janchi/utils/checkValidate.dart';
@@ -18,11 +18,10 @@ class FindPasswordScreen extends StatefulWidget {
 }
 
 class _FindPasswordState extends State<FindPasswordScreen> {
-
   Dio dio = Dio();
   late CookieJar cookieJar;
   String sessionId = "";
-  
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +51,6 @@ class _FindPasswordState extends State<FindPasswordScreen> {
   // 인증번호 전송 상태
   bool isCodeSent = false;
 
-
   // 인증번호 유효성 상태
   bool isCodeValid = false;
 
@@ -78,16 +76,12 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     String email = emailController.text;
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/code");
+    final apiAddress =
+        Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/code");
 
     try {
-      final response = await dio.post(
-        apiAddress.toString(),
-        data: {
-          'email': email,
-          'type': 'password'
-        }
-      );
+      final response = await dio.post(apiAddress.toString(),
+          data: {'email': email, 'type': 'password'});
 
       if (response.statusCode == 200) {
         startTimer();
@@ -101,43 +95,39 @@ class _FindPasswordState extends State<FindPasswordScreen> {
           }
           isCodeSent = true;
           sessionId = response.data['sessionId']; // 세션 ID 저장
-        });        
+        });
       } else {
         print("인증번호 보내기 실패: ${response.data}");
       }
     } catch (e) {
       // 예외 처리
       showDialog(
-        context: context,
-        builder: (_) => const AlertDialog(
-          title: Text("인증번호 전송 오류"),
-          content: Text("서버에 문제가 발생했습니다."),
-        )
-      );
+          context: context,
+          builder: (_) => const AlertDialog(
+                title: Text("인증번호 전송 오류"),
+                content: Text("서버에 문제가 발생했습니다."),
+              ));
     }
   }
 
   // 인증번호 확인 요청 함수
   Future<void> checkVerificationCode() async {
     print("인증번호 확인 요청");
-    
+
     String verificationCode = codeController.text;
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/verify");
+    final apiAddress =
+        Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/verify");
 
     try {
-      final response = await dio.post(
-        apiAddress.toString(),
-        data: {
-          'verificationCode': verificationCode
-        },
-        options: Options(
-          headers: {'sessionId': sessionId}, // 세션 ID 헤더 추가
-        )
-      );
+      final response = await dio.post(apiAddress.toString(),
+          data: {'verificationCode': verificationCode},
+          options: Options(
+            headers: {'sessionId': sessionId}, // 세션 ID 헤더 추가
+          ));
 
-      if(response.statusCode == 200) {
+      if (response.statusCode == 200) {
         // 인증번호 확인 성공 처리
         print("인증번호 확인 성공");
         setState(() {
@@ -149,18 +139,18 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     } catch (e) {
       // 예외 처리
       showDialog(
-        context: context,
-        builder: (_) => const AlertDialog(
-          title: Text("인증번호 전송 오류"),
-          content: Text("서버에 문제가 발생했습니다."),
-        )
-      );
+          context: context,
+          builder: (_) => const AlertDialog(
+                title: Text("인증번호 전송 오류"),
+                content: Text("서버에 문제가 발생했습니다."),
+              ));
     }
   }
 
   // 인증번호 상태를 개별적으로 검증하는 함수
   void validateCode(String code) {
-    final isValid = CheckValidate().validateCode(code) == null && (remainingTime > 0 && remainingTime < 180);
+    final isValid = CheckValidate().validateCode(code) == null &&
+        (remainingTime > 0 && remainingTime < 180);
     setState(() {
       isCodeValid = isValid;
     });
@@ -168,7 +158,6 @@ class _FindPasswordState extends State<FindPasswordScreen> {
 
   // 타이머 시작 함수
   void startTimer() {
-    
     // 기존 타이머가 있으면 취소
     timer?.cancel();
 
@@ -201,7 +190,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     final email = emailController.text;
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/password?name=${name}&id=${id}&email=${email}");
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/auth/password?name=${name}&id=${id}&email=${email}");
     final headers = {'Content-Type': 'application/json'};
 
     try {
@@ -220,7 +210,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
 
         print("isExistUser: ${isExistUser}");
 
-        if (isExistUser) { // 이름, 아이디, 이메일로 사용자를 찾은 경우 비밀번호 변경 페이지로 넘어감
+        if (isExistUser) {
+          // 이름, 아이디, 이메일로 사용자를 찾은 경우 비밀번호 변경 페이지로 넘어감
           print("사용자 찾기 성공");
 
           Navigator.pushReplacement(
@@ -233,20 +224,18 @@ class _FindPasswordState extends State<FindPasswordScreen> {
               ),
             ),
           );
-
-        } else { // 사용자를 찾을 수 없는 경우 오류 메시지 발생
+        } else {
+          // 사용자를 찾을 수 없는 경우 오류 메시지 발생
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("사용자를 찾을 수 없습니다. 입력값을 다시 확인해주세요."))
-          );
+              SnackBar(content: Text("사용자를 찾을 수 없습니다. 입력값을 다시 확인해주세요.")));
         }
       } else {
         print("사용자를 찾을 수 없습니다.");
       }
     } catch (e) {
       // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
     }
   }
 
@@ -273,14 +262,15 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
-        child: Container( // 전체화면
-          padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: Form(
+          child: Container(
+        // 전체화면
+        padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Form(
                     key: formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -289,7 +279,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container( // 페이지 타이틀
+                            Container(
+                              // 페이지 타이틀
                               margin: const EdgeInsets.fromLTRB(0, 0, 0, 50),
                               child: const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,88 +288,65 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                   Text(
                                     "우리 가치,",
                                     style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold
-                                    ),
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   Text(
                                     "비밀번호를 찾아볼까요?",
                                     style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold
-                                    ),
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold),
                                   )
                                 ],
                               ),
                             ),
-                            Container( // 이름 & 이메일 & 인증코드 입력 부분
+                            Container(
+                              // 이름 & 이메일 & 인증코드 입력 부분
                               child: Column(
                                 children: [
-                                  Container( // 이름 입력 부분
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                  Container(
+                                    // 이름 입력 부분
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const Text(
                                           "이름 *",
                                           style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         TextFormField(
                                           controller: nameController,
                                           focusNode: nameFocus,
                                           keyboardType: TextInputType.text,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                                          autovalidateMode: AutovalidateMode
+                                              .onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateName(value);
+                                            return CheckValidate()
+                                                .validateName(value);
                                           },
                                           decoration: const InputDecoration(
-                                            hintText: "이름을 입력해주세요."
-                                          ),
+                                              hintText: "이름을 입력해주세요."),
                                         )
                                       ],
                                     ),
                                   ),
-                                  Container( // 아이디 입력 부분
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                  Container(
+                                    // 이메일 입력 부분
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          "아이디 *",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        TextFormField(
-                                          controller: idController,
-                                          focusNode: idFocus,
-                                          keyboardType: TextInputType.text,
-                                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                                          validator: (value) {
-                                            return CheckValidate().validateName(value);
-                                          },
-                                          decoration: const InputDecoration(
-                                            hintText: "아이디를 입력해주세요."
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Container( // 이메일 입력 부분
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const Text(
                                           "이메일 *",
                                           style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                          ),
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         Row(
                                           children: [
@@ -386,66 +354,84 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                               child: TextFormField(
                                                 controller: emailController,
                                                 focusNode: emailFocus,
-                                                keyboardType: TextInputType.emailAddress,
-                                                onChanged: validateEmail, // 입력할 때마다 이메일 유효성 검7
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                keyboardType:
+                                                    TextInputType.emailAddress,
+                                                onChanged:
+                                                    validateEmail, // 입력할 때마다 이메일 유효성 검7
+                                                autovalidateMode:
+                                                    AutovalidateMode
+                                                        .onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateEmail(value);
+                                                  return CheckValidate()
+                                                      .validateEmail(value);
                                                 },
-                                                decoration: const InputDecoration(
-                                                  hintText: "이메일을 입력해주세요."
-                                                ),
+                                                decoration:
+                                                    const InputDecoration(
+                                                        hintText:
+                                                            "이메일을 입력해주세요."),
                                               ),
                                             ),
                                             const SizedBox(width: 10),
                                             ElevatedButton(
-                                              onPressed: isEmailValid 
-                                                ? () {
-                                                    sendVerificationCode();
-                                                  }
-                                                : null,
-                                              style: ElevatedButton.styleFrom(
-                                                minimumSize: const Size(135, 50),
-                                                backgroundColor: const Color.fromRGBO(122, 11, 11, 1) ,
-                                                foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(5)
-                                                )
-                                              ),
-                                              child: Text(
-                                                isCodeSent ? "재전송" : "인증번호 전송",
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold
-                                                ),
-                                              )
-                                            ),
+                                                onPressed: isEmailValid
+                                                    ? () {
+                                                        sendVerificationCode();
+                                                      }
+                                                    : null,
+                                                style: ElevatedButton.styleFrom(
+                                                    minimumSize:
+                                                        const Size(135, 50),
+                                                    backgroundColor:
+                                                        const Color.fromRGBO(
+                                                            122, 11, 11, 1),
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5))),
+                                                child: Text(
+                                                  isCodeSent
+                                                      ? "재전송"
+                                                      : "인증번호 전송",
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )),
                                           ],
                                         )
                                       ],
                                     ),
                                   ),
-                                  Container( // 인증번호 입력 부분
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                  Container(
+                                    // 인증번호 입력 부분
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             const Text(
                                               "인증번호 *",
                                               style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold
-                                              ),
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                             Text(
-                                              isCodeSent ? formatTime(remainingTime) : "",
-                                              style: const TextStyle(
-                                                fontSize: 18
-                                              ),
+                                              isCodeSent
+                                                  ? formatTime(remainingTime)
+                                                  : "",
+                                              style:
+                                                  const TextStyle(fontSize: 18),
                                             )
                                           ],
                                         ),
@@ -455,41 +441,52 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                               child: TextFormField(
                                                 controller: codeController,
                                                 focusNode: codeFocus,
-                                                keyboardType: TextInputType.number,
+                                                keyboardType:
+                                                    TextInputType.number,
                                                 maxLength: 6,
-                                                onChanged: validateCode, // 입력할 때마다 인증번호 유효성 검사
-                                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                                onChanged:
+                                                    validateCode, // 입력할 때마다 인증번호 유효성 검사
+                                                autovalidateMode:
+                                                    AutovalidateMode
+                                                        .onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateCode(value);
+                                                  return CheckValidate()
+                                                      .validateCode(value);
                                                 },
-                                                decoration: const InputDecoration(
-                                                  hintText: "인증번호를 입력해주세요."
-                                                ),
+                                                decoration:
+                                                    const InputDecoration(
+                                                        hintText:
+                                                            "인증번호를 입력해주세요."),
                                               ),
                                             ),
                                             const SizedBox(width: 10),
                                             ElevatedButton(
-                                              onPressed: isCodeValid 
-                                              ? () {
-                                                  checkVerificationCode();
-                                                }
-                                              : null,
-                                              style: ElevatedButton.styleFrom(
-                                                minimumSize: const Size(135, 50),
-                                                backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
-                                                foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(5)
-                                                )
-                                              ),
-                                              child: const Text(
-                                                "인증번호 확인",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold
-                                                ),
-                                              )
-                                            ),
+                                                onPressed: isCodeValid
+                                                    ? () {
+                                                        checkVerificationCode();
+                                                      }
+                                                    : null,
+                                                style: ElevatedButton.styleFrom(
+                                                    minimumSize:
+                                                        const Size(135, 50),
+                                                    backgroundColor:
+                                                        const Color.fromRGBO(
+                                                            122, 11, 11, 1),
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5))),
+                                                child: const Text(
+                                                  "인증번호 확인",
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )),
                                           ],
                                         )
                                       ],
@@ -501,39 +498,32 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                           ],
                         ),
                       ],
-                    )
-                  ),
-                ),
+                    )),
               ),
-              Container(
-                child: ElevatedButton(
-                  onPressed: (formKey.currentState?.validate() ?? false) && isCodeSent && isCodeCheck
-                  ? () {
-                      print("비밀번호 찾기 버튼 클릭");
-                      findPassword();
-                    }
-                  : null,
+            ),
+            Container(
+              child: ElevatedButton(
+                  onPressed: (formKey.currentState?.validate() ?? false) &&
+                          isCodeSent &&
+                          isCodeCheck
+                      ? () {
+                          print("비밀번호 찾기 버튼 클릭");
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)
-                    )
-                  ),
+                      minimumSize: const Size.fromHeight(50),
+                      backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5))),
                   child: const Text(
                     "비밀번호 찾기",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold
-                    ),
-                  )
-                ),
-              )
-            ],
-          ),
-        )
-      ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  )),
+            )
+          ],
+        ),
+      )),
     );
   }
 }

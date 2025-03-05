@@ -41,6 +41,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**", "/api/user/logout").permitAll() // 인증 없이 접근 가능
+
                     .anyRequest().authenticated() // 나머지 요청은 인증 필요
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

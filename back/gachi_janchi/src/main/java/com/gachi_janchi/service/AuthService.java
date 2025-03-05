@@ -133,7 +133,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(id);
+        user.setId(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);
@@ -194,7 +194,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(id);
+        user.setId(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);

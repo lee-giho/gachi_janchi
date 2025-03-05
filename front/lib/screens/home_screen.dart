@@ -42,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<dynamic> restaurants = [];
 
+  DraggableScrollableController sheetController = DraggableScrollableController();
+
   // 위치 권한 요청
   void requestLocationPermission() async {
     await Permission.location.request();
@@ -341,6 +343,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.018,
+            maxChildSize: 0.85,
+            minChildSize: 0.018,
+            controller: sheetController,
+            builder: (BuildContext context, scrollController) {
+              return Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
+                  )
+                ),
+                child: CustomScrollView(
+                  controller: scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          height: 4,
+                          width: 80,
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                        ),
+                      ),
+                    ),
+                    SliverList.list(
+                      children: [
+                        ListTile(
+                          title: Text("리스트"),
+                        ),
+                        ListTile(
+                          title: Text("화면 구성"),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              );
+            }
           )
         ]
       ),

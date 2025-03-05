@@ -149,4 +149,5 @@ public class UserService {
   public String getTokenWithoutBearer(String token) {
     return jwtProvider.getTokenWithoutBearer(token);
   }
+
 }

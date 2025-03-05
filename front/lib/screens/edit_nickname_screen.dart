@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'mypage_screen.dart'; // 마이페이지로 돌아가기 위해 추가
+import '../utils/checkValidate.dart';
+import 'mypage_screen.dart'; // ✅ 마이페이지로 돌아가기 위해 추가
 
 class EditnicknameScreen extends StatefulWidget {
   final String currentValue;
@@ -16,12 +17,15 @@ class EditnicknameScreen extends StatefulWidget {
 
 class _EditnicknameScreenState extends State<EditnicknameScreen> {
   late TextEditingController controller;
-  bool _isLoading = false; // 로딩 상태 추가
+  bool _isLoading = false;
+  bool _isNickNameValid = false; // ✅ 닉네임 중복 확인 여부
+  bool _isDuplicateChecked = false; // ✅ 중복 확인을 했는지 여부
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController();
+    controller =
+        TextEditingController(text: widget.currentValue); // ✅ 기존 닉네임 설정
   }
 
   @override
@@ -30,8 +34,78 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
     super.dispose();
   }
 
-  /// 서버에 nickname 저장 요청 (`http` 사용)
+  /// ✅ 닉네임 중복 확인 요청
+  Future<void> checkNickNameDuplication() async {
+    print("닉네임 중복 확인 요청 시작");
+
+    String nickName = controller.text.trim();
+    if (nickName.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("닉네임을 입력해주세요.")));
+      return;
+    }
+
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/user/duplication/nick-name?nickName=$nickName");
+
+    final headers = {
+      'Authorization':
+          'Bearer ${await SecureStorage.getAccessToken()}', // ✅ JWT 토큰 추가
+      'Content-Type': 'application/json'
+    };
+
+    print("🔹 서버 요청 URL: $apiAddress");
+    print("🔹 보낸 닉네임: $nickName");
+
+    try {
+      final response = await http.get(apiAddress, headers: headers);
+
+      print("🔹 서버 응답 코드: ${response.statusCode}");
+      print("🔹 서버 응답 데이터: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        bool isDuplicated = data["duplication"] ?? true;
+
+        if (isDuplicated) {
+          print("❌ 중복된 닉네임");
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
+
+          setState(() {
+            _isNickNameValid = false;
+            _isDuplicateChecked = true;
+          });
+        } else {
+          print("✅ 사용 가능한 닉네임");
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
+
+          setState(() {
+            _isNickNameValid = true;
+            _isDuplicateChecked = true;
+          });
+        }
+      } else {
+        print("❌ 닉네임 중복 확인 실패: ${response.statusCode}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인 실패")));
+      }
+    } catch (e) {
+      print("❌ 네트워크 오류 발생: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+    }
+  }
+
+  /// ✅ 서버에 닉네임 저장 요청
   Future<void> saveNickName() async {
+    if (!_isNickNameValid || !_isDuplicateChecked) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인을 해주세요.")));
+      return;
+    }
+
     print("닉네임 저장 요청 시작");
 
     String nickName = controller.text.trim();
@@ -51,11 +125,9 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
     };
     final body = json.encode({'nickName': nickName});
 
-    print("🔹 서버로 전송할 데이터: $body"); // 디버깅용 출력
-
     try {
       setState(() {
-        _isLoading = true; // 로딩 시작
+        _isLoading = true;
       });
 
       final response =
@@ -65,24 +137,18 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
       print("🔹 서버 응답 데이터: ${response.body}");
 
       if (response.statusCode == 200) {
-        print("닉네임 저장 성공");
-
-        // ✅ 닉네임 저장 성공 후 마이페이지로 돌아가기
-        Navigator.pop(context, nickName); // 🔹 변경된 닉네임을 이전 화면으로 전달
+        print("✅ 닉네임 저장 성공");
+        Navigator.pop(context, nickName);
       } else {
-        print("닉네임 저장 실패");
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("닉네임 저장에 실패했습니다. 입력 정보를 다시 확인해주세요.")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("닉네임 저장에 실패했습니다.")));
       }
     } catch (e) {
-      print("네트워크 오류 발생: $e");
-
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
     } finally {
       setState(() {
-        _isLoading = false; // 로딩 종료
+        _isLoading = false;
       });
     }
   }
@@ -106,37 +172,66 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
           children: [
             const SizedBox(height: 20),
             const Text(
-              "용사님의 새로운 이름을 알려주세요.",
+              "잔치를 여실 용사님의 새로운 이름을 알려주세요.",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            TextField(
-              controller: controller,
-              style: const TextStyle(fontSize: 18),
-              decoration: const InputDecoration(
-                hintText: "새로운 닉네임 입력",
-                border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black, width: 2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : saveNickName,
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+
+            // ✅ 닉네임 입력 필드 + 중복 확인 버튼 추가
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller,
+                    keyboardType: TextInputType.text,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      return CheckValidate()
+                          .validateNickName(value, _isNickNameValid);
+                    },
+                    onChanged: (value) {
+                      if (_isDuplicateChecked) {
+                        setState(() {
+                          _isNickNameValid = false;
+                          _isDuplicateChecked = false;
+                        });
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "새로운 닉네임 입력",
+                    ),
                   ),
                 ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: checkNickNameDuplication,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(100, 50),
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                  ),
+                  child: const Text(
+                    "중복확인",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            // ✅ 변경 완료 버튼 (닉네임 중복 확인 후 활성화)
+            Center(
+              child: ElevatedButton(
+                onPressed:
+                    (_isLoading || !_isNickNameValid || !_isDuplicateChecked)
+                        ? null
+                        : saveNickName,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("변경 완료", style: TextStyle(fontSize: 16)),
+                    : const Text("변경 완료"),
               ),
             ),
           ],

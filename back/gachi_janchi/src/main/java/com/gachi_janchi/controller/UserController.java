@@ -48,6 +48,8 @@ public class UserController {
     return ResponseEntity.ok(nickNameAddResponse);
   }
 
+
+
   // 닉네임 중복확인 엔드포인트
   @GetMapping("duplication/nick-name")
   public ResponseEntity<CheckNickNameDuplicationResponse> checkNickNameDuplication(@RequestParam("nickName") String nickName) {

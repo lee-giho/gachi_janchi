@@ -144,6 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // 🔹 리스트만 전달하도록 수정
         if (data.containsKey("restaurants")) {
           updateMarkers(data["restaurants"]);
+          setState(() {
+            restaurants = data["restaurants"];
+          });
         } else {
           print("오류: 'restaurants' 키가 없음");
         }
@@ -355,8 +358,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50),
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
                   )
                 ),
                 child: CustomScrollView(
@@ -375,15 +378,66 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    SliverList.list(
-                      children: [
-                        ListTile(
-                          title: Text("리스트"),
-                        ),
-                        ListTile(
-                          title: Text("화면 구성"),
-                        )
-                      ],
+                    SliverList.builder(
+                      itemCount: restaurants.length,
+                      itemBuilder: (context, index) {
+                        final restaurant = restaurants[index];
+                        
+                        return Container(
+                          height: 120,
+                          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 1
+                            ),
+                            borderRadius: BorderRadius.circular(10)
+                          ),
+                          // child: ListTile(
+                          //   title: Text(
+                          //     restaurant["restaurantName"],
+                          //     style: TextStyle(
+                          //       fontWeight: FontWeight.bold
+                          //     ),
+                          //   ),
+                          // ),
+                          child: Row(
+                            children: [
+                              Container( // 음식점 사진이 들어갈 부분
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1
+                                  )
+                                ),
+                                child: 
+                                  restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
+                                  ? Image(
+                                      image: NetworkImage( // imageUrl이 있을 경우
+                                        restaurant["imageUrl"]
+                                      ),
+                                      fit: BoxFit.contain,
+                                    )
+                                  : const Align( // imageUrl이 없을 경우
+                                      alignment: Alignment.center,
+                                      child: Center(
+                                        child: Text(
+                                          "사진 준비중",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        )
+                                      ),
+                                    )
+                              )
+                            ],
+                          ),
+                        );
+                      }
                     )
                   ],
                 ),

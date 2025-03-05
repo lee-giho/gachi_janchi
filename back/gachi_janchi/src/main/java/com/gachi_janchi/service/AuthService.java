@@ -134,12 +134,12 @@ public class AuthService {
         socialAccount.setEmail(id);
         socialAccount.setProvider("google");
         // 기본 Role 설정 (ROLE_USER)
-        Role roleUser = roleRepository.findById("ROLE_USER")
+       /* Role roleUser = roleRepository.findById("ROLE_USER")
                 .orElseThrow(() -> new IllegalArgumentException("기본 권한인 ROLE_USER가 설정되어 있지 않습니다."));
         Set<Role> roles = new HashSet<>();
         roles.add(roleUser);
         user.setRoles(roles);
-
+        */
         socialAccountRepository.save(socialAccount);
 
 //      userRepository.save(user);
@@ -154,7 +154,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(id);
+        user.setId(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);
@@ -215,7 +215,7 @@ public class AuthService {
         System.out.println("이미 존재하는 사용자입니다.");
 
         User user = new User();
-        user.setEmail(id);
+        user.setId(id);
         user.setName(name);
 
         String jwt = jwtProvider.generateAccessToken(user);

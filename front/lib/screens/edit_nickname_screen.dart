@@ -229,6 +229,13 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
                     (_isLoading || !_isNickNameValid || !_isDuplicateChecked)
                         ? null
                         : saveNickName,
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text("변경 완료"),

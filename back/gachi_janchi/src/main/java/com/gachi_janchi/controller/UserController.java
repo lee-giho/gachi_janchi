@@ -22,11 +22,12 @@ public class UserController {
   public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
     return ResponseEntity.ok(userService.getUserInfo(accessToken));
   }
+
   // 이름 업데이트 엔드포인트
   @PatchMapping("/name")
   public ResponseEntity<UpdateNameResponse> updateName(
           @RequestHeader("Authorization") String accessToken,
-          @RequestBody UserResponse updateNameRequest) {
+          @RequestBody UpdateNameRequest updateNameRequest) {  // ✅ UpdateNameRequest 사용
     UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
     return ResponseEntity.ok(updateNameResponse);
   }
@@ -48,6 +49,12 @@ public class UserController {
     return ResponseEntity.ok(nickNameAddResponse);
   }
 
+  @PatchMapping("/password")
+  public ResponseEntity<UpdatePasswordResponse> updatePassword(
+          @RequestHeader("Authorization") String token,
+          @RequestBody UpdatePasswordRequest request) {
+    return ResponseEntity.ok(userService.updatePassword(request, token));
+  }
 
 
   // 닉네임 중복확인 엔드포인트
@@ -57,6 +64,16 @@ public class UserController {
     return ResponseEntity.ok(checkNickNameDuplicationResponse);
   }
 
+
+   //✅ 회원 탈퇴 API (탈퇴 사유 포함)
+
+  @DeleteMapping
+  public ResponseEntity<DeleteUserResponse> deleteUser(
+          @RequestHeader("Authorization") String token,
+          @RequestBody DeleteUserRequest request) {
+    DeleteUserResponse response = userService.deleteUser(request, token);
+    return ResponseEntity.ok(response);
+  }
   // 로그아웃 엔드포인트
 //  @DeleteMapping("/logout")
 //  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {

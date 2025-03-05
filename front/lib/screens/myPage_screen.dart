@@ -20,6 +20,8 @@ class _MypageScreenState extends State<MypageScreen> {
   String title = "로딩 중...";
   String name = "로딩 중...";
   String email = "로딩 중...";
+  final TextEditingController _reasonController =
+      TextEditingController(); // ✅ 탈퇴 사유 입력 컨트롤러
 
   @override
   void initState() {
@@ -80,6 +82,77 @@ class _MypageScreenState extends State<MypageScreen> {
     await SecureStorage.deleteTokens();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+  }
+
+  /// ✅ 회원 탈퇴 기능
+  Future<void> _deleteAccount() async {
+    bool? confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("회원 탈퇴"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다."),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _reasonController,
+                decoration: const InputDecoration(
+                  hintText: "탈퇴 사유를 입력해주세요. (선택 사항)",
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("취소"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text("탈퇴"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete != true) return;
+
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    if (accessToken == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
+      return;
+    }
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      final response = await dio.delete(
+        "http://localhost:8080/api/user",
+        data: {"reason": _reasonController.text}, // ✅ 탈퇴 사유 포함
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("회원 탈퇴가 완료되었습니다.")));
+
+        // ✅ 회원 탈퇴 후 모든 토큰 삭제 및 로그인 화면으로 이동
+        await SecureStorage.deleteTokens();
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("회원 탈퇴 실패: ${response.data}")));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+    }
   }
 
   @override
@@ -155,7 +228,10 @@ class _MypageScreenState extends State<MypageScreen> {
       children: [
         TextButton(onPressed: _logout, child: const Text("로그아웃")),
         const SizedBox(width: 20),
-        TextButton(onPressed: () {}, child: const Text("회원탈퇴")),
+        TextButton(
+          onPressed: _deleteAccount, // ✅ 회원 탈퇴 버튼
+          child: const Text("회원탈퇴", style: TextStyle(color: Colors.red)),
+        ),
       ],
     );
   }

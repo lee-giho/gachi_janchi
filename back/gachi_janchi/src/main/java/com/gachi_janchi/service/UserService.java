@@ -52,7 +52,7 @@ public class UserService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     // ✅ 여기서 DTO를 생성하여 반환 (한 번만 생성)
-    return new UserResponse(user.getNickName(), user.getName(), user.getEmail());
+    return new UserResponse(user.getNickName(), user.getName(), user.getEmail(),user.getType());
   }
 
   /**
@@ -118,7 +118,7 @@ public class UserService {
 
   /**
    * 이메일 변경 로직
-   */
+
   public UpdateEmailResponse updateEmail(UpdateEmailRequest request, String token) {
     // Bearer 제거
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
@@ -146,6 +146,9 @@ public class UserService {
 
     return new UpdateEmailResponse(true, "이메일이 성공적으로 변경되었습니다.");
   }
+*/
+
+
 
   public UpdatePasswordResponse updatePassword(UpdatePasswordRequest request, String token) {
     try {
@@ -174,6 +177,27 @@ public class UserService {
     } catch (Exception e) {
       return new UpdatePasswordResponse(false, "비밀번호 변경 중 오류가 발생했습니다.");
     }
+  }
+
+  // ✅ 현재 비밀번호 검증 로직
+  public boolean verifyPassword(String token, String inputPassword) {
+    // Bearer 제거
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+
+    // 토큰 유효성 검사
+    if (!jwtProvider.validateToken(accessToken)) {
+      throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+    }
+
+    // 토큰에서 사용자 ID 추출
+    String userId = jwtProvider.getUserId(accessToken);
+
+    // LocalAccount에서 사용자 조회
+    LocalAccount localAccount = localAccountRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    // 입력한 비밀번호 검증
+    return passwordEncoder.matches(inputPassword, localAccount.getPassword());
   }
 
 

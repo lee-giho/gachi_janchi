@@ -461,65 +461,102 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded( // 음식점 사진 오른쪽에 정보가 나오는 부분
                                 child: Container(
                                   height: 100,
-                                  margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                  margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                   child: Row(
                                     children: [
-                                      Column( // 음식점 이름, 리뷰, 영업시간 등 정보 표시되는 부분
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text( // 음식점 이름
-                                            restaurant["restaurantName"],
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold
+                                      Flexible(
+                                        child: Column( // 음식점 이름, 리뷰, 영업시간 등 정보 표시되는 부분
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text( // 음식점 이름
+                                              restaurant["restaurantName"],
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold
+                                              ),
+                                              softWrap: true,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          ),
-                                          const Row( // 리뷰 -> 추후 리뷰 작성이 생기면 실제 값으로 수정해야함
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.star,
-                                                size: 16,
-                                                color: Colors.amberAccent,
-                                                
-                                              ),
-                                              Text(
-                                                "4.8 (500)",
-                                                style: TextStyle(
-                                                  fontSize: 16,
+                                            const Row( // 리뷰 -> 추후 리뷰 작성이 생기면 실제 값으로 수정해야함
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.star,
+                                                  size: 16,
+                                                  color: Colors.amberAccent,
+                                                  
                                                 ),
-                                              )
-                                            ],
-                                          ),
-                                          Row( // 음식점 영업중인지 아닌지
-                                            children: [
-                                              Icon(
-                                                Icons.schedule,
-                                                size: 10,
-                                                color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
-                                                  ? Colors.green 
-                                                  : Colors.red,
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                isRestaurantOpen(restaurant["businessHours"]),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
+                                                Text(
+                                                  "4.8 (500)",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            Row( // 음식점 영업중인지 아닌지
+                                              children: [
+                                                Icon(
+                                                  Icons.schedule,
+                                                  size: 10,
                                                   color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
                                                     ? Colors.green 
                                                     : Colors.red,
                                                 ),
-                                              )
-                                            ],
-                                          )
-                                        ],
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  isRestaurantOpen(restaurant["businessHours"]),
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
+                                                      ? Colors.green 
+                                                      : Colors.red,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
                                 )
                               ),
+                              Image.asset(
+                                'assets/images/material/carrot.png',
+                                fit: BoxFit.contain,
+                                height: 60,
+                              ),
+                              SizedBox(
+                                width: 40,
+                                height: 100,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.zero,
+                                      icon: const Icon(
+                                        Icons.turned_in_not,
+                                        size: 30,
+                                        color: Colors.black,
+                                      ),
+                                      onPressed: () { // 즐겨찾기 기능 추가 시 수정 필요
+                                        print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                                      },
+                                    ),
+                                    const Text( // 즐겨찾기 기능 추가 시 수정 필요
+                                      "500",
+                                      style: TextStyle(
+                                        fontSize: 12
+                                      ),
+                                    )
+                                  ],
+                                )
+                              )
                             ],
                           ),
                         );

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,6 @@ public class Restaurant {
   private Location location;
   private String phoneNumber;
   private Map<String, String> businessHours;
-  private Map<String, String> menu;
+  private List<Menu> menu;
 }
 

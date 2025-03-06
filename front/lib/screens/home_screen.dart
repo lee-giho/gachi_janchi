@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   NLatLng? currentPosition;
 
   List<dynamic> restaurants = [];
+  List<dynamic> searchRestaurants = [];
 
   DraggableScrollableController sheetController = DraggableScrollableController();
 
@@ -158,6 +159,57 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
       );
+    }
+  }
+
+  // 음식점 검색 요청 함수
+  Future<void> searchRestaurantsByKeword() async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    String keyword = searchKeywordController.text.trim();
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/keyword?keyword=$keyword");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    if (keyword.isNotEmpty) {
+      try {
+        final response = await http.get(
+          apiAddress,
+          headers: headers
+        );
+
+        if (response.statusCode == 200) {
+  print("음식점 리스트 요청 완료");
+
+  // 🔹 UTF-8로 디코딩
+  final decodedData = utf8.decode(response.bodyBytes);
+  final data = json.decode(decodedData);
+
+  print("API 응답 데이터: $data");
+
+  if (data.containsKey("restaurants")) {
+    List<dynamic> restaurants = data["restaurants"];
+    for (var restaurant in restaurants) {
+      if (restaurant.containsKey("restaurantName")) {
+        print("음식점 이름: ${restaurant["restaurantName"]}");
+      } else {
+        print("오류: 'restaurantName' 키가 없음");
+      }
+    }
+  } else {
+    print("오류: 'restaurants' 키가 없음");
+  }
+} else {
+          print("음식점 리스트를 불러올 수 없습니다.");
+        }
+      } catch (e) {
+        // 예외 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
     }
   }
 
@@ -353,7 +405,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               size: 20,
                             ),
                             onPressed: () {
-                              print("검색 버튼 클릭!!!!!!");
+                              print("${searchKeywordController.text} 검색!!!");
+                              searchRestaurantsByKeword();
                             },
                           )
                         ],

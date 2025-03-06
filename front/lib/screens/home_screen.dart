@@ -413,29 +413,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final restaurant = restaurants[index];
                         
-                        return Container(
-                          height: 120,
-                          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 1
-                            ),
-                            borderRadius: BorderRadius.circular(10)
+                        return ElevatedButton(
+                          onPressed: () {
+                            print(": ${restaurant}");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(120),
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)
+                            )
                           ),
-                          // child: ListTile(
-                          //   title: Text(
-                          //     restaurant["restaurantName"],
-                          //     style: TextStyle(
-                          //       fontWeight: FontWeight.bold
-                          //     ),
-                          //   ),
-                          // ),
                           child: Row(
                             children: [
                               Container( // 음식점 사진이 들어갈 부분
-                                width: 120,
+                                width: 100,
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: Colors.black,
@@ -450,23 +444,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       fit: BoxFit.contain,
                                     )
-                                  : const Align( // imageUrl이 없을 경우
-                                      alignment: Alignment.center,
-                                      child: Center(
-                                        child: Text(
-                                          "사진 준비중",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        )
+                                  : const SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        "사진 준비중",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                    )
+                                    ),
+                                  )
                               ),
                               Expanded( // 음식점 사진 오른쪽에 정보가 나오는 부분
                                 child: Container(
-                                  margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  height: 100,
+                                  margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                   child: Row(
                                     children: [
                                       Column( // 음식점 이름, 리뷰, 영업시간 등 정보 표시되는 부분
@@ -524,7 +519,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 )
-                              )
+                              ),
                             ],
                           ),
                         );

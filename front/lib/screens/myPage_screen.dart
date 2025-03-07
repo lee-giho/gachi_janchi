@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import '../utils/secure_storage.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'edit_nickname_screen.dart';
-import 'edit_title_screen.dart';
+import 'edit_title_screen.dart'; // ✅ 기존 파일 사용
 import 'edit_name_screen.dart';
 import 'edit_email_screen.dart';
 import 'edit_password_screen.dart';
@@ -20,12 +20,10 @@ class MypageScreen extends StatefulWidget {
 
 class _MypageScreenState extends State<MypageScreen> {
   String nickname = "로딩 중...";
-  String title = "로딩 중...";
+  String selectedTitle = "칭호 없음"; // ✅ 대표 칭호 저장
   String name = "로딩 중...";
   String email = "로딩 중...";
   String loginType = ""; // ✅ 로그인 유형 (local 또는 social)
-  int selectedAvatarIndex = 0; // ✅ 선택한 기본 아바타 인덱스
-
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -33,8 +31,6 @@ class _MypageScreenState extends State<MypageScreen> {
     super.initState();
     _fetchUserInfo();
   }
-
-  String _profileIcon = "default"; // ✅ 기본 아이콘 설정
 
   /// ✅ 서버에서 사용자 정보를 가져오는 함수
   Future<void> _fetchUserInfo() async {
@@ -56,9 +52,9 @@ class _MypageScreenState extends State<MypageScreen> {
         var data = response.data;
         setState(() {
           nickname = data["nickname"] ?? "정보 없음";
-          title = data["title"] ?? "정보 없음";
+          selectedTitle = data["title"] ?? "칭호 없음"; // ✅ 대표 칭호 업데이트
           name = data["name"] ?? "정보 없음";
-          loginType = data["type"] ?? "local"; // ✅ 로그인 유형 가져오기
+          loginType = data["type"] ?? "local";
           email = loginType == "social"
               ? _getUserIdFromToken(accessToken)
               : data["email"] ?? "정보 없음"; // ✅ 소셜 로그인은 userId 표시
@@ -69,6 +65,13 @@ class _MypageScreenState extends State<MypageScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
     }
+  }
+
+  /// ✅ 대표 칭호 업데이트
+  void _updateTitle(String title) {
+    setState(() {
+      selectedTitle = title;
+    });
   }
 
   /// ✅ JWT 토큰에서 `userId` 추출하는 함수
@@ -84,7 +87,7 @@ class _MypageScreenState extends State<MypageScreen> {
           utf8.decode(base64Url.decode(base64Url.normalize(payload)));
 
       Map<String, dynamic> payloadMap = json.decode(decoded);
-      return payloadMap["sub"] ?? "알 수 없음"; // ✅ `sub` 필드에서 userId 추출
+      return payloadMap["sub"] ?? "알 수 없음";
     } catch (e) {
       print("❌ [토큰 파싱 오류] $e");
       return "알 수 없음";
@@ -99,7 +102,7 @@ class _MypageScreenState extends State<MypageScreen> {
         children: [
           const SizedBox(height: 40),
 
-          const ProfileWidget(), // ✅ 분리한 프로필 위젯 사용
+          const ProfileWidget(), // ✅ 프로필 위젯 추가
 
           const SizedBox(height: 20),
           _buildInfoBox(),
@@ -124,8 +127,20 @@ class _MypageScreenState extends State<MypageScreen> {
           _buildListTile("닉네임", nickname,
               onTap: () => _navigateToEditScreen(
                   EditnicknameScreen(currentValue: nickname))),
-          _buildListTile("칭호", title,
-              onTap: () => _navigateToEditScreen(EdittitleScreen())),
+
+          // ✅ 대표 칭호 변경 가능
+          _buildListTile("대표 칭호", selectedTitle, onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      EditTitleScreen(currentTitle: selectedTitle)),
+            );
+            if (result != null) {
+              _updateTitle(result);
+            }
+          }),
+
           _buildListTile("이름", name,
               onTap: () =>
                   _navigateToEditScreen(EditnameScreen(currentValue: name))),
@@ -133,7 +148,6 @@ class _MypageScreenState extends State<MypageScreen> {
           // ✅ 이메일 수정 불가능 (클릭 이벤트 제거)
           _buildListTile("이메일", email),
 
-          // ✅ 로컬 로그인(`local`)인 경우에만 비밀번호 변경 버튼 추가
           if (loginType == "local")
             _buildListTile("비밀번호 변경", "",
                 onTap: () =>
@@ -143,7 +157,6 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 
-  /// ✅ 리스트 항목 생성 함수 (onTap을 받을 경우만 추가)
   Widget _buildListTile(String label, String value, {VoidCallback? onTap}) {
     return ListTile(
       title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -154,11 +167,10 @@ class _MypageScreenState extends State<MypageScreen> {
           if (onTap != null) const Icon(Icons.chevron_right),
         ],
       ),
-      onTap: onTap, // ✅ 이메일은 클릭 이벤트 없음
+      onTap: onTap,
     );
   }
 
-  /// ✅ 하단 버튼 UI (로그아웃 + 회원탈퇴)
   Widget _buildBottomButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +185,6 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 
-  /// ✅ 수정 페이지로 이동
   Future<void> _navigateToEditScreen(Widget editScreen) async {
     final result = await Navigator.push(
       context,
@@ -182,19 +193,17 @@ class _MypageScreenState extends State<MypageScreen> {
 
     if (result != null) {
       setState(() {
-        _fetchUserInfo(); // ✅ 수정 후 정보 다시 가져오기
+        _fetchUserInfo();
       });
     }
   }
 
-  /// ✅ 로그아웃 기능
   Future<void> _logout() async {
     await SecureStorage.deleteTokens();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 
-  /// ✅ 회원 탈퇴 기능
   Future<void> _deleteAccount() async {
     bool? confirmDelete = await showDialog(
       context: context,
@@ -231,7 +240,6 @@ class _MypageScreenState extends State<MypageScreen> {
     if (confirmDelete != true) return;
 
     String? accessToken = await SecureStorage.getAccessToken();
-
     if (accessToken == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
@@ -242,22 +250,12 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      print("🔹 [API 요청] DELETE /api/user");
-      print("🔹 [보낸 데이터] reason: ${_reasonController.text}");
+      await dio.delete("http://localhost:8080/api/user",
+          data: {"reason": _reasonController.text});
 
-      final response = await dio.delete(
-        "http://localhost:8080/api/user",
-        data: {"reason": _reasonController.text},
-      );
-
-      print("🔹 [API 응답] 상태 코드: ${response.statusCode}");
-      print("🔹 [API 응답 데이터]: ${response.data}");
-
-      if (response.statusCode == 200) {
-        await SecureStorage.deleteTokens();
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()));
-      }
+      await SecureStorage.deleteTokens();
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()));
     } catch (e) {
       print("❌ [API 오류] $e");
     }

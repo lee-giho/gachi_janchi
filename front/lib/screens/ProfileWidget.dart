@@ -9,11 +9,20 @@ class ProfileWidget extends StatefulWidget {
 
   @override
   State<ProfileWidget> createState() => _ProfileWidgetState();
+
+  /// ✅ **프로필 즉시 업데이트 (전역에서 호출 가능)**
+  static Future<void> updateProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    _ProfileWidgetState.profileImage = prefs.getString('profile_image') != null
+        ? File(prefs.getString('profile_image')!)
+        : null;
+    _ProfileWidgetState.selectedIconIndex = prefs.getInt('profile_icon') ?? 0;
+  }
 }
 
 class _ProfileWidgetState extends State<ProfileWidget> {
-  File? _profileImage; // ✅ 현재 선택된 프로필 이미지
-  int _selectedIconIndex = 0; // ✅ 기본 프로필 아이콘 인덱스
+  static File? profileImage; // ✅ 전역에서 접근 가능하도록 static 선언
+  static int selectedIconIndex = 0;
   final ImagePicker _picker = ImagePicker();
 
   // ✅ 기본 제공 아이콘 리스트
@@ -28,18 +37,18 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   @override
   void initState() {
     super.initState();
-    _loadProfileData(); // 앱 실행 시 저장된 프로필 정보 불러오기
+    _loadProfileData();
   }
 
-  /// ✅ 저장된 프로필 데이터 로드 (이미지 & 기본 아이콘)
+  /// ✅ 저장된 프로필 데이터 로드
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final imagePath = prefs.getString('profile_image');
     final iconIndex = prefs.getInt('profile_icon') ?? 0;
 
     setState(() {
-      _selectedIconIndex = iconIndex;
-      _profileImage = imagePath != null ? File(imagePath) : null;
+      selectedIconIndex = iconIndex;
+      profileImage = imagePath != null ? File(imagePath) : null;
     });
   }
 
@@ -51,26 +60,31 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     final appDir = await getApplicationDocumentsDirectory();
     final savedImage = File('${appDir.path}/profile_image.png');
 
-    await File(pickedFile.path).copy(savedImage.path); // 이미지 저장
-
+    await File(pickedFile.path).copy(savedImage.path);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profile_image', savedImage.path); // 경로 저장
+    await prefs.setString('profile_image', savedImage.path);
 
     setState(() {
-      _profileImage = savedImage;
+      profileImage = savedImage;
     });
+
+    // ✅ 변경된 데이터 즉시 반영
+    await ProfileWidget.updateProfile();
   }
 
   /// ✅ 기본 프로필 아이콘 선택 및 저장
   Future<void> _selectDefaultIcon(int index) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('profile_icon', index); // 선택한 기본 아이콘 인덱스 저장
-    await prefs.remove('profile_image'); // 기존 이미지 삭제
+    await prefs.setInt('profile_icon', index);
+    await prefs.remove('profile_image');
 
     setState(() {
-      _profileImage = null; // 기본 이미지로 변경
-      _selectedIconIndex = index;
+      profileImage = null;
+      selectedIconIndex = index;
     });
+
+    // ✅ 변경된 데이터 즉시 반영
+    await ProfileWidget.updateProfile();
   }
 
   /// ✅ 프로필 변경 다이얼로그
@@ -92,7 +106,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               ),
               TextButton(
                 onPressed: () {
-                  _showDefaultIconSelectionDialog(); // 기본 아이콘 선택 창 띄우기
+                  _showDefaultIconSelectionDialog();
                 },
                 child: const Text("기본 아이콘 선택"),
               ),
@@ -117,7 +131,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 onTap: () {
                   _selectDefaultIcon(index);
                   Navigator.pop(context);
-                  Navigator.pop(context); // 메인 다이얼로그도 닫기
+                  Navigator.pop(context);
                 },
                 child: CircleAvatar(
                   radius: 30,
@@ -140,10 +154,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       child: CircleAvatar(
         radius: 50,
         backgroundColor: Colors.grey[300],
-        backgroundImage:
-            _profileImage != null ? FileImage(_profileImage!) : null,
-        child: _profileImage == null
-            ? Icon(_defaultIcons[_selectedIconIndex],
+        backgroundImage: profileImage != null ? FileImage(profileImage!) : null,
+        child: profileImage == null
+            ? Icon(_defaultIcons[selectedIconIndex],
                 size: 50, color: Colors.black)
             : null,
       ),

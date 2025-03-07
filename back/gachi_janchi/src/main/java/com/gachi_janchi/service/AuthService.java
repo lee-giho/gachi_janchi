@@ -128,6 +128,14 @@ public class AuthService {
         user.setId(id);
         user.setName(name);
         user.setType("social");
+
+        // 📌 ROLE_USER 설정 추가
+        Role roleUser = roleRepository.findById("ROLE_USER")
+                .orElseThrow(() -> new IllegalArgumentException("기본 권한인 ROLE_USER가 설정되어 있지 않습니다."));
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleUser);
+        user.setRoles(roles);
+
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();
@@ -197,6 +205,14 @@ public class AuthService {
         user.setId(id);
         user.setName(name);
         user.setType("social");
+
+        // 📌 ROLE_USER 설정 추가
+        Role roleUser = roleRepository.findById("ROLE_USER")
+                .orElseThrow(() -> new IllegalArgumentException("기본 권한인 ROLE_USER가 설정되어 있지 않습니다."));
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleUser);
+        user.setRoles(roles);
+
         userRepository.save(user);
 
         SocialAccount socialAccount = new SocialAccount();

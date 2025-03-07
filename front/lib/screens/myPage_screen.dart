@@ -6,8 +6,6 @@ import 'package:gachi_janchi/screens/login_screen.dart';
 import 'edit_nickname_screen.dart';
 import 'edit_title_screen.dart'; // ✅ 기존 파일 사용
 import 'edit_name_screen.dart';
-import 'edit_email_screen.dart';
-import 'edit_password_screen.dart';
 import 'VerifyPasswordScreen.dart';
 import 'ProfileWidget.dart'; // ✅ 프로필 위젯 추가
 

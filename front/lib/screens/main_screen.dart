@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gachi_janchi/screens/favorite_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
-import 'package:gachi_janchi/screens/myPage_screen.dart';
+import 'package:gachi_janchi/screens/mypage_main_screen.dart';
 import 'package:gachi_janchi/screens/ranking_screen.dart';
 import 'package:gachi_janchi/screens/visit_screen.dart';
 
@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     RankingScreen(),
     FavoriteScreen(),
     VisitScreen(),
-    MypageScreen()
+    MyPageMainScreen()
   ];
 
   @override

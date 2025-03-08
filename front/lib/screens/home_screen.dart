@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
+import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:http/http.dart'  as http;
@@ -421,8 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       onPressed: () {
                         print("QR코드 스캐너 버튼 클릭!!!!!!");
-                        // qrScanData();
-                        getRestaurantList();
+                        qrScanData();
                       },
                     )
                   ],
@@ -466,152 +466,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final restaurant = restaurants[index];
                         
-                        return ElevatedButton(
+                        return RestaurantListTile(
+                          restaurant: restaurant,
                           onPressed: () {
-                            print(": ${restaurant}");
+                            print("클릭한 음식점: ${restaurant["restaurantName"]}");
                           },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(120),
-                            padding: const EdgeInsets.all(10),
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)
-                            )
-                          ),
-                          child: Row(
-                            children: [
-                              Container( // 음식점 사진이 들어갈 부분
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 1
-                                  )
-                                ),
-                                child: 
-                                  restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
-                                  ? Image(
-                                      image: NetworkImage( // imageUrl이 있을 경우
-                                        restaurant["imageUrl"]
-                                      ),
-                                      fit: BoxFit.contain,
-                                    )
-                                  : const SizedBox(
-                                    height: 100,
-                                    child: Center(
-                                      child: Text(
-                                        "사진 준비중",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  )
-                              ),
-                              Expanded( // 음식점 사진 오른쪽에 정보가 나오는 부분
-                                child: Container(
-                                  height: 100,
-                                  margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        child: Column( // 음식점 이름, 리뷰, 영업시간 등 정보 표시되는 부분
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text( // 음식점 이름
-                                              restaurant["restaurantName"],
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold
-                                              ),
-                                              softWrap: true,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const Row( // 리뷰 -> 추후 리뷰 작성이 생기면 실제 값으로 수정해야함
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.star,
-                                                  size: 16,
-                                                  color: Colors.amberAccent,
-                                                  
-                                                ),
-                                                Text(
-                                                  "4.8 (500)",
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                            Row( // 음식점 영업중인지 아닌지
-                                              children: [
-                                                Icon(
-                                                  Icons.schedule,
-                                                  size: 10,
-                                                  color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
-                                                    ? Colors.green 
-                                                    : Colors.red,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  isRestaurantOpen(restaurant["businessHours"]),
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: isRestaurantOpen(restaurant["businessHours"]) == "영업중" 
-                                                      ? Colors.green 
-                                                      : Colors.red,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ),
-                              Image.asset(
-                                'assets/images/material/carrot.png',
-                                fit: BoxFit.contain,
-                                height: 60,
-                              ),
-                              SizedBox(
-                                width: 40,
-                                height: 100,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      visualDensity: VisualDensity.compact,
-                                      padding: EdgeInsets.zero,
-                                      icon: const Icon(
-                                        Icons.turned_in_not,
-                                        size: 30,
-                                        color: Colors.black,
-                                      ),
-                                      onPressed: () { // 즐겨찾기 기능 추가 시 수정 필요
-                                        print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                                      },
-                                    ),
-                                    const Text( // 즐겨찾기 기능 추가 시 수정 필요
-                                      "500",
-                                      style: TextStyle(
-                                        fontSize: 12
-                                      ),
-                                    )
-                                  ],
-                                )
-                              )
-                            ],
-                          ),
+                          onBookmarkPressed: () {
+                            print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                          },
                         );
                       }
                     )

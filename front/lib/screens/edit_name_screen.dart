@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'mypage_screen.dart'; // ✅ 마이페이지로 돌아가기 위해 추가
 
 class EditnameScreen extends StatefulWidget {
   final String currentValue;

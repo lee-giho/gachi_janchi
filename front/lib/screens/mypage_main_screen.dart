@@ -144,18 +144,15 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
               ),
             ),
             const SizedBox(height: 25),
-            _buildMenuItem(
-                Icons.percent, "할인쿠폰", const DiscountCouponsScreen()),
             _buildMenuItem(Icons.shopping_basket, "모은재료",
-                const CollectedIngredientsScreen()),
-            _buildMenuItem(Icons.receipt, "방문내역", const VisitHistoryScreen()),
+                CollectedIngredientsScreen()), // ✅ const 제거
             _buildMenuItem(
-              Icons.comment,
-              "리뷰",
-              const ReviewsScreen(),
-            ),
-            _buildMenuItem(Icons.campaign, "공지사항", const NoticesScreen()),
-            _buildMenuItem(Icons.settings, "설정", const SettingsScreen()),
+                Icons.receipt, "방문내역", VisitHistoryScreen()), // ✅ const 제거
+            _buildMenuItem(Icons.comment, "리뷰", ReviewsScreen()), // ✅ const 제거
+            _buildMenuItem(
+                Icons.campaign, "공지사항", NoticesScreen()), // ✅ const 제거
+            _buildMenuItem(
+                Icons.settings, "설정", SettingsScreen()), // ✅ const 제거
           ],
         ),
       ),

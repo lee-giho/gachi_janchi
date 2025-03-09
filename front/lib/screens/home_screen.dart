@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:gachi_janchi/screens/search_restaurant_screen.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -182,27 +183,27 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         if (response.statusCode == 200) {
-  print("음식점 리스트 요청 완료");
+          print("음식점 리스트 요청 완료");
 
-  // 🔹 UTF-8로 디코딩
-  final decodedData = utf8.decode(response.bodyBytes);
-  final data = json.decode(decodedData);
+          // 🔹 UTF-8로 디코딩
+          final decodedData = utf8.decode(response.bodyBytes);
+          final data = json.decode(decodedData);
 
-  print("API 응답 데이터: $data");
+          print("API 응답 데이터: $data");
 
-  if (data.containsKey("restaurants")) {
-    List<dynamic> restaurants = data["restaurants"];
-    for (var restaurant in restaurants) {
-      if (restaurant.containsKey("restaurantName")) {
-        print("음식점 이름: ${restaurant["restaurantName"]}");
-      } else {
-        print("오류: 'restaurantName' 키가 없음");
-      }
-    }
-  } else {
-    print("오류: 'restaurants' 키가 없음");
-  }
-} else {
+          if (data.containsKey("restaurants")) {
+            List<dynamic> restaurants = data["restaurants"];
+            for (var restaurant in restaurants) {
+              if (restaurant.containsKey("restaurantName")) {
+                print("음식점 이름: ${restaurant["restaurantName"]}");
+              } else {
+                print("오류: 'restaurantName' 키가 없음");
+              }
+            }
+          } else {
+            print("오류: 'restaurants' 키가 없음");
+          }
+        } else {
           print("음식점 리스트를 불러올 수 없습니다.");
         }
       } catch (e) {
@@ -407,7 +408,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             onPressed: () {
                               print("${searchKeywordController.text} 검색!!!");
-                              searchRestaurantsByKeword();
+                              // searchRestaurantsByKeword();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchRestaurantScreen(
+                                    data: {
+                                      "keyword": searchKeywordController.text
+                                    }
+                                  )
+                                )
+                              );
                             },
                           )
                         ],

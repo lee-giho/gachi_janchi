@@ -55,120 +55,118 @@ class RestaurantListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size.fromHeight(120),
-        padding: const EdgeInsets.all(10),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        decoration: const BoxDecoration(
+          border: Border(bottom:BorderSide(width: 1, color: Colors.grey))
         ),
-      ),
-      child: Row(
-        children: [
-          // 음식점 이미지
-          Container(
-            width: 100,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-            child: restaurant["imageUrl"] != null &&
-                    restaurant["imageUrl"].toString().isNotEmpty
-                ? Image.network(
-                    restaurant["imageUrl"],
-                    fit: BoxFit.contain,
-                  )
-                : const SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: Text(
-                        "사진 준비중",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+        child: Row(
+          children: [
+            // 음식점 이미지
+            Container(
+              width: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 1),
+              ),
+              child: restaurant["imageUrl"] != null &&
+                      restaurant["imageUrl"].toString().isNotEmpty
+                  ? Image.network(
+                      restaurant["imageUrl"],
+                      fit: BoxFit.contain,
+                    )
+                  : const SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: Text(
+                          "사진 준비중",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-          ),
-
-          // 음식점 정보
-          Expanded(
-            child: Container(
-              height: 100,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 음식점 이름
-                  Text(
-                    restaurant["restaurantName"],
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    softWrap: true,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  // 리뷰 -> 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
-                  const Row(
-                    children: [
-                      Icon(Icons.star, size: 16, color: Colors.amberAccent),
-                      SizedBox(width: 5),
-                      Text("4.8 (500)", style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-
-                  // 영업 여부
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.schedule,
-                        size: 10,
-                        color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        isRestaurantOpen(restaurant["businessHours"]),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+            ),
+              
+            // 음식점 정보
+            Expanded(
+              child: Container(
+                height: 100,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 음식점 이름
+                    Text(
+                      restaurant["restaurantName"],
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      softWrap: true,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              
+                    // 리뷰 -> 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
+                    const Row(
+                      children: [
+                        Icon(Icons.star, size: 16, color: Colors.amberAccent),
+                        SizedBox(width: 5),
+                        Text("4.8 (500)", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+              
+                    // 영업 여부
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule,
+                          size: 10,
                           color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
                               ? Colors.green
                               : Colors.red,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 5),
+                        Text(
+                          isRestaurantOpen(restaurant["businessHours"]),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+              
+            // 재료 아이콘 -> 추후 재료를 얻을 수 있는 기능이 생기면 실제 값으로 수정해야함
+            Image.asset(
+              'assets/images/material/carrot.png',
+              fit: BoxFit.contain,
+              height: 60,
+            ),
+              
+            // 즐겨찾기 아이콘 -> 추후 즐겨찾기 기능이 생기면 실제 값으로 수정해야함
+            SizedBox(
+              height: 100,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.turned_in_not, size: 30, color: Colors.black),
+                    onPressed: onBookmarkPressed,
                   ),
+                  const Text("500", style: TextStyle(fontSize: 12)),
                 ],
               ),
             ),
-          ),
-
-          // 재료 아이콘 -> 추후 재료를 얻을 수 있는 기능이 생기면 실제 값으로 수정해야함
-          Image.asset(
-            'assets/images/material/carrot.png',
-            fit: BoxFit.contain,
-            height: 60,
-          ),
-
-          // 즐겨찾기 아이콘 -> 추후 즐겨찾기 기능이 생기면 실제 값으로 수정해야함
-          SizedBox(
-            width: 40,
-            height: 100,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.turned_in_not, size: 30, color: Colors.black),
-                  onPressed: onBookmarkPressed,
-                ),
-                const Text("500", style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

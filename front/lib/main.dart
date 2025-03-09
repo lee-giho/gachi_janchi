@@ -30,6 +30,8 @@ class MyApp extends StatelessWidget {
           navigatorObservers: [MyNavigatorObserver()],
           title: 'Flutter Login',
           theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white, // ✅ 기본 배경색을 흰색으로 설정
+            colorScheme: ColorScheme.light(), // ✅ 기본 컬러 스킴을 밝은 모드로 설정
             primarySwatch: Colors.blue,
           ),
           home: const SplashScreen(),

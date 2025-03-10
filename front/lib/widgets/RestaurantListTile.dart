@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
 
 class RestaurantListTile extends StatelessWidget {
   final Map<String, dynamic> restaurant;
@@ -56,7 +57,18 @@ class RestaurantListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPressed,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RestaurantDetailScreen(
+              data: {
+                "restaurant": restaurant
+              }
+            )
+          )
+        );
+      },
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -71,8 +83,7 @@ class RestaurantListTile extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 1),
               ),
-              child: restaurant["imageUrl"] != null &&
-                      restaurant["imageUrl"].toString().isNotEmpty
+              child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
                   ? Image.network(
                       restaurant["imageUrl"],
                       fit: BoxFit.contain,

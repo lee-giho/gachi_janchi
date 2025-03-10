@@ -479,9 +479,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         
                         return RestaurantListTile(
                           restaurant: restaurant,
-                          onPressed: () {
-                            print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                          },
+                          // onPressed: () {
+                          //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                          // },
                           onBookmarkPressed: () {
                             print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
                           },

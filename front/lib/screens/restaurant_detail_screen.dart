@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/screens/restaurant_detail_home_screen.dart';
+import 'package:gachi_janchi/screens/restaurant_detail_menu_screen.dart';
+import 'package:gachi_janchi/screens/restaurant_detail_review_screen.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -14,6 +17,13 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   Map<String, dynamic> restaurant = {};
   OverlayEntry? overlayEntry; // ✅ 오버레이 창을 위한 변수
   final LayerLink layerLink = LayerLink(); // ✅ 위젯의 위치를 추적하는 변수
+
+  int _currentIndex = 0;
+  final List<Widget> screens = [
+    RestaurantDetailHomeScreen(),
+    RestaurantDetailMenuScreen(),
+    RestaurantDetailReviewScreen()
+  ];
 
   @override
   void initState() {
@@ -351,6 +361,120 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   )
                 ],
               ),
+            ),
+            Container( // 홈, 메뉴, 리뷰 선택할 수 있는 버튼들
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 0;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _currentIndex == 0
+                                ? const Color.fromARGB(118, 122, 11, 11)
+                                : Colors.white,
+                          boxShadow: _currentIndex == 0
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          spreadRadius: 2,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 6)
+                                        )
+                                      ]
+                                    : null
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "홈",
+                            style: TextStyle(
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 1;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _currentIndex == 1
+                                ? const Color.fromARGB(118, 122, 11, 11)
+                                : Colors.white,
+                          boxShadow: _currentIndex == 1
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          spreadRadius: 2,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 6)
+                                        )
+                                      ]
+                                    : null
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "메뉴",
+                            style: TextStyle(
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _currentIndex = 2;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: _currentIndex == 2
+                                ? const Color.fromARGB(118, 122, 11, 11)
+                                : Colors.white,
+                          boxShadow: _currentIndex == 2
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          spreadRadius: 2,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 6)
+                                        )
+                                      ]
+                                    : null
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "리뷰",
+                            style: TextStyle(
+                              fontSize: 24
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              child: screens[_currentIndex],
             )
           ],
         )

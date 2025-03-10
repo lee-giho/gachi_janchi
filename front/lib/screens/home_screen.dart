@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
 
+  // 네이버 지도 컨트롤러
   NaverMapController? mapController;
   Set<NMarker> markers = {}; // 🔹 마커를 저장할 Set 선언
   NLatLng? currentPosition;

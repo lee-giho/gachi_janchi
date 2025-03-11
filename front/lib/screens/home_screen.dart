@@ -40,7 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 네이버 지도 컨트롤러
   NaverMapController? mapController;
-  Set<NMarker> markers = {}; // 🔹 마커를 저장할 Set 선언
+  Set<NMarker> markers = {}; // 마커를 저장할 Set 선언
+  String? selectedMarkerId; // 현재 클릭된 마커 ID 저장
+  Map<String, NMarker> markerMap = {}; // 마커 ID를 Key로 저장
+  bool isMarkerTap = false; // 마커를 클릭 상태 관리
+  Map<String, dynamic> tapRestaurant = {};
   NLatLng? currentPosition;
 
   List<dynamic> restaurants = [];
@@ -238,9 +242,33 @@ class _HomeScreenState extends State<HomeScreen> {
           NMarker marker = NMarker(
             id: restaurantName,
             position: NLatLng(latitude, longitude),
+            icon: NOverlayImage.fromAssetImage("assets/images/material/carrot.png"),
             caption: NOverlayCaption(text: restaurantName),
           );
 
+          marker.setOnTapListener((overlay) {
+            setState(() {
+              // 이전에 선택된 마커 크기 원래대로 되돌리기
+              if (selectedMarkerId != null && markerMap.containsKey(selectedMarkerId)) {
+                markerMap[selectedMarkerId]!.setSize(const Size(60, 60)); // 원래 크기로 되돌리기
+              }
+
+              // 새로운 마커 크기 키우기
+              marker.setSize(const Size(80, 80));
+
+              // 현재 선택된 마커 ID 업데이트
+              selectedMarkerId = marker.info.id;
+              markerMap[selectedMarkerId!] = marker; // Map에 저장
+
+              // 선택한 가게 정보 업데이트
+              isMarkerTap = true;
+              tapRestaurant = restaurant;
+            });
+            updateSheetSize(); // 바텀 시트 크기 업데이트
+          });
+
+          // markerMap에 마커 저장
+          markerMap[restaurantName] = marker;
           newMarkers.add(marker);
         }
       } catch (e) {
@@ -294,6 +322,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  double sheetChildSize = 0.1; // 기본값 설정
+
+  void updateSheetSize() {
+    if (isMarkerTap) {
+      setState(() {
+        sheetChildSize = (tapRestaurant.length * 0.05).clamp(0.16, 0.16);
+      });
+    } else {
+      setState(() {
+        sheetChildSize = 0.018;
+      });
+
+      sheetController.animateTo(
+        sheetChildSize,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut
+      );
+    }
+    print("sheetChildSize: ${sheetChildSize}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -305,6 +353,14 @@ class _HomeScreenState extends State<HomeScreen> {
               mapController = controller; // mapController 초기화
               log("준비완료!");
             },
+            onMapTapped: (point, latLng) {
+              setState(() {
+                isMarkerTap = false;
+                tapRestaurant = {};
+              });
+              print(isMarkerTap);
+              updateSheetSize(); // 크기 업데이트
+            },
             options: const NaverMapViewOptions(
               initialCameraPosition: NCameraPosition( // 첫 로딩 포지션
                 target: NLatLng(37.5667070936, 126.97876548263318),
@@ -315,6 +371,12 @@ class _HomeScreenState extends State<HomeScreen> {
               locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
             ),
             onCameraChange: (reason, animated) async {
+              setState(() {
+                isMarkerTap = false;
+                tapRestaurant = {};
+              });
+              print(isMarkerTap);
+              updateSheetSize(); // 크기 업데이트
               print("카메라 이동");
             },
             onCameraIdle: () async {
@@ -442,8 +504,72 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.018,
+          // if (tapRestaurant.isNotEmpty)
+          //   Positioned(
+          //     bottom: 100,
+          //     child: Container(
+          //       decoration: const BoxDecoration(
+          //         color: Colors.white,                  
+          //       ),
+          //       width: MediaQuery.of(context).size.width,
+          //       child: RestaurantListTile(restaurant: tapRestaurant)
+          //     )
+          //   ),
+          isMarkerTap
+          ? DraggableScrollableSheet(
+            initialChildSize: sheetChildSize, // 동적으로 크기 조정
+            minChildSize: sheetChildSize,
+            maxChildSize: sheetChildSize, // 최대 크기 제한
+            controller: sheetController,
+            builder: (BuildContext context, scrollController) {
+              return Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
+                  )
+                ),
+                child: CustomScrollView(
+                  controller: scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Center(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          height: 4,
+                          width: 80,
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                        ),
+                      ),
+                    ),
+                    SliverList.builder(
+                      itemCount: 1,
+                      itemBuilder: (context, index) {
+                        final restaurant = tapRestaurant;
+                        
+                        return RestaurantListTile(
+                          restaurant: restaurant,
+                          // onPressed: () {
+                          //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                          // },
+                          onBookmarkPressed: () {
+                            print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                          },
+                        );
+                      }
+                    )
+                  ],
+                ),
+              );
+            }
+          )
+          : DraggableScrollableSheet(
+            initialChildSize: sheetChildSize,
             maxChildSize: 0.85,
             minChildSize: 0.018,
             controller: sheetController,

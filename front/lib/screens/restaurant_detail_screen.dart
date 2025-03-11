@@ -39,7 +39,11 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               "phoneNumber": restaurant["phoneNumber"]
             },
           ),
-          RestaurantDetailMenuScreen(),
+          RestaurantDetailMenuScreen(
+            data: {
+              "menu": restaurant["menu"]
+            },
+          ),
           RestaurantDetailReviewScreen()
         ];
       });

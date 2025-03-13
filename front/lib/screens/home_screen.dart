@@ -236,13 +236,15 @@ class _HomeScreenState extends State<HomeScreen> {
         double latitude = restaurant["location"]["latitude"];
         double longitude = restaurant["location"]["longitude"];
         String restaurantName = restaurant["restaurantName"];
+        String ingredient = restaurant["ingredientName"];
+        print("assets/images/material/${ingredient}.png");
 
         // ✅ 현재 지도 영역 내에 있는지 확인
         if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
           NMarker marker = NMarker(
             id: restaurantName,
             position: NLatLng(latitude, longitude),
-            icon: NOverlayImage.fromAssetImage("assets/images/material/carrot.png"),
+            icon: NOverlayImage.fromAssetImage("assets/images/material/${ingredient}.png"),
             caption: NOverlayCaption(text: restaurantName),
           );
 
@@ -267,6 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
             updateSheetSize(); // 바텀 시트 크기 업데이트
           });
 
+          marker.setSize(const Size(60, 60));
           // markerMap에 마커 저장
           markerMap[restaurantName] = marker;
           newMarkers.add(marker);
@@ -383,6 +386,10 @@ class _HomeScreenState extends State<HomeScreen> {
               if (mapController != null) {
                 NCameraPosition position = await mapController!.getCameraPosition();
                 await fetchRestaurantsInBounds(position);
+                setState(() {
+                  isMarkerTap = false;
+                  tapRestaurant = {};
+                });
                 // setState(() {
                 //   currentPosition = position.target;
                 // });

@@ -156,7 +156,7 @@ class RestaurantListTile extends StatelessWidget {
               
             // 재료 아이콘 -> 추후 재료를 얻을 수 있는 기능이 생기면 실제 값으로 수정해야함
             Image.asset(
-              'assets/images/material/carrot.png',
+              'assets/images/material/${restaurant["ingredientName"]}.png',
               fit: BoxFit.contain,
               height: 60,
             ),

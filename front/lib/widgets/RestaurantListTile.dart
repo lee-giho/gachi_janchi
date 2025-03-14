@@ -91,6 +91,37 @@ class RestaurantListTile extends StatelessWidget {
     }
   }
 
+  Future<void> deleteFavoriteRestaurant() async {
+    String restaurantId = restaurant["id"];
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json'  // ✅ JSON 데이터 전송을 위한 헤더 추가
+    };
+
+    try {
+      print("음식점 즐겨찾기 삭제 요청 보내기 시작");
+      final response = await http.delete(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          "restaurantId": restaurantId
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("음식점 즐겨찾기 삭제 성공");
+      } else {
+        print("음식점 즐겨찾기 삭제 실패");
+      }
+    } catch (e) {
+      print("음식점 즐겨찾기 삭제 요청 중 오류 발생: ${e}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(

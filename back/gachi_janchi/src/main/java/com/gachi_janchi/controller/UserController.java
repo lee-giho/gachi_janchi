@@ -63,10 +63,19 @@ public class UserController {
     return ResponseEntity.ok(tokenRefreshResponse);
   }
 
+  // 음식점 즐겨찾기 추가 엔드포인트
   @PostMapping("/favorite-restaurant")
   public ResponseEntity<AddFavoriteRestaurantResponse> addFavoriteRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody AddFavoriteRestaurantRequest addFavoriteRestaurantRequest) {
     System.out.println("favorite-restaurant 엔드포인트");
     AddFavoriteRestaurantResponse addFavoriteRestaurantResponse = favoriteRestaurantService.addFavoriteRestaurant(addFavoriteRestaurantRequest, accessToken);
     return ResponseEntity.ok(addFavoriteRestaurantResponse);
+  }
+
+  // 음식점 즐겨찾기 삭제 엔드포인트
+  @DeleteMapping("favorite-restaurant")
+  public ResponseEntity<DeleteFavoriteRestaurantResponse> deleteFavoriteRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody DeleteFavoriteRestaurantRequest deleteFavoriteRestaurantRequest) {
+    System.out.println("favorite-restaurant 엔드포인트");
+    DeleteFavoriteRestaurantResponse deleteFavoriteRestaurantResponse = favoriteRestaurantService.deleteFavoriteRestaurant(deleteFavoriteRestaurantRequest, accessToken);
+    return ResponseEntity.ok(deleteFavoriteRestaurantResponse);
   }
 }

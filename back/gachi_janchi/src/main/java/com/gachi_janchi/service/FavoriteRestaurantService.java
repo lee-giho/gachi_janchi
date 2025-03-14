@@ -2,6 +2,7 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.AddFavoriteRestaurantRequest;
 import com.gachi_janchi.dto.AddFavoriteRestaurantResponse;
+import com.gachi_janchi.dto.DeleteFavoriteRestaurantRequest;
 import com.gachi_janchi.dto.DeleteFavoriteRestaurantResponse;
 import com.gachi_janchi.entity.FavoriteRestaurant;
 import com.gachi_janchi.entity.Restaurant;
@@ -61,7 +62,14 @@ public class FavoriteRestaurantService {
   // 즐겨찾기 삭제
 
   @Transactional
-  public DeleteFavoriteRestaurantResponse deleteFavoriteRestaurant(String userId, String restaurantId) {
+  public DeleteFavoriteRestaurantResponse deleteFavoriteRestaurant(DeleteFavoriteRestaurantRequest deleteFavoriteRestaurantRequest, String token) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+    String id = jwtProvider.getUserId(accessToken);
+    User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    String restaurantId = deleteFavoriteRestaurantRequest.getRestaurantId();
+    String userId = user.getId();
+
     if (favoriteRestaurantRepository.findByUserIdAndRestaurantId(userId, restaurantId).isEmpty()) {
       throw new IllegalArgumentException("해당 즐겨찾기가 존재하지 않습니다.");
     }

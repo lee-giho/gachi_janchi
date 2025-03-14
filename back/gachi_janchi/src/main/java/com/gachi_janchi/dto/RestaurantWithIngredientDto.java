@@ -15,12 +15,12 @@ public class RestaurantWithIngredientDto {
   private String id;
   private String restaurantName;
   private String imageUrl;
-  private List<String> categoris;
+  private List<String> categories;
   private Address address;
   private Location location;
   private String phoneNumber;
   private Map<String, String> businessHours;
-  private List<Menu> menus;
+  private List<Menu> menu;
   private String ingredientName;
 
   public static RestaurantWithIngredientDto from(Restaurant restaurant, Ingredient ingredient) {

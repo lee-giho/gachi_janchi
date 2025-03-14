@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
+import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:http/http.dart'  as http;
+import 'dart:convert';
+
 
 class RestaurantListTile extends StatelessWidget {
   final Map<String, dynamic> restaurant;
   final Function()? onPressed;
-  final Function()? onBookmarkPressed;
+  // final Function()? onBookmarkPressed;
 
   const RestaurantListTile({
     super.key,
     required this.restaurant,
     this.onPressed,
-    this.onBookmarkPressed,
+    // this.onBookmarkPressed,
   });
 
   // 음식점이 영업 중인지 확인하는 함수
@@ -52,6 +57,38 @@ class RestaurantListTile extends StatelessWidget {
 
     // 현재 시간과 비교하여 영업 여부 반환
     return (now.isAfter(openTime) && now.isBefore(closeTime)) ? "영업중" : "영업종료";
+  }
+
+  // 즐겨찾기 추가하는 함수
+  Future<void> addFavoriteRestaurant() async {
+    String restaurantId = restaurant["id"];
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json'  // ✅ JSON 데이터 전송을 위한 헤더 추가
+    };
+
+    try {
+      print("음식점 즐겨찾기 추가 요청 보내기 시작");
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          "restaurantId": restaurantId
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("음식점 즐겨찾기 성공");
+      } else {
+        print("음식점 즐겨찾기 실패");
+      }
+    } catch (e) {
+      print("음식점 즐겨찾기 요청 중 오류 발생: ${e}");
+    }
   }
 
   @override
@@ -170,7 +207,9 @@ class RestaurantListTile extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.turned_in_not, size: 30, color: Colors.black),
-                    onPressed: onBookmarkPressed,
+                    onPressed: () {
+                      addFavoriteRestaurant();
+                    },
                   ),
                   const Text("500", style: TextStyle(fontSize: 12)),
                 ],

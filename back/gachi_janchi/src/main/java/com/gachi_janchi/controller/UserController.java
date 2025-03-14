@@ -1,6 +1,7 @@
 package com.gachi_janchi.controller;
 
 import com.gachi_janchi.dto.*;
+import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class UserController {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private FavoriteRestaurantService favoriteRestaurantService;
 
   // 닉네임 업데이트 엔드포인트
   @RequestMapping(value = "/nick-name", method = RequestMethod.PATCH)
@@ -57,5 +61,12 @@ public class UserController {
     System.out.println("token-refresh 엔드포인트");
     TokenRefreshResponse tokenRefreshResponse = tokenService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(tokenRefreshResponse);
+  }
+
+  @PostMapping("/favorite-restaurant")
+  public ResponseEntity<AddFavoriteRestaurantResponse> addFavoriteRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody AddFavoriteRestaurantRequest addFavoriteRestaurantRequest) {
+    System.out.println("favorite-restaurant 엔드포인트");
+    AddFavoriteRestaurantResponse addFavoriteRestaurantResponse = favoriteRestaurantService.addFavoriteRestaurant(addFavoriteRestaurantRequest, accessToken);
+    return ResponseEntity.ok(addFavoriteRestaurantResponse);
   }
 }

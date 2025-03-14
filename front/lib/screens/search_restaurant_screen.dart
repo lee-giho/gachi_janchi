@@ -160,9 +160,9 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
                         onPressed: () {
                           print("클릭한 음식점: ${restaurant["restaurantName"]}");
                         },
-                        onBookmarkPressed: () {
-                          print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                        },
+                        // onBookmarkPressed: () {
+                        //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                        // },
                       );
                     }
                   )

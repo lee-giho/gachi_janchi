@@ -84,7 +84,7 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
-  // 로그아웃 엔드포인트
+   // 로그아웃 엔드포인트
 //  @DeleteMapping("/logout")
 //  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
 //    boolean isLoggedOut = userService.logout(refreshToken);

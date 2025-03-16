@@ -1,9 +1,6 @@
 package com.gachi_janchi.service;
 
-import com.gachi_janchi.dto.AddFavoriteRestaurantRequest;
-import com.gachi_janchi.dto.AddFavoriteRestaurantResponse;
-import com.gachi_janchi.dto.DeleteFavoriteRestaurantRequest;
-import com.gachi_janchi.dto.DeleteFavoriteRestaurantResponse;
+import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.FavoriteRestaurant;
 import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.User;
@@ -16,8 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +27,9 @@ public class FavoriteRestaurantService {
   @Transactional
   public AddFavoriteRestaurantResponse addFavoriteRestaurant(AddFavoriteRestaurantRequest addFavoriteRestaurantRequest, String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
-    String id = jwtProvider.getUserId(accessToken);
-    User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     String restaurantId = addFavoriteRestaurantRequest.getRestaurantId();
-    String userId = user.getId();
+    String userId = jwtProvider.getUserId(accessToken);
 
     // 음식점이 존재하는지 확인
     Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + restaurantId));
@@ -55,12 +50,17 @@ public class FavoriteRestaurantService {
 
 
   // 특정 사용자의 즐겨찾기 목록 조회
-  public List<FavoriteRestaurant> getUserFavorites(String userId) {
-    return favoriteRestaurantRepository.findByUserId(userId);
+  public GetFavoriteRestaurantsResponse getUserFavorites(String token) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+    String userId = jwtProvider.getUserId(accessToken);
+    List<String> favoriteRestaurants = favoriteRestaurantRepository.findByUserId(userId)
+            .stream()
+            .map(favoriteRestaurant -> favoriteRestaurant.getRestaurantId())
+            .collect(Collectors.toList());
+    return new GetFavoriteRestaurantsResponse(favoriteRestaurants);
   }
 
   // 즐겨찾기 삭제
-
   @Transactional
   public DeleteFavoriteRestaurantResponse deleteFavoriteRestaurant(DeleteFavoriteRestaurantRequest deleteFavoriteRestaurantRequest, String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);

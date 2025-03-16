@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_home_screen.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_menu_screen.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_review_screen.dart';
+import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/widgets/TabBarDelegate.dart';
 
-class RestaurantDetailScreen extends StatefulWidget {
+class RestaurantDetailScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> data;
 
   const RestaurantDetailScreen({super.key, required this.data});
 
   @override
-  State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+  ConsumerState<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
 }
 
-class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
+class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
 
   Map<String, dynamic> restaurant = {};
   OverlayEntry? overlayEntry; // ✅ 오버레이 창을 위한 변수
@@ -195,6 +197,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isFavorite = ref.watch(favoriteProvider).contains(restaurant["id"]); // 즐겨찾기 상태 확인
+
     return Scaffold(
       appBar: AppBar(
         title: Align(
@@ -344,10 +348,16 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                 constraints: const BoxConstraints(), // 기본 크기 제한 제거
                                 onPressed: () {
                                   print("즐겨찾기 버튼 클릭!!!");
+                                  ref.read(favoriteProvider.notifier).toggleFavoriteRestaurant(restaurant["id"]);
                                 },
-                                icon: const Icon(
-                                  Icons.turned_in_not,
+                                icon: Icon(
+                                  isFavorite
+                                    ? Icons.turned_in
+                                    : Icons.turned_in_not,
                                   size: 40,
+                                  color: isFavorite
+                                    ? Colors.yellow
+                                    : Colors.black
                                 ),
             
                               ),

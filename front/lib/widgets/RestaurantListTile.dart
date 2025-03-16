@@ -61,69 +61,6 @@ class RestaurantListTile extends ConsumerWidget {
     return (now.isAfter(openTime) && now.isBefore(closeTime)) ? "영업중" : "영업종료";
   }
 
-  // // 즐겨찾기 추가하는 함수
-  // Future<void> addFavoriteRestaurant() async {
-  //   String restaurantId = restaurant["id"];
-  //   String? accessToken = await SecureStorage.getAccessToken();
-
-  //   // .env에서 서버 URL 가져오기
-  //   final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
-  //   final headers = {
-  //     'Authorization': 'Bearer $accessToken',
-  //     'Content-Type': 'application/json'
-  //   };
-
-  //   try {
-  //     print("음식점 즐겨찾기 추가 요청 보내기 시작");
-  //     final response = await http.post(
-  //       apiAddress,
-  //       headers: headers,
-  //       body: json.encode({
-  //         "restaurantId": restaurantId
-  //       })
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       print("음식점 즐겨찾기 성공");
-  //     } else {
-  //       print("음식점 즐겨찾기 실패");
-  //     }
-  //   } catch (e) {
-  //     print("음식점 즐겨찾기 요청 중 오류 발생: ${e}");
-  //   }
-  // }
-
-  // Future<void> deleteFavoriteRestaurant() async {
-  //   String restaurantId = restaurant["id"];
-  //   String? accessToken = await SecureStorage.getAccessToken();
-
-  //   // .env에서 서버 URL 가져오기
-  //   final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
-  //   final headers = {
-  //     'Authorization': 'Bearer $accessToken',
-  //     'Content-Type': 'application/json'
-  //   };
-
-  //   try {
-  //     print("음식점 즐겨찾기 삭제 요청 보내기 시작");
-  //     final response = await http.delete(
-  //       apiAddress,
-  //       headers: headers,
-  //       body: json.encode({
-  //         "restaurantId": restaurantId
-  //       })
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       print("음식점 즐겨찾기 삭제 성공");
-  //     } else {
-  //       print("음식점 즐겨찾기 삭제 실패");
-  //     }
-  //   } catch (e) {
-  //     print("음식점 즐겨찾기 삭제 요청 중 오류 발생: ${e}");
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favoriteProviderNotifier = ref.read(favoriteProvider.notifier);
@@ -249,7 +186,7 @@ class RestaurantListTile extends ConsumerWidget {
                       size: 30, 
                       color: isFavorite
                         ? Colors.yellow
-                        : Colors.black
+                        : Colors.black,
                     ),
                     onPressed: () {
                       favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant["id"]);

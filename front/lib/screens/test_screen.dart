@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
+import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
 
-class TestScreen extends StatefulWidget {
+class TestScreen extends ConsumerStatefulWidget {
   const TestScreen({super.key});
 
   @override
-  State<TestScreen> createState() => _HomeScreenState();
+  ConsumerState<TestScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<TestScreen> {
+class _HomeScreenState extends ConsumerState<TestScreen> {
 
   // String accessToken = SecureStorage.getAccessToken();
 
@@ -35,11 +37,16 @@ class _HomeScreenState extends State<TestScreen> {
   // 로그아웃 처리
   Future<void> logout() async {
 
+    // 즐겨찾기 목록 초기화
+    ref.read(favoriteProvider.notifier).resetFavoriteRestaurants();
+
     // SecureStorage에서 토큰 삭제
     await SecureStorage.deleteTokens();
 
+    // 자동 로그인 상태 해제
     await SecureStorage.saveIsAutoLogin(false);
 
+    // 로그인 타입 초기화
     await SecureStorage.saveLoginType("");
 
     // 로그아웃 후 로그인 화면으로 이동
@@ -95,15 +102,24 @@ class _HomeScreenState extends State<TestScreen> {
   // 네이버 로그아웃
   Future<void> handleNaverLogout() async {
     try {
-      // 1. 로그아웃 요청
+      // 로그아웃 요청
       await FlutterNaverLogin.logOut();
 
-      // 2. 네이버 서버의 인증 토큰 삭제
+      // 네이버 서버의 인증 토큰 삭제
       await FlutterNaverLogin.logOutAndDeleteToken();
 
+      // 즐겨찾기 목록 초기화
+      ref.read(favoriteProvider.notifier).resetFavoriteRestaurants();
+
+      // SecureStorage에서 토큰 삭제
+      await SecureStorage.deleteTokens();
+
+      // 자동 로그인 상태 해제
       await SecureStorage.saveIsAutoLogin(false);
 
+      // 로그인 타입 초기화
       await SecureStorage.saveLoginType("");
+
     } catch (e) {
       print("네이버 로그아웃 오류: $e");
     }

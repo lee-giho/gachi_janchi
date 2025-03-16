@@ -16,6 +16,7 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
 
   // 서버에서 즐겨찾기 음식점 가져오기
   Future<void> fetchFavoriteRestaurants() async {
+    print("음식점 리스트 가져오기 요청");
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -24,17 +25,24 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
 
     try {
       print("즐겨찾기 리스트 불러오기 요청 시작");
+      print(accessToken);
       final response = await http.get(
         apiAddress,
         headers: headers
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
         print("즐겨찾기 리스트 불러오기 성공");
-        final List<dynamic> data = json.decode(
-          utf8.decode(response.bodyBytes)
-        );
-        state = data.map((item) => item["restaurantId"].toString()).toSet();
+        
+        // JSON을 Map<String, dynamic>으로 변환
+        final Map<String, dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+
+        // FavoriteRestaurants 키에서 List<String>을 추출
+        final List<dynamic> favoriteList = jsonResponse["favoriteRestaurants"];
+
+        state = favoriteList.map((item) =>item.toString()).toSet();
       } else {
         print("즐겨찾기 리스트 불러오기 실패");
       }
@@ -55,6 +63,7 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
     };
     final deleteHeaders = {
       'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json'
     };
 
     try {
@@ -87,5 +96,11 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
     } catch (e) {
       print("네트워크 오류: $e");
     }
+  }
+
+  // 음식점 즐겨찾기 리스트 state 초기화 -> 로그아웃 시 실행
+  void resetFavoriteRestaurants() {
+    print("음식점 즐겨찾기 리스트 초기화");
+    state = {};
   }
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
+import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 
 
-class RestaurantListTile extends StatelessWidget {
+class RestaurantListTile extends ConsumerWidget {
   final Map<String, dynamic> restaurant;
   final Function()? onPressed;
   // final Function()? onBookmarkPressed;
@@ -59,71 +61,74 @@ class RestaurantListTile extends StatelessWidget {
     return (now.isAfter(openTime) && now.isBefore(closeTime)) ? "영업중" : "영업종료";
   }
 
-  // 즐겨찾기 추가하는 함수
-  Future<void> addFavoriteRestaurant() async {
-    String restaurantId = restaurant["id"];
-    String? accessToken = await SecureStorage.getAccessToken();
+  // // 즐겨찾기 추가하는 함수
+  // Future<void> addFavoriteRestaurant() async {
+  //   String restaurantId = restaurant["id"];
+  //   String? accessToken = await SecureStorage.getAccessToken();
 
-    // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
-    final headers = {
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json'  // ✅ JSON 데이터 전송을 위한 헤더 추가
-    };
+  //   // .env에서 서버 URL 가져오기
+  //   final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
+  //   final headers = {
+  //     'Authorization': 'Bearer $accessToken',
+  //     'Content-Type': 'application/json'
+  //   };
 
-    try {
-      print("음식점 즐겨찾기 추가 요청 보내기 시작");
-      final response = await http.post(
-        apiAddress,
-        headers: headers,
-        body: json.encode({
-          "restaurantId": restaurantId
-        })
-      );
+  //   try {
+  //     print("음식점 즐겨찾기 추가 요청 보내기 시작");
+  //     final response = await http.post(
+  //       apiAddress,
+  //       headers: headers,
+  //       body: json.encode({
+  //         "restaurantId": restaurantId
+  //       })
+  //     );
 
-      if (response.statusCode == 200) {
-        print("음식점 즐겨찾기 성공");
-      } else {
-        print("음식점 즐겨찾기 실패");
-      }
-    } catch (e) {
-      print("음식점 즐겨찾기 요청 중 오류 발생: ${e}");
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       print("음식점 즐겨찾기 성공");
+  //     } else {
+  //       print("음식점 즐겨찾기 실패");
+  //     }
+  //   } catch (e) {
+  //     print("음식점 즐겨찾기 요청 중 오류 발생: ${e}");
+  //   }
+  // }
 
-  Future<void> deleteFavoriteRestaurant() async {
-    String restaurantId = restaurant["id"];
-    String? accessToken = await SecureStorage.getAccessToken();
+  // Future<void> deleteFavoriteRestaurant() async {
+  //   String restaurantId = restaurant["id"];
+  //   String? accessToken = await SecureStorage.getAccessToken();
 
-    // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
-    final headers = {
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json'  // ✅ JSON 데이터 전송을 위한 헤더 추가
-    };
+  //   // .env에서 서버 URL 가져오기
+  //   final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/favorite-restaurant");
+  //   final headers = {
+  //     'Authorization': 'Bearer $accessToken',
+  //     'Content-Type': 'application/json'
+  //   };
 
-    try {
-      print("음식점 즐겨찾기 삭제 요청 보내기 시작");
-      final response = await http.delete(
-        apiAddress,
-        headers: headers,
-        body: json.encode({
-          "restaurantId": restaurantId
-        })
-      );
+  //   try {
+  //     print("음식점 즐겨찾기 삭제 요청 보내기 시작");
+  //     final response = await http.delete(
+  //       apiAddress,
+  //       headers: headers,
+  //       body: json.encode({
+  //         "restaurantId": restaurantId
+  //       })
+  //     );
 
-      if (response.statusCode == 200) {
-        print("음식점 즐겨찾기 삭제 성공");
-      } else {
-        print("음식점 즐겨찾기 삭제 실패");
-      }
-    } catch (e) {
-      print("음식점 즐겨찾기 삭제 요청 중 오류 발생: ${e}");
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       print("음식점 즐겨찾기 삭제 성공");
+  //     } else {
+  //       print("음식점 즐겨찾기 삭제 실패");
+  //     }
+  //   } catch (e) {
+  //     print("음식점 즐겨찾기 삭제 요청 중 오류 발생: ${e}");
+  //   }
+  // }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteProviderNotifier = ref.read(favoriteProvider.notifier);
+    final isFavorite = ref.watch(favoriteProvider).contains(restaurant["id"]);
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -237,9 +242,17 @@ class RestaurantListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.turned_in_not, size: 30, color: Colors.black),
+                    icon: Icon(
+                      isFavorite
+                        ? Icons.turned_in
+                        : Icons.turned_in_not,
+                      size: 30, 
+                      color: isFavorite
+                        ? Colors.yellow
+                        : Colors.black
+                    ),
                     onPressed: () {
-                      addFavoriteRestaurant();
+                      favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant["id"]);
                     },
                   ),
                   const Text("500", style: TextStyle(fontSize: 12)),

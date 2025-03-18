@@ -49,7 +49,15 @@ public class RestaurantService {
   // 검색어로 Restaurant 찾기
   public RestaurantsByKeywordResponse findRestaurantsByKeyword(String keyword) {
     List<Restaurant> restaurants = restaurantRepository.searchRestaurants(keyword);
-    return new RestaurantsByKeywordResponse(restaurants);
+
+    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = restaurants.stream()
+            .map(restaurant -> {
+              Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
+              return RestaurantWithIngredientDto.from(restaurant, ingredient);
+            })
+            .collect(Collectors.toList());
+
+    return new RestaurantsByKeywordResponse(restaurantWithIngredientDtos);
   }
 
   // Restaurant 삭세 / 동시에 restaurantIngredient에서도 삭제

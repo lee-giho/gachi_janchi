@@ -154,7 +154,6 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
                     itemCount: searchRestaurants.length,
                     itemBuilder: (context, index) {
                       final restaurant = searchRestaurants[index];
-              
                       return RestaurantListTile(
                         restaurant: restaurant,
                         onPressed: () {

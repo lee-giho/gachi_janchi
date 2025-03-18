@@ -11,5 +11,5 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class RestaurantsByKeywordResponse {
-  private List<Restaurant> restaurants;
+  private List<RestaurantWithIngredientDto> restaurants;
 }

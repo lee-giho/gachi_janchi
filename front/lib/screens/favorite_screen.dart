@@ -35,12 +35,40 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
     super.dispose();
   }
 
-  // List<dynamic> favoriteRestaurants = [];
-  List<dynamic> searchRestaurants = [];
+  // 검색어로 찾은 즐겨찾기 음식점 리스트
+  List<dynamic> searchFavoriteRestaurants = [];
+  // 검색 상태 관리
+  bool isKeywordSearch = false;
+
 
   // 즐겨찾기 음식점 검색 요청 함수
   Future<void> searchFavoriteRestaurantsByKeword() async {
-    String keyword = searchKeywordController.text.trim();
+    String keyword = searchKeywordController.text.trim().toLowerCase();
+    final favoriteRestaurants = ref.read(favoriteProvider); // 즐겨찾기 목록 가져오기
+
+    if (keyword.isNotEmpty) {
+      setState(() {
+        searchFavoriteRestaurants = favoriteRestaurants.where((restaurant) {
+          // 음식점 이름 검색
+          bool nameMatch = restaurant["restaurantName"].toLowerCase().contains(keyword);
+
+          // 카테고리 검색
+          bool categoryMatch = (restaurant["categories"] as List<dynamic>)
+              .any((category) => category.toString().toLowerCase().contains(keyword));
+
+          // 메뉴 검색
+          bool menuMatch = (restaurant["menu"] as List<dynamic>)
+              .any((menuItem) => menuItem["name"].toString().toLowerCase().contains(keyword));
+
+          // 🔥 하나라도 검색어와 일치하면 true 반환
+          return nameMatch || categoryMatch || menuMatch;
+        }).toList();
+      });
+    }
+    print("searchFavoriteRestaurants: ${searchFavoriteRestaurants.length}");
+    setState(() {
+      isKeywordSearch = true;
+    });
   }
 
   void qrScanData() async{
@@ -142,13 +170,40 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                   ],
                 ),
               ),
+              if (isKeywordSearch) // 검색했을 경우만 나오는 초기화 버튼
+                ElevatedButton( // 검색 초기화 버튼
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    side: const BorderSide(
+                      width: 0.5,
+                      color: Colors.black
+                    )
+                  ),
+                  onPressed: () {
+                    print("초기화 버튼 클릭!!!");
+                    searchKeywordController.clear();
+                    setState(() {
+                      isKeywordSearch = false;
+                    });
+                  },
+                  child: const Text(
+                    "초기화",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  )
+                ),
               Expanded(
                 child: CustomScrollView(
                   slivers: [
                     SliverList.builder(
-                      itemCount: favoriteRestaurants.length,
+                      itemCount: isKeywordSearch 
+                        ? searchFavoriteRestaurants.length
+                        : favoriteRestaurants.length,
                       itemBuilder: (context, index) {
-                        final restaurant = favoriteRestaurants[index];
+                        final restaurant = isKeywordSearch 
+                          ? searchFavoriteRestaurants[index]
+                          : favoriteRestaurants[index];
                         return RestaurantListTile(
                           restaurant: restaurant,
                           onPressed: () {

@@ -6,6 +6,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/screens/search_restaurant_screen.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:http/http.dart'  as http;
@@ -38,8 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
 
-  // 네이버 지도 컨트롤러
-  NaverMapController? mapController;
+  NaverMapController? mapController; // 네이버 지도 컨트롤러
   Set<NMarker> markers = {}; // 마커를 저장할 Set 선언
   String? selectedMarkerId; // 현재 클릭된 마커 ID 저장
   Map<String, NMarker> markerMap = {}; // 마커 ID를 Key로 저장
@@ -54,15 +54,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 위치 권한 요청
   void requestLocationPermission() async {
-    await Permission.location.request();
-    var status = await Permission.location.status;
-    print("status: $status");
-    log("status: $status");
-
-    if(status.isPermanentlyDenied) {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      getCurrentLocation();
+    } else if (status.isPermanentlyDenied) {
       await openAppSettings();
     }
   }
+
+  // 현재 위치 가져오는 함수
+  Future<void> getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high
+      );
+
+      setState(() {
+        currentPosition = NLatLng(position.latitude, position.longitude);
+      });
+
+      // 🔥 현재 위치로 지도 이동
+      if (mapController != null) {
+        mapController!.updateCamera(
+          NCameraUpdate.withParams(
+            target: currentPosition!,
+            zoom: 15,
+          ),
+        );
+      }
+    } catch (e) {
+      print("현재 위치를 가져오는 데 실패했습니다: $e");
+    }
+  }
+
 
   void qrScanData() async{
     // QrCodeScanner 화면으로 이동
@@ -355,6 +379,16 @@ class _HomeScreenState extends State<HomeScreen> {
             onMapReady: (controller) {
               mapController = controller; // mapController 초기화
               log("준비완료!");
+              log("currentPosition: $currentPosition");
+              // 현재 위치가 있으면 지도 이동
+              if (currentPosition != null) {
+                mapController!.updateCamera(
+                  NCameraUpdate.withParams(
+                    target: currentPosition,
+                    zoom: 15
+                  )
+                );
+              }
             },
             onMapTapped: (point, latLng) {
               setState(() {

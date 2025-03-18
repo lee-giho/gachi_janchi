@@ -197,7 +197,10 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isFavorite = ref.watch(favoriteProvider).contains(restaurant["id"]); // 즐겨찾기 상태 확인
+    final favoriteProviderNotifier = ref.read(favoriteProvider.notifier);
+
+    // 즐겨찾기 리스트에서 현재 restaurant의 ID를 포함하는지 확인
+    final isFavorite = ref.watch(favoriteProvider).any((fav) => fav["id"] == restaurant["id"]);
 
     return Scaffold(
       appBar: AppBar(
@@ -348,7 +351,7 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
                                 constraints: const BoxConstraints(), // 기본 크기 제한 제거
                                 onPressed: () {
                                   print("즐겨찾기 버튼 클릭!!!");
-                                  ref.read(favoriteProvider.notifier).toggleFavoriteRestaurant(restaurant["id"]);
+                                  favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                                 },
                                 icon: Icon(
                                   isFavorite

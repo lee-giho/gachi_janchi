@@ -64,7 +64,9 @@ class RestaurantListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favoriteProviderNotifier = ref.read(favoriteProvider.notifier);
-    final isFavorite = ref.watch(favoriteProvider).contains(restaurant["id"]);
+
+    // 즐겨찾기 리스트에서 현재 restaurant의 ID를 포함하는지 확인
+    final isFavorite = ref.watch(favoriteProvider).any((fav) => fav["id"] == restaurant["id"]);
 
     return InkWell(
       onTap: () {
@@ -189,7 +191,7 @@ class RestaurantListTile extends ConsumerWidget {
                         : Colors.black,
                     ),
                     onPressed: () {
-                      favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant["id"]);
+                      favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                     },
                   ),
                   const Text("500", style: TextStyle(fontSize: 12)),

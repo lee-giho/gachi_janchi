@@ -36,12 +36,7 @@ public class RestaurantService {
   public RestaurantsByBoundsResponse findRestaurantsInBounds(double latMin, double latMax, double lonMin, double lonMax) {
     List<Restaurant> restaurants = restaurantRepository.findByLocationLatitudeBetweenAndLocationLongitudeBetween(latMin, latMax, lonMin, lonMax);
 
-    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = restaurants.stream()
-            .map(restaurant -> {
-              Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
-              return RestaurantWithIngredientDto.from(restaurant, ingredient);
-            })
-            .collect(Collectors.toList());
+    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = makeRestaurantWithIngredientDtos(restaurants);
 
     return new RestaurantsByBoundsResponse(restaurantWithIngredientDtos);
   }
@@ -50,12 +45,7 @@ public class RestaurantService {
   public RestaurantsByKeywordResponse findRestaurantsByKeyword(String keyword) {
     List<Restaurant> restaurants = restaurantRepository.searchRestaurants(keyword);
 
-    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = restaurants.stream()
-            .map(restaurant -> {
-              Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
-              return RestaurantWithIngredientDto.from(restaurant, ingredient);
-            })
-            .collect(Collectors.toList());
+    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = makeRestaurantWithIngredientDtos(restaurants);
 
     return new RestaurantsByKeywordResponse(restaurantWithIngredientDtos);
   }
@@ -70,5 +60,15 @@ public class RestaurantService {
     restaurantRepository.deleteById(restaurantId);
 
     System.out.println("음식점 삭제 완료: " + restaurantId);
+  }
+
+  // List<Restaurant>로 List<RestaurantWithIngredientDto> 만들어주는 함수
+  public List<RestaurantWithIngredientDto> makeRestaurantWithIngredientDtos(List<Restaurant> restaurants) {
+    return restaurants.stream()
+            .map(restaurant -> {
+              Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
+              return RestaurantWithIngredientDto.from(restaurant, ingredient);
+            })
+            .collect(Collectors.toList());
   }
 }

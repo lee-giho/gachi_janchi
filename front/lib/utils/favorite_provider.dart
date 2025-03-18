@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 // Provider 정의 (StateNotifierProvider 사용)
-final favoriteProvider = StateNotifierProvider<FavoriteNotifier, Set<String>>((ref) {
+final favoriteProvider = StateNotifierProvider<FavoriteNotifier, List<Map<String, dynamic>>>((ref) {
   return FavoriteNotifier();
 });
 
-class FavoriteNotifier extends StateNotifier<Set<String>> {
-  FavoriteNotifier() : super({}) {
+class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
+  FavoriteNotifier() : super([]) {
     fetchFavoriteRestaurants();
   }
 
@@ -39,10 +39,13 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
         // JSON을 Map<String, dynamic>으로 변환
         final Map<String, dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
-        // FavoriteRestaurants 키에서 List<String>을 추출
-        final List<dynamic> favoriteList = jsonResponse["favoriteRestaurants"];
+        // "restaurants" 키가 존재하는지 확인 후 state 업데이트
+        if (jsonResponse.containsKey("restaurants")) {
+          final List<dynamic> restaurantList = jsonResponse["restaurants"];
 
-        state = favoriteList.map((item) =>item.toString()).toSet();
+          // 상태를 <Map<String, dynamic>>으로 저장
+          state = List<Map<String, dynamic>>.from(restaurantList);
+        }
       } else {
         print("즐겨찾기 리스트 불러오기 실패");
       }
@@ -52,7 +55,7 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
   }
 
   // 즐겨찾기 추가/삭제
-  Future<void> toggleFavoriteRestaurant(String restaurantId) async {
+  Future<void> toggleFavoriteRestaurant(Map<String, dynamic> restaurant) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -68,28 +71,28 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
 
     try {
       print("음식점 즐겨찾기 추가/삭제 요청 보내기 시작");
-      final response = await (state.contains(restaurantId)
+      final response = await (state.any((r) => r["id"] == restaurant["id"])
         ? http.delete(
             apiAddress,
             headers: deleteHeaders,
             body: json.encode({
-              "restaurantId": restaurantId
+              "restaurantId": restaurant["id"]
             })
           )
         : http.post(
             apiAddress,
             headers: postHeaders,
             body: json.encode({
-            "restaurantId": restaurantId
+            "restaurantId": restaurant["id"]
           })
         )
       );
 
       if(response.statusCode == 200) {
         print("음식점 즐겨찾기 추가/삭제 요청 성공");
-        state = state.contains(restaurantId) 
-          ? state.where((id) => id != restaurantId).toSet() // 특정 요소 제거
-          : {...state, restaurantId}; // 새로운 요소 추가
+        state = state.any((r) => r["id"] == restaurant["id"])
+          ? state.where((r) => r["id"] != restaurant["id"]).toList() // 특정 요소 제거
+          : [...state, restaurant]; // 새로운 요소 추가
       } else {
         print("음식점 즐겨찾기 추가/삭제 요청 실패");
       }
@@ -101,6 +104,6 @@ class FavoriteNotifier extends StateNotifier<Set<String>> {
   // 음식점 즐겨찾기 리스트 state 초기화 -> 로그아웃 시 실행
   void resetFavoriteRestaurants() {
     print("음식점 즐겨찾기 리스트 초기화");
-    state = {};
+    state = [];
   }
 }

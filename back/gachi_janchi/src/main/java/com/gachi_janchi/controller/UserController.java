@@ -86,4 +86,6 @@ public class UserController {
     GetFavoriteRestaurantsResponse getFavoriteRestaurantsResponse = favoriteRestaurantService.getUserFavorites(accessToken);
     return ResponseEntity.ok(getFavoriteRestaurantsResponse);
   }
+
+  // 음식점 즐겨찾기
 }

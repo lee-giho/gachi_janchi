@@ -10,5 +10,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class GetFavoriteRestaurantsResponse {
-  List<String> favoriteRestaurants;
+  //  List<String> favoriteRestaurants;
+  private List<RestaurantWithIngredientDto> restaurants;
 }

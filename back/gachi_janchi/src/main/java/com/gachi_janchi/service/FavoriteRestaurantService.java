@@ -2,6 +2,7 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.FavoriteRestaurant;
+import com.gachi_janchi.entity.Ingredient;
 import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.FavoriteRestaurantRepository;
@@ -9,6 +10,7 @@ import com.gachi_janchi.repository.RestaurantRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class FavoriteRestaurantService {
   private final RestaurantRepository restaurantRepository;
   private final JwtProvider jwtProvider;
   private final UserRepository userRepository;
+  private final IngredientService ingredientService;
 
   @Transactional
   public AddFavoriteRestaurantResponse addFavoriteRestaurant(AddFavoriteRestaurantRequest addFavoriteRestaurantRequest, String token) {
@@ -53,11 +56,24 @@ public class FavoriteRestaurantService {
   public GetFavoriteRestaurantsResponse getUserFavorites(String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
     String userId = jwtProvider.getUserId(accessToken);
-    List<String> favoriteRestaurants = favoriteRestaurantRepository.findByUserId(userId)
+
+    // 즐겨찾기 음식점 아이디 가져오기
+    List<String> favoriteRestaurantIds = favoriteRestaurantRepository.findByUserId(userId)
             .stream()
             .map(favoriteRestaurant -> favoriteRestaurant.getRestaurantId())
             .collect(Collectors.toList());
-    return new GetFavoriteRestaurantsResponse(favoriteRestaurants);
+
+    // 즐겨찾기 음식점 아이디로 List<Restaurant> 만들기
+    List<Restaurant> favoriteRestaurants = restaurantRepository.findAllById(favoriteRestaurantIds);
+
+    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = favoriteRestaurants.stream()
+            .map(restaurant -> {
+              Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
+              return RestaurantWithIngredientDto.from(restaurant, ingredient);
+            })
+            .collect(Collectors.toList());
+
+    return new GetFavoriteRestaurantsResponse(restaurantWithIngredientDtos);
   }
 
   // 즐겨찾기 삭제

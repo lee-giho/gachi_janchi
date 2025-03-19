@@ -41,6 +41,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+    idController.dispose();
+    passwordController.dispose();
+    idFocus.dispose();
+    passwordFocus.dispose();
+  }
+
   // 자동로그인 상태 저장 함수
   void saveIsAutoLogin(bool? isAutoLogin) async {
     // 토큰을 secure_storage에 저장

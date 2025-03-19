@@ -20,6 +20,11 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
   final TextEditingController searchKeywordController = TextEditingController();
   final FocusNode searchKeywordFocus = FocusNode();
 
+  // 검색어로 찾은 즐겨찾기 음식점 리스트
+  List<dynamic> searchFavoriteRestaurants = [];
+  // 검색 상태 관리
+  bool isKeywordSearch = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,16 +35,10 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
 
   @override
   void dispose() {
+    super.dispose();
     searchKeywordController.dispose();
     searchKeywordFocus.dispose();
-    super.dispose();
   }
-
-  // 검색어로 찾은 즐겨찾기 음식점 리스트
-  List<dynamic> searchFavoriteRestaurants = [];
-  // 검색 상태 관리
-  bool isKeywordSearch = false;
-
 
   // 즐겨찾기 음식점 검색 요청 함수
   Future<void> searchFavoriteRestaurantsByKeword() async {

@@ -49,6 +49,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    // TextEditingController dispose
+    nameController.dispose();
+    emailController.dispose();
+    idController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    emailFocus.dispose();
+    idFocus.dispose();
+    passwordFocus.dispose();
+    rePasswordFocus.dispose();
+  }
+
   // 입력 상태 체크 함수
   void checkFormValid() {
     setState(() {
@@ -167,25 +186,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
       );
     }
-  }
-
-  @override
-  void dispose() {
-    // TextEditingController dispose
-    nameController.dispose();
-    emailController.dispose();
-    idController.dispose();
-    passwordController.dispose();
-    rePasswordController.dispose();
-
-    // FocusNode dispose
-    nameFocus.dispose();
-    emailFocus.dispose();
-    idFocus.dispose();
-    passwordFocus.dispose();
-    rePasswordFocus.dispose();
-
-    super.dispose();
   }
 
   @override

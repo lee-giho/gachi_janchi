@@ -20,21 +20,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    requestLocationPermission();
-    super.initState();
-    // FocusNode에 리스너 추가
-    searchKeywordFocus.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    searchKeywordFocus.dispose();
-    super.dispose();
-  }
   
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
@@ -51,6 +36,24 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> searchRestaurants = [];
 
   DraggableScrollableController sheetController = DraggableScrollableController();
+
+  @override
+  void initState() {
+    super.initState();
+    requestLocationPermission();
+    // FocusNode에 리스너 추가
+    searchKeywordFocus.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    searchKeywordController.dispose();
+    searchKeywordFocus.dispose();
+    sheetController.dispose();
+  }
 
   // 위치 권한 요청
   void requestLocationPermission() async {

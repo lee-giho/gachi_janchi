@@ -50,9 +50,10 @@ class _HomeScreenState extends ConsumerState<TestScreen> {
     await SecureStorage.saveLoginType("");
 
     // 로그아웃 후 로그인 화면으로 이동
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context, 
-      MaterialPageRoute(builder: (context) => const LoginScreen())
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (Route<dynamic> route) => false // false를 반환하여 모든 기존 화면 제거
     );
 
     // String? refreshToken = await SecureStorage.getRefreshToken();

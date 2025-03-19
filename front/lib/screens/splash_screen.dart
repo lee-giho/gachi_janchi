@@ -21,8 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    checkLoginStatus();
     super.initState();
+    checkLoginStatus();
   }
 
   // 자동 로그인 체크 및 상태 확인

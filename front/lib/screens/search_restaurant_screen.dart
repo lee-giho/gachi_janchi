@@ -23,20 +23,20 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
 
   @override
   void initState() {
+    super.initState();
     if (widget.data['keyword'] != null || widget.data['keyword'].isNotEmpty) {
       setState(() {
         searchKeywordController.text = widget.data['keyword'];
       });
       searchRestaurantsByKeword();
     }
-    super.initState();
   }
 
   @override
   void dispose() {
+    super.dispose();
     searchKeywordController.dispose();
     searchKeywordFocus.dispose();
-    super.dispose();
   }
 
   List<dynamic> searchRestaurants = [];

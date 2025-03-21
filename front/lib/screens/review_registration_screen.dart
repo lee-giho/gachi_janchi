@@ -44,8 +44,10 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   Future<void> pickImages() async {
     final List<XFile>? images = await picker.pickMultiImage();
 
+    print("images length: ${images?.length}");
+
     if (images != null && images.isNotEmpty) {
-      if (images.length >= maxImages || selectedImages.length >= maxImages) {
+      if (images.length > maxImages || selectedImages.length >= maxImages) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("최대 $maxImages개의 이미지만 선택할 수 있습니다."))
         );

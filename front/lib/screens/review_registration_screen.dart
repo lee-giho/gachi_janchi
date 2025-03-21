@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ReviewRegistrationScreen extends StatefulWidget {
@@ -19,6 +20,8 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
 
   var contentController = TextEditingController(); // 리뷰 내용 값 저장
   FocusNode contentFocus = FocusNode(); // 리뷰 내용 FocusNode
+
+  int reviewRating = 0; // 리뷰 별점
   
   @override
   void dispose() {
@@ -168,7 +171,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Column(
+                Column( // 리뷰 내용 작성하는 부분
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
@@ -200,6 +203,27 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                         )
                       ),
                     )
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "별점",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    StarRating(
+                      onRatingChanged: (rating) {
+                        print("사용자가 선택한 별점: $rating");
+                        setState(() {
+                          reviewRating = rating;
+                        });
+                      }
+                    ),
                   ],
                 )
               ],

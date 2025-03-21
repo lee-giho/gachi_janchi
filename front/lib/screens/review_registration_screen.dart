@@ -18,14 +18,24 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   List<XFile> selectedImages = [];
   Set<String> selectedImageHashes = {}; // 동일한 사진 방지용 Set
 
+  final formKey = GlobalKey<FormState>();
   var contentController = TextEditingController(); // 리뷰 내용 값 저장
   FocusNode contentFocus = FocusNode(); // 리뷰 내용 FocusNode
 
   int reviewRating = 0; // 리뷰 별점
+
+  bool isSubmitEnabled = false; // 리뷰 작성 버튼 활성화 조건
   
+  @override
+  void initState() {
+    super.initState();
+    contentController.addListener(updateSubitButtonState);
+  }
+
   @override
   void dispose() {
     super.dispose();
+    contentController.removeListener(updateSubitButtonState);
     contentController.dispose();
     contentFocus.dispose();
   }
@@ -61,6 +71,22 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
     return md5.convert(bytes).toString(); // md5 해시값 생성
   }
 
+  // 버튼 상태 업데이트 함수
+  void updateSubitButtonState() {
+    setState(() {
+      isSubmitEnabled = formKey.currentState?.validate() == true && reviewRating > 0;
+    });
+  }
+
+  // 별점이 변경될 때 폼 검증 함수
+  void onRatingChanged(int rating) {
+    setState(() {
+      reviewRating = rating;
+      formKey.currentState?.validate();
+      isSubmitEnabled = formKey.currentState?.validate() == true && reviewRating > 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,148 +109,192 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
           },
           child: Container( // 전체화면
           padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            child: Column(
+            child: Column( // 리뷰 작성하는 부분과 버튼
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column( // 리뷰 사진 등록하는 부분
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "사진 등록",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          "${selectedImages.length}/5"
-                        )
-                      ],
-                    ),
-                    Container(
-                      height: 120,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1),
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: Row(
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Form(
+                      key: formKey,
+                      child: Column( // 사진, 내용, 별점 작성하는 부분
                         children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 1),
-                              borderRadius: BorderRadius.circular(10)
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                pickImages();
-                              },
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                          Column( // 리뷰 사진 등록하는 부분
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Icon(
-                                    Icons.photo,
-                                    size: 40,
+                                  const Text(
+                                    "사진 등록",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold
+                                    ),
                                   ),
+                                  const SizedBox(width: 10),
                                   Text(
-                                    "사진 등록"
+                                    "${selectedImages.length}/5"
                                   )
                                 ],
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: selectedImages.isEmpty
-                              ? const Center(
-                                  child: Text("선택된 이미지가 없습니다."),
-                                )
-                              : ListView.builder(
-                                scrollDirection: Axis.horizontal, // 가로 스크롤
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                itemCount: selectedImages.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.file(
-                                        File(selectedImages[index].path),
-                                        width: 100,
-                                        height: 100,
-                                        fit: BoxFit.cover,
+                              Container(
+                                height: 120,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 1),
+                                  borderRadius: BorderRadius.circular(10)
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(width: 1),
+                                        borderRadius: BorderRadius.circular(10)
                                       ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          pickImages();
+                                        },
+                                        child: const Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.photo,
+                                              size: 40,
+                                            ),
+                                            Text(
+                                              "사진 등록"
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: selectedImages.isEmpty
+                                        ? const Center(
+                                            child: Text("선택된 이미지가 없습니다."),
+                                          )
+                                        : ListView.builder(
+                                          scrollDirection: Axis.horizontal, // 가로 스크롤
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          itemCount: selectedImages.length,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(right: 10),
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(10),
+                                                child: Image.file(
+                                                  File(selectedImages[index].path),
+                                                  width: 100,
+                                                  height: 100,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            );
+                                          }
+                                        ),
+                                    ),
+                                  ],
+                                )
+                                ,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Column( // 리뷰 내용 작성하는 부분
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "리뷰",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                              TextFormField(
+                                controller: contentController,
+                                focusNode: contentFocus,
+                                maxLines: 5,
+                                maxLength: 250,
+                                keyboardType: TextInputType.multiline,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "리뷰 내용을 입력해주세요.";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "솔직한 리뷰를 남겨주세요.",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10)
+                                  ),
+                                  enabledBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.black
                                     )
-                                  );
+                                  ),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromRGBO(122, 11, 11, 1)
+                                    )
+                                  )
+                                ),
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "별점",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                              StarRating(
+                                onRatingChanged: (rating) {
+                                  print("사용자가 선택한 별점: $rating");
+                                  onRatingChanged(rating);
                                 }
                               ),
-                          ),
+                            ],
+                          )
                         ],
-                      )
-                      ,
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                Column( // 리뷰 내용 작성하는 부분
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "리뷰",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold
-                      ),
-                    ),
-                    TextField(
-                      controller: contentController,
-                      focusNode: contentFocus,
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        hintText: "솔직한 리뷰를 남겨주세요.",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.black
-                          )
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color.fromRGBO(122, 11, 11, 1)
-                          )
-                        )
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "별점",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold
-                      ),
-                    ),
-                    StarRating(
-                      onRatingChanged: (rating) {
-                        print("사용자가 선택한 별점: $rating");
-                        setState(() {
-                          reviewRating = rating;
-                        });
+                ElevatedButton(
+                  onPressed: isSubmitEnabled && formKey.currentState!.validate()
+                    ? () {
+                        print("리뷰 등록 버튼 클릭!!!");
+                        print("리뷰 내용: ${contentController.text}");
+                        print("별점: $reviewRating");
                       }
+                    : null,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)
+                    )
+                  ),
+                  child: const Text(
+                    "리뷰 등록",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
                     ),
-                  ],
+                  )
                 )
               ],
             ),

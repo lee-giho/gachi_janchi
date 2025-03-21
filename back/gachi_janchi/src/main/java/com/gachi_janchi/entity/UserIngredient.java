@@ -10,17 +10,18 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserIngredient {
+
     @EmbeddedId
     private UserIngredientId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("ingredientId")
-    @JoinColumn(name = "ingredient_id")
+    @JoinColumn(name = "ingredient_id", nullable = false)
     private Ingredient ingredient;
 
     @Column(name = "quantity", nullable = false)
@@ -31,5 +32,17 @@ public class UserIngredient {
         this.user = user;
         this.ingredient = ingredient;
         this.quantity = quantity;
+    }
+
+    /**
+     * ✅ 재료 수량 차감 메서드
+     * @param amount 차감할 수량
+     * @throws IllegalArgumentException 재료 부족 시 예외 발생
+     */
+    public void decreaseQuantity(int amount) {
+        if (this.quantity < amount) {
+            throw new IllegalArgumentException("재료가 부족합니다: " + this.ingredient.getName());
+        }
+        this.quantity -= amount;
     }
 }

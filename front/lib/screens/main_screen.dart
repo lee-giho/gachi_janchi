@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gachi_janchi/screens/favorite_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/mypage_main_screen.dart';
-import 'package:gachi_janchi/screens/ranking_screen.dart';
+import 'package:gachi_janchi/screens/ranking_collection_screen.dart';
 import 'package:gachi_janchi/screens/visit_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> screens = [
     HomeScreen(),
-    RankingScreen(),
+    RankingCollectionScreen(),
     FavoriteScreen(),
     VisitScreen(),
     MyPageMainScreen()

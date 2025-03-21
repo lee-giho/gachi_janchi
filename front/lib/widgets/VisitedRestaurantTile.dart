@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/screens/review_registration_screen.dart';
 
 class VisitedRestaurantTile extends StatefulWidget {
   const VisitedRestaurantTile({super.key});
@@ -85,7 +86,10 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                         )
                       ),
                       onPressed: () {
-
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ReviewRegistrationScreen())
+                        );
                       },
                       child: Text(
                         "리뷰 작성하기",

@@ -17,6 +17,16 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   List<XFile> selectedImages = [];
   Set<String> selectedImageHashes = {}; // 동일한 사진 방지용 Set
 
+  var contentController = TextEditingController(); // 리뷰 내용 값 저장
+  FocusNode contentFocus = FocusNode(); // 리뷰 내용 FocusNode
+  
+  @override
+  void dispose() {
+    super.dispose();
+    contentController.dispose();
+    contentFocus.dispose();
+  }
+
   // 갤러리에서 이미지 선택 (중복 방지)
   Future<void> pickImages() async {
     final List<XFile>? images = await picker.pickMultiImage();
@@ -54,99 +64,146 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
       appBar: AppBar(
         title: const Align(
           alignment: Alignment.topLeft,
-          child: Text("사진 선택")
+          child: Text(
+            "리뷰 작성",
+            style: TextStyle(
+              fontWeight: FontWeight.bold
+            ),
+          )
         )
       ),
       body: SafeArea(
-        child: Container( // 전체화면
-        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "사진 등록",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "${selectedImages.length}/5"
-                      )
-                    ],
-                  ),
-                  Container(
-                    height: 120,
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1)
-                    ),
-                    child: Row(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Container( // 전체화면
+          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Column(
+              children: [
+                Column( // 리뷰 사진 등록하는 부분
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 1),
-                            borderRadius: BorderRadius.circular(10)
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              pickImages();
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.photo,
-                                  size: 40,
-                                ),
-                                Text(
-                                  "사진 등록"
-                                )
-                              ],
-                            ),
+                        const Text(
+                          "사진 등록",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: selectedImages.isEmpty
-                            ? const Center(
-                                child: Text("선택된 이미지가 없습니다."),
-                              )
-                            : ListView.builder(
-                              scrollDirection: Axis.horizontal, // 가로 스크롤
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              itemCount: selectedImages.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.file(
-                                      File(selectedImages[index].path),
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                );
-                              }
-                            ),
-                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "${selectedImages.length}/5"
+                        )
                       ],
+                    ),
+                    Container(
+                      height: 120,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1),
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 1),
+                              borderRadius: BorderRadius.circular(10)
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                pickImages();
+                              },
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.photo,
+                                    size: 40,
+                                  ),
+                                  Text(
+                                    "사진 등록"
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: selectedImages.isEmpty
+                              ? const Center(
+                                  child: Text("선택된 이미지가 없습니다."),
+                                )
+                              : ListView.builder(
+                                scrollDirection: Axis.horizontal, // 가로 스크롤
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                itemCount: selectedImages.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.file(
+                                        File(selectedImages[index].path),
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  );
+                                }
+                              ),
+                          ),
+                        ],
+                      )
+                      ,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "리뷰",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    TextField(
+                      controller: contentController,
+                      focusNode: contentFocus,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        hintText: "솔직한 리뷰를 남겨주세요.",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.black
+                          )
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(122, 11, 11, 1)
+                          )
+                        )
+                      ),
                     )
-                    ,
-                  ),
-                ],
-              )
-            ],
+                  ],
+                )
+              ],
+            ),
           ),
         )
       ),

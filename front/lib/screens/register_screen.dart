@@ -194,6 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
           },

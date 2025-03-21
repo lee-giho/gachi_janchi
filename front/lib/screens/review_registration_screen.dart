@@ -124,20 +124,16 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                           Column( // 리뷰 사진 등록하는 부분
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              const Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
+                                  Text(
                                     "사진 등록",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    "${selectedImages.length}/5"
-                                  )
                                 ],
                               ),
                               Container(
@@ -204,6 +200,18 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                                 )
                                 ,
                               ),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 4, 10, 0),
+                                  child: Text(
+                                    "${selectedImages.length}/5",
+                                    style: const TextStyle(
+                                      fontSize: 12
+                                    )
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                           const SizedBox(height: 20),

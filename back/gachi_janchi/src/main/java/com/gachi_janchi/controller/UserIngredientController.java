@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ingredients")
+
 public class UserIngredientController {
 
     @Autowired
@@ -26,7 +27,11 @@ public class UserIngredientController {
         AddIngredientResponse response = userIngredientService.addIngredient(accessToken, request);
         return ResponseEntity.ok(response);
     }
-
+    // 전체 재료 목록 조회
+    @GetMapping("/all")
+    public ResponseEntity<List<IngredientResponse>> getAllIngredients() {
+        return ResponseEntity.ok(userIngredientService.getAllIngredients());
+    }
     /**
      * ✅ 유저가 보유한 재료 목록 조회 API
      */

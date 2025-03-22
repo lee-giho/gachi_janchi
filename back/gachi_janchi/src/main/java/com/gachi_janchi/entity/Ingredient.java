@@ -4,21 +4,23 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "ingredients")
 @Getter
 @Setter
-@NoArgsConstructor // ✅ JPA 기본 생성자
-@Table(name = "ingredients")
+@NoArgsConstructor
 public class Ingredient {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    // ✅ 이름을 받는 생성자 추가
-    public Ingredient(String name) {
+    @Column(name = "image_path")
+    private String imagePath; // ✅ 이미지 경로 추가
+
+    public Ingredient(String name, String imagePath) {
         this.name = name;
+        this.imagePath = imagePath;
     }
 }

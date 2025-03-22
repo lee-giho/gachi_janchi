@@ -17,14 +17,19 @@ public class UserCollection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "collection_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "collection_id")
     private Collection collection;
 
-    @Column(nullable = false)
-    private LocalDateTime acquiredAt = LocalDateTime.now();
+    private LocalDateTime acquiredAt;
+
+    public UserCollection(User user, Collection collection) {
+        this.user = user;
+        this.collection = collection;
+        this.acquiredAt = LocalDateTime.now();
+    }
 }

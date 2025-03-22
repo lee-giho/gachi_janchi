@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +23,7 @@ public class UserIngredientService {
     private UserIngredientRepository userIngredientRepository;
 
     @Autowired
-    private IngredientRepository ingredientRepository;
+    private IngredientRepository ingredientRepository; // ✅ static 제거
 
     @Autowired
     private UserRepository userRepository;
@@ -45,37 +44,44 @@ public class UserIngredientService {
         // 재료 조회 (없으면 자동 추가)
         Ingredient ingredient = ingredientRepository.findByName(request.getIngredientName())
                 .orElseGet(() -> {
-                    Ingredient newIngredient = new Ingredient(request.getIngredientName());
-                    return ingredientRepository.save(newIngredient); // ✅ 자동 저장
+                    Ingredient newIngredient = new Ingredient(request.getIngredientName(), "/images/ingredients/default.png");
+                    return ingredientRepository.save(newIngredient); // ✅ 기본 이미지 포함
                 });
 
-        // 유저가 이미 재료를 보유하고 있는지 확인
-        Optional<UserIngredient> userIngredientOptional = userIngredientRepository.findByUserIdAndIngredientId(user.getId(), ingredient.getId());
+        // 유저가 이미 보유한 재료인지 확인
+        UserIngredient userIngredient = userIngredientRepository
+                .findByUserIdAndIngredientId(user.getId(), ingredient.getId())
+                .orElse(new UserIngredient(user, ingredient, 0)); // 기본 수량 0
 
-        UserIngredient userIngredient;
-        if (userIngredientOptional.isPresent()) {
-            // 이미 보유한 재료라면 수량 증가
-            userIngredient = userIngredientOptional.get();
-            userIngredient.setQuantity(userIngredient.getQuantity() + 1);
-        } else {
-            // 처음 획득하는 재료라면 추가
-            userIngredient = new UserIngredient(user, ingredient, 1);
-        }
-
+        // 수량 증가 후 저장
+        userIngredient.setQuantity(userIngredient.getQuantity() + 1);
         userIngredientRepository.save(userIngredient);
+
         return new AddIngredientResponse(request.getIngredientName() + " 재료가 추가되었습니다.");
     }
 
     /**
-     * ✅ 유저가 보유한 재료 리스트 조회
+     * ✅ 전체 재료 목록 조회 (이름 + 이미지)
+     */
+    public List<IngredientResponse> getAllIngredients() {
+        List<Ingredient> ingredients = ingredientRepository.findAll();
+        return ingredients.stream()
+                .map(i -> new IngredientResponse(i.getName(), i.getImagePath()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * ✅ 유저가 보유한 재료 리스트 조회 (이미지 포함)
      */
     public List<UserIngredientResponse> getUserIngredients(String token) {
         String userId = jwtProvider.getUserId(jwtProvider.getTokenWithoutBearer(token));
 
-        List<UserIngredient> userIngredients = userIngredientRepository.findByUserId(userId);
-
-        return userIngredients.stream()
-                .map(ui -> new UserIngredientResponse(ui.getIngredient().getName(), ui.getQuantity()))
+        return userIngredientRepository.findByUserId(userId).stream()
+                .map(ui -> new UserIngredientResponse(
+                        ui.getIngredient().getName(),
+                        ui.getQuantity(),
+                        ui.getIngredient().getImagePath() // ✅ 이미지 포함
+                ))
                 .collect(Collectors.toList());
     }
 }

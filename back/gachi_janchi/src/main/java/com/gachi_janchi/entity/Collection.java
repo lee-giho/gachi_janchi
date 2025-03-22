@@ -10,8 +10,8 @@ import java.util.Set;
 @Table(name = "collections")
 @Getter
 @Setter
-@NoArgsConstructor // 기본 생성자 추가 (JPA 필수)
-@AllArgsConstructor // 모든 필드를 받는 생성자 추가
+@NoArgsConstructor
+@AllArgsConstructor
 public class Collection {
 
     @Id
@@ -21,10 +21,18 @@ public class Collection {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "image_path")
+    private String imagePath;
+
     @OneToMany(mappedBy = "collection", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CollectionIngredient> ingredients = new HashSet<>();
 
-    public Collection(String name) {
+    public Collection(String name, String imagePath, String description) {
         this.name = name;
+        this.imagePath = imagePath;
+        this.description = description;
     }
 }

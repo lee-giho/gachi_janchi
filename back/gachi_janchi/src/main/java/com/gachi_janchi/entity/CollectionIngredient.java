@@ -7,7 +7,7 @@ import lombok.*;
 @Table(name = "collection_ingredients")
 @Getter
 @Setter
-@NoArgsConstructor  // ✅ 기본 생성자 추가
+@NoArgsConstructor
 @AllArgsConstructor
 public class CollectionIngredient {
 
@@ -26,7 +26,6 @@ public class CollectionIngredient {
     @Column(nullable = false)
     private int quantity;
 
-    // ✅ 필요한 생성자 추가
     public CollectionIngredient(Collection collection, Ingredient ingredient, int quantity) {
         this.collection = collection;
         this.ingredient = ingredient;

@@ -2,6 +2,7 @@ package com.gachi_janchi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,10 +31,16 @@ public class User {
   @Column(name = "type", nullable = false)
   private String type;
 
-  @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "created_at", nullable = false, updatable = false, insertable = false,
+          columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt;
 
-  // Role 정보 추가 (ManyToMany 관계)
+  // ✅ 대표 칭호 (nullable 허용, SET NULL 가능)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "title_id", foreignKey = @ForeignKey(name = "fk_user_title"))
+  private Title title;
+
+  // ✅ Role 정보
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
           name = "user_role",
@@ -45,4 +52,6 @@ public class User {
   // ✅ 유저가 보유한 재료 (UserIngredient 연결)
   @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<UserIngredient> ingredients = new LinkedHashSet<>();
+
+  // ✨ (선택) 유저가 완성한 컬렉션, 획득한 칭호 등도 연결 가능
 }

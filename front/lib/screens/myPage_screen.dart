@@ -4,10 +4,10 @@ import 'package:dio/dio.dart';
 import '../utils/secure_storage.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'edit_nickname_screen.dart';
-import 'edit_title_screen.dart'; // ✅ 기존 파일 사용
+import 'edit_title_screen.dart';
 import 'edit_name_screen.dart';
 import 'VerifyPasswordScreen.dart';
-import 'ProfileWidget.dart'; // ✅ 프로필 위젯 추가
+import 'ProfileWidget.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -18,10 +18,10 @@ class MypageScreen extends StatefulWidget {
 
 class _MypageScreenState extends State<MypageScreen> {
   String nickname = "로딩 중...";
-  String selectedTitle = "칭호 없음"; // ✅ 대표 칭호 저장
+  String selectedTitle = "칭호 없음";
   String name = "로딩 중...";
   String email = "로딩 중...";
-  String loginType = ""; // ✅ 로그인 유형 (local 또는 social)
+  String loginType = "";
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -30,7 +30,6 @@ class _MypageScreenState extends State<MypageScreen> {
     _fetchUserInfo();
   }
 
-  /// ✅ 서버에서 사용자 정보를 가져오는 함수
   Future<void> _fetchUserInfo() async {
     String? accessToken = await SecureStorage.getAccessToken();
     if (accessToken == null) {
@@ -43,19 +42,18 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      print("🔹 [API 요청] GET /api/user/info");
       final response = await dio.get("http://localhost:8080/api/user/info");
 
       if (response.statusCode == 200) {
         var data = response.data;
         setState(() {
           nickname = data["nickname"] ?? "정보 없음";
-          selectedTitle = data["title"] ?? "칭호 없음"; // ✅ 대표 칭호 업데이트
+          selectedTitle = data["title"] ?? "칭호 없음";
           name = data["name"] ?? "정보 없음";
           loginType = data["type"] ?? "local";
           email = loginType == "social"
               ? _getUserIdFromToken(accessToken)
-              : data["email"] ?? "정보 없음"; // ✅ 소셜 로그인은 userId 표시
+              : data["email"] ?? "정보 없음";
         });
       }
     } catch (e) {
@@ -65,14 +63,6 @@ class _MypageScreenState extends State<MypageScreen> {
     }
   }
 
-  /// ✅ 대표 칭호 업데이트
-  void _updateTitle(String title) {
-    setState(() {
-      selectedTitle = title;
-    });
-  }
-
-  /// ✅ JWT 토큰에서 `userId` 추출하는 함수
   String _getUserIdFromToken(String token) {
     try {
       List<String> tokenParts = token.split('.');
@@ -99,9 +89,7 @@ class _MypageScreenState extends State<MypageScreen> {
       body: Column(
         children: [
           const SizedBox(height: 40),
-
-          const ProfileWidget(), // ✅ 프로필 위젯 추가
-
+          const ProfileWidget(),
           const SizedBox(height: 20),
           _buildInfoBox(),
           const SizedBox(height: 20),
@@ -111,7 +99,6 @@ class _MypageScreenState extends State<MypageScreen> {
     );
   }
 
-  /// ✅ 사용자 정보 리스트 UI
   Widget _buildInfoBox() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -126,24 +113,19 @@ class _MypageScreenState extends State<MypageScreen> {
               onTap: () => _navigateToEditScreen(
                   EditnicknameScreen(currentValue: nickname))),
 
-          // ✅ 대표 칭호 변경 가능
+          // ✅ 칭호 변경 화면으로 단순 이동
           _buildListTile("대표 칭호", selectedTitle, onTap: () async {
-            final result = await Navigator.push(
+            await Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EditTitleScreen(currentTitle: selectedTitle)),
+              MaterialPageRoute(builder: (context) => const EditTitleScreen()),
             );
-            if (result != null) {
-              _updateTitle(result);
-            }
+            _fetchUserInfo(); // ✅ 돌아오면 갱신
           }),
 
           _buildListTile("이름", name,
               onTap: () =>
                   _navigateToEditScreen(EditnameScreen(currentValue: name))),
 
-          // ✅ 이메일 수정 불가능 (클릭 이벤트 제거)
           _buildListTile("이메일", email),
 
           if (loginType == "local")

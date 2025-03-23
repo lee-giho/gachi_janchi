@@ -1,146 +1,234 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import '../utils/secure_storage.dart';
 
 class EditTitleScreen extends StatefulWidget {
-  final String? currentTitle; // ✅ 선택된 칭호가 없을 수도 있음
-
-  const EditTitleScreen({super.key, this.currentTitle});
+  const EditTitleScreen({super.key});
 
   @override
   State<EditTitleScreen> createState() => _EditTitleScreenState();
 }
 
 class _EditTitleScreenState extends State<EditTitleScreen> {
-  late String selectedTitle;
-  bool isExpanded = false; // ✅ 칭호 목록 펼치기/접기 상태
-
-  // ✅ 예제 칭호 리스트
-  final List<String> availableTitles = [
-    "칭호 1",
-    "칭호 2",
-    "칭호 3",
-    "칭호 4",
-    "칭호 5",
-    "칭호 6",
-    "칭호 7",
-    "칭호 8"
-  ];
-
-  final List<Color> titleColors = [
-    Colors.blue,
-    Colors.red,
-    Colors.orange,
-    Colors.pink,
-    Colors.lightBlue,
-    Colors.purple,
-    Colors.green,
-    Colors.brown
-  ];
-
-  late Color selectedColor; // ✅ 선택된 칭호의 배경색
+  final Dio _dio = Dio();
+  List<dynamic> userTitles = [];
+  List<dynamic> allTitleConditions = [];
+  String? selectedTitle;
+  int? selectedTitleId;
 
   @override
   void initState() {
     super.initState();
-    selectedTitle = widget.currentTitle ?? "칭호 선택"; // ✅ 기본값 설정
-    int initialIndex = availableTitles.indexOf(widget.currentTitle ?? "");
-    selectedColor =
-        initialIndex != -1 ? titleColors[initialIndex] : Colors.grey;
+    _fetchUserInfoAndTitles();
+    _fetchAllTitleProgress();
+  }
+
+  Future<void> _fetchUserInfoAndTitles() async {
+    String? token = await SecureStorage.getAccessToken();
+    if (token == null) return;
+
+    try {
+      final userRes = await _dio.get(
+        "http://localhost:8080/api/user/info",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      String? userTitleName;
+      if (userRes.statusCode == 200) {
+        userTitleName = userRes.data['title']?.toString().trim();
+        print("\uD83D\uDC51 현재 대표 칭호: $userTitleName");
+      }
+
+      final res = await _dio.get(
+        "http://localhost:8080/api/titles/user",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      if (res.statusCode == 200) {
+        final data = res.data;
+        print("\uD83D\uDCE6 유저 칭호 목록: $data");
+
+        final match = data.firstWhere(
+          (t) => t['titleName'].toString().trim() == userTitleName,
+          orElse: () => null,
+        );
+
+        setState(() {
+          userTitles = data;
+          selectedTitleId = match != null ? match['titleId'] : null;
+          selectedTitle = match != null ? match['titleName'] : null;
+        });
+      }
+    } catch (e) {
+      print("\u274C 유저 정보 또는 칭호 목록 불러오기 실패: $e");
+    }
+  }
+
+  Future<void> _fetchAllTitleProgress() async {
+    String? token = await SecureStorage.getAccessToken();
+    if (token == null) return;
+
+    try {
+      final res = await _dio.get(
+        "http://localhost:8080/api/titles/progress",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+      if (res.statusCode == 200) {
+        setState(() {
+          allTitleConditions = res.data;
+        });
+      }
+    } catch (e) {
+      print("\u274C 칭호 진행도 불러오기 실패: $e");
+    }
+  }
+
+  Future<void> _saveSelectedTitle(int? titleId, String titleName) async {
+    String? token = await SecureStorage.getAccessToken();
+    if (token == null) return;
+
+    try {
+      final res = await _dio.post(
+        "http://localhost:8080/api/titles/set",
+        data: {"titleId": titleId},
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      if (res.statusCode == 200) {
+        print("\u2705 대표 칭호 저장 완료: $titleName ($titleId)");
+        Navigator.pop(context, titleName);
+      }
+    } catch (e) {
+      print("\u274C 대표 칭호 설정 실패: $e");
+    }
+  }
+
+  Future<void> _claimTitle(int titleId) async {
+    String? token = await SecureStorage.getAccessToken();
+    if (token == null) return;
+
+    try {
+      final res = await _dio.post(
+        "http://localhost:8080/api/titles/claim",
+        data: {"titleId": titleId},
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      if (res.statusCode == 200) {
+        print("\uD83C\uDFC5 칭호 획득 성공: $titleId");
+        _fetchUserInfoAndTitles();
+        _fetchAllTitleProgress();
+      }
+    } catch (e) {
+      print("\u274C 칭호 획득 실패: $e");
+    }
+  }
+
+  bool isOwned(String titleName) {
+    return userTitles.any((t) => t['titleName'] == titleName);
+  }
+
+  String getConditionText(dynamic title) {
+    final type = title['conditionType'];
+    final value = title['conditionValue'];
+
+    switch (type) {
+      case "DEFAULT":
+        return "기본 칭호";
+      case "INGREDIENT":
+        return "재료 $value개 수집 (현재: ${title['progress']})";
+      case "COLLECTION":
+        return "컬렉션 $value개 완성 (현재: ${title['progress']})";
+      case "COLLECTION_NAME":
+        return "$value 컬렉션 완성";
+      case "COLLECTION_NAMES":
+        return "${value.toString().split(',').join(', ')} 컬렉션 완성";
+      case "ALL_COLLECTIONS":
+        return "모든 컬렉션 완성";
+      case "ALL_INGREDIENTS":
+        return "모든 재료 수집";
+      default:
+        return "조건 정보 없음";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("칭호 변경")),
+      appBar: AppBar(title: const Text("대표 칭호 설정")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("용사님의 칭호를 골라주세요.",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-            const SizedBox(height: 10),
-
-            // ✅ 현재 선택된 칭호 (펼치기/접기 버튼)
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                });
-              },
-              child: Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: selectedColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      selectedTitle,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("대표 칭호 선택",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int?>(
+                value: selectedTitleId,
+                hint: const Text("칭호를 선택하세요"),
+                isExpanded: true,
+                items: [
+                  const DropdownMenuItem<int?>(
+                    value: null,
+                    child: Text("칭호 없음"),
                   ),
-                  const SizedBox(width: 10),
-                  Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ✅ 칭호 목록 (펼쳐진 경우에만 보이도록)
-            if (isExpanded)
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(availableTitles.length, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedTitle = availableTitles[index];
-                          selectedColor = titleColors[index]; // ✅ 선택한 칭호 색으로 변경
-                          isExpanded = false; // ✅ 선택 후 목록 자동 닫기
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: titleColors[index],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          availableTitles[index],
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                  ...userTitles.map<DropdownMenuItem<int?>>((t) {
+                    return DropdownMenuItem<int?>(
+                      value: t['titleId'],
+                      child: Text(t['titleName']),
                     );
-                  }),
+                  }).toList(),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedTitleId = value;
+                    selectedTitle = userTitles.firstWhere(
+                      (t) => t['titleId'] == value,
+                      orElse: () => {'titleName': "칭호 없음"},
+                    )['titleName'];
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => _saveSelectedTitle(
+                    selectedTitleId,
+                    selectedTitle ?? "칭호 없음",
+                  ),
+                  child: const Text("저장"),
                 ),
               ),
-
-            const SizedBox(height: 20),
-
-            // ✅ 저장 버튼 (색상 변경 없음)
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, selectedTitle);
-                },
-                child: const Text("저장"),
+              const SizedBox(height: 30),
+              const Divider(),
+              const Text("획득하지 않은 칭호",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Column(
+                children: allTitleConditions
+                    .where((title) => !isOwned(title['titleName']))
+                    .map((title) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    child: ListTile(
+                      leading:
+                          Icon(Icons.lock_outline, color: Colors.grey[600]),
+                      title: Text(title['titleName']),
+                      subtitle: Text("조건: ${getConditionText(title)}"),
+                      trailing: (title['achievable'] == true)
+                          ? TextButton(
+                              onPressed: () => _claimTitle(title['titleId']),
+                              child: const Text("획득하기"),
+                            )
+                          : null,
+                    ),
+                  );
+                }).toList(),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

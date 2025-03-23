@@ -54,7 +54,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
         return; // 함수 종료
       } else {
         for (var image in images) {
-          String imageHash = await _calculateImageHash(image); // 파일의 md5 해시 생성
+          String imageHash = await calculateImageHash(image); // 파일의 md5 해시 생성
           print("imageHash: $imageHash");
           if (!selectedImageHashes.contains(imageHash)) { // 중복된 해시값이 없으면 추가
             setState(() {
@@ -68,7 +68,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   }
 
   // 파일의 md5 해시값 계산
-  Future<String> _calculateImageHash(XFile image) async {
+  Future<String> calculateImageHash(XFile image) async {
     final bytes = await File(image.path).readAsBytes(); // 파일을 바이트로 읽음
     return md5.convert(bytes).toString(); // md5 해시값 생성
   }
@@ -181,17 +181,45 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                                           padding: const EdgeInsets.symmetric(horizontal: 8),
                                           itemCount: selectedImages.length,
                                           itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(right: 10),
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(10),
-                                                child: Image.file(
-                                                  File(selectedImages[index].path),
-                                                  width: 100,
-                                                  height: 100,
-                                                  fit: BoxFit.cover,
+                                            return Stack(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right: 10),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    child: Image.file(
+                                                      File(selectedImages[index].path),
+                                                      width: 100,
+                                                      height: 100,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  )
                                                 ),
-                                              )
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 10,
+                                                  child: GestureDetector(
+                                                    onTap: () async {
+                                                      final imageHash = await calculateImageHash(selectedImages[index]);
+                                                      setState(() {
+                                                        selectedImageHashes.remove(imageHash);
+                                                        selectedImages.removeAt(index);
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black.withOpacity(0.5),
+                                                        shape: BoxShape.circle
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  )
+                                                )
+                                              ]
                                             );
                                           }
                                         ),

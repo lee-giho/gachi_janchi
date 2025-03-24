@@ -141,7 +141,7 @@ class _CollectedIngredientsScreenState
           itemBuilder: (context, index) {
             final ingredient = allIngredients[index];
             String name = ingredient["name"];
-            String imagePath = 'assets/images/$name.png'; // ✅ 여기 수정
+            String imagePath = 'assets/images/ingredient/$name.png'; // ✅ 여기 수정
             int quantity = userIngredients[name] ?? 0;
             bool isCollected = quantity > 0;
 

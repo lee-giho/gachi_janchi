@@ -261,14 +261,14 @@ class _HomeScreenState extends State<HomeScreen> {
         double longitude = restaurant["location"]["longitude"];
         String restaurantName = restaurant["restaurantName"];
         String ingredient = restaurant["ingredientName"];
-        print("assets/images/${ingredient}.png");
+        print("assets/images/ingredient/$ingredient.png");
 
         // ✅ 현재 지도 영역 내에 있는지 확인
         if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
           NMarker marker = NMarker(
             id: restaurantName,
             position: NLatLng(latitude, longitude),
-            icon: NOverlayImage.fromAssetImage("assets/images/${ingredient}.png"),
+            icon: NOverlayImage.fromAssetImage("assets/images/ingredient/$ingredient.png"),
             caption: NOverlayCaption(text: restaurantName),
           );
 
@@ -276,11 +276,11 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               // 이전에 선택된 마커 크기 원래대로 되돌리기
               if (selectedMarkerId != null && markerMap.containsKey(selectedMarkerId)) {
-                markerMap[selectedMarkerId]!.setSize(const Size(60, 60)); // 원래 크기로 되돌리기
+                markerMap[selectedMarkerId]!.setSize(const Size(40, 40)); // 원래 크기로 되돌리기
               }
 
               // 새로운 마커 크기 키우기
-              marker.setSize(const Size(80, 80));
+              marker.setSize(const Size(60, 60));
 
               // 현재 선택된 마커 ID 업데이트
               selectedMarkerId = marker.info.id;
@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
             updateSheetSize(); // 바텀 시트 크기 업데이트
           });
 
-          marker.setSize(const Size(60, 60));
+          marker.setSize(const Size(40, 40));
           // markerMap에 마커 저장
           markerMap[restaurantName] = marker;
           newMarkers.add(marker);

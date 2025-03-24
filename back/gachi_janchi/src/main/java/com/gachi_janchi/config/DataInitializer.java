@@ -57,20 +57,20 @@ public class DataInitializer {
         
         List<String> ingredients = new ArrayList<>(
           Arrays.asList(
-            "마늘",
-            "고기",
-            "버섯",
-            "토마토",
-            "가지",
-            "계란",
-            "당근",
-            "피자",
-            "바나나",
-            "파인애플",
-            "딸기",
-            "우유",
-            "옥수수",
-            "케이크"
+            "garlic",
+            "meat",
+            "mushroom",
+            "tomato",
+            "eggplant",
+            "egg",
+            "carrot",
+            "pizza",
+            "banana",
+            "pineapple",
+            "strawberry",
+            "milk",
+            "corn",
+            "cake"
           )
         );
 

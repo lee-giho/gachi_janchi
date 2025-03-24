@@ -104,7 +104,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
               )
             ),
             Image.asset(
-              'assets/images/material/tomato.png',
+              'assets/images/ingredient/tomato.png',
               fit: BoxFit.contain,
               height: 50,
             ),

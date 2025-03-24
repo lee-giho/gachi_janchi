@@ -117,30 +117,31 @@ public class DataInitializer {
 
     @Transactional
     public void addCollectionIngredients(
-            CollectionRepository collectionRepository,
-            IngredientRepository ingredientRepository,
-            CollectionIngredientRepository collectionIngredientRepository) {
-
+        
+      CollectionRepository collectionRepository,
+      IngredientRepository ingredientRepository,
+      CollectionIngredientRepository collectionIngredientRepository) {
+        System.out.println("addCollectionIngredients");
         Map<String, Map<String, Integer>> collectionIngredients = Map.ofEntries(
-                Map.entry("김치찌개", Map.of("마늘", 1, "고기", 1, "버섯", 1, "토마토", 1)),
-                Map.entry("된장찌개", Map.of("마늘", 1, "버섯", 1, "가지", 1, "계란", 1)),
-                Map.entry("불고기", Map.of("고기", 2, "마늘", 1, "당근", 1)),
-                Map.entry("과일 샐러드", Map.of("바나나", 1, "파인애플", 1, "딸기", 1, "우유", 1)),
-                Map.entry("오므라이스", Map.of("계란", 2, "당근", 1, "우유", 1, "고기", 1)),
-                Map.entry("팟타이", Map.of("계란", 1, "고기", 1, "마늘", 1, "당근", 1)),
-                Map.entry("떡볶이", Map.of("마늘", 1, "고기", 1, "계란", 1, "토마토", 1)),
-                Map.entry("비빔밥", Map.of("당근", 1, "고기", 1, "가지", 1, "계란", 1)),
-                Map.entry("해물파전", Map.of("마늘", 1, "버섯", 1, "계란", 1, "우유", 1)),
-                Map.entry("스테이크", Map.of("고기", 2, "마늘", 1, "버섯", 1)),
-                Map.entry("볶음밥", Map.of("계란", 1, "고기", 1, "당근", 1, "옥수수", 1)),
-                Map.entry("오징어볶음", Map.of("마늘", 1, "고기", 1, "버섯", 1, "옥수수", 1)),
-                Map.entry("카레라이스", Map.of("고기", 1, "당근", 1, "토마토", 1, "우유", 1)),
-                Map.entry("라자냐", Map.of("피자", 1, "고기", 1, "토마토", 1, "버섯", 1)),
-                Map.entry("감바스", Map.of("고기", 1, "마늘", 1, "파인애플", 1, "토마토", 1)),
-                Map.entry("크림스프", Map.of("우유", 2, "버섯", 1, "마늘", 1)),
-                Map.entry("팬케이크", Map.of("계란", 1, "우유", 1, "케이크", 1, "딸기", 1)),
-                Map.entry("과일주스", Map.of("바나나", 1, "딸기", 1, "파인애플", 1, "우유", 1)),
-                Map.entry("스무디볼", Map.of("바나나", 1, "딸기", 1, "옥수수", 1, "우유", 1))
+                Map.entry("김치찌개", Map.of("garlic", 1, "meat", 1, "mushroom", 1, "tomato", 1)),
+                Map.entry("된장찌개", Map.of("garlic", 1, "mushroom", 1, "eggplant", 1, "egg", 1)),
+                Map.entry("불고기", Map.of("meat", 2, "garlic", 1, "carrot", 1)),
+                Map.entry("과일 샐러드", Map.of("banana", 1, "pineapple", 1, "strawberry", 1, "milk", 1)),
+                Map.entry("오므라이스", Map.of("egg", 2, "carrot", 1, "milk", 1, "meat", 1)),
+                Map.entry("팟타이", Map.of("egg", 1, "meat", 1, "garlic", 1, "carrot", 1)),
+                Map.entry("떡볶이", Map.of("garlic", 1, "meat", 1, "egg", 1, "tomato", 1)),
+                Map.entry("비빔밥", Map.of("carrot", 1, "meat", 1, "eggplant", 1, "egg", 1)),
+                Map.entry("해물파전", Map.of("garlic", 1, "mushroom", 1, "egg", 1, "milk", 1)),
+                Map.entry("스테이크", Map.of("meat", 2, "garlic", 1, "mushroom", 1)),
+                Map.entry("볶음밥", Map.of("egg", 1, "meat", 1, "carrot", 1, "corn", 1)),
+                Map.entry("오징어볶음", Map.of("garlic", 1, "meat", 1, "mushroom", 1, "corn", 1)),
+                Map.entry("카레라이스", Map.of("meat", 1, "carrot", 1, "tomato", 1, "milk", 1)),
+                Map.entry("라자냐", Map.of("pizza", 1, "meat", 1, "tomato", 1, "mushroom", 1)),
+                Map.entry("감바스", Map.of("meat", 1, "garlic", 1, "pineapple", 1, "tomato", 1)),
+                Map.entry("크림스프", Map.of("milk", 2, "mushroom", 1, "garlic", 1)),
+                Map.entry("팬케이크", Map.of("egg", 1, "milk", 1, "cake", 1, "strawberry", 1)),
+                Map.entry("과일주스", Map.of("banana", 1, "strawberry", 1, "pineapple", 1, "milk", 1)),
+                Map.entry("스무디볼", Map.of("banana", 1, "strawberry", 1, "corn", 1, "milk", 1))
         );
 
         for (var entry : collectionIngredients.entrySet()) {
@@ -158,6 +159,7 @@ public class DataInitializer {
             }
         }
     }
+
     @Transactional
     public void addTitles(TitleRepository titleRepository) {
         List<Title> titles = List.of(

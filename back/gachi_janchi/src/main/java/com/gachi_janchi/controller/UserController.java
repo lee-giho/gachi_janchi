@@ -1,6 +1,7 @@
 package com.gachi_janchi.controller;
 
 import com.gachi_janchi.dto.*;
+import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,34 @@ public class UserController {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private FavoriteRestaurantService favoriteRestaurantService;
+
+
+  @GetMapping("/info")
+  public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
+    return ResponseEntity.ok(userService.getUserInfo(accessToken));
+  }
+
+  // 이름 업데이트 엔드포인트
+  @PatchMapping("/name")
+  public ResponseEntity<UpdateNameResponse> updateName(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestBody UpdateNameRequest updateNameRequest) {  // ✅ UpdateNameRequest 사용
+    UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
+    return ResponseEntity.ok(updateNameResponse);
+  }
+
+  /* 이메일 업데이트 엔드포인트
+  @PatchMapping("/email")
+  public ResponseEntity<UpdateEmailResponse> updateEmail(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestBody UpdateEmailRequest updateEmailRequest) {
+
+    UpdateEmailResponse updateEmailResponse = userService.updateEmail(updateEmailRequest, accessToken);
+    return ResponseEntity.ok(updateEmailResponse);
+  } */
 
 
   @GetMapping("/info")
@@ -60,6 +89,7 @@ public class UserController {
   // 닉네임 중복확인 엔드포인트
   @GetMapping("duplication/nick-name")
   public ResponseEntity<CheckNickNameDuplicationResponse> checkNickNameDuplication(@RequestParam("nickName") String nickName) {
+
     CheckNickNameDuplicationResponse checkNickNameDuplicationResponse = userService.checkNickNameDuplication(nickName);
     return ResponseEntity.ok(checkNickNameDuplicationResponse);
   }
@@ -111,4 +141,29 @@ public class UserController {
     return ResponseEntity.ok(tokenRefreshResponse);
   }
 
+  // 음식점 즐겨찾기 추가 엔드포인트
+  @PostMapping("/favorite-restaurant")
+  public ResponseEntity<AddFavoriteRestaurantResponse> addFavoriteRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody AddFavoriteRestaurantRequest addFavoriteRestaurantRequest) {
+    System.out.println("favorite-restaurant 엔드포인트");
+    AddFavoriteRestaurantResponse addFavoriteRestaurantResponse = favoriteRestaurantService.addFavoriteRestaurant(addFavoriteRestaurantRequest, accessToken);
+    return ResponseEntity.ok(addFavoriteRestaurantResponse);
+  }
+
+  // 음식점 즐겨찾기 삭제 엔드포인트
+  @DeleteMapping("/favorite-restaurant")
+  public ResponseEntity<DeleteFavoriteRestaurantResponse> deleteFavoriteRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody DeleteFavoriteRestaurantRequest deleteFavoriteRestaurantRequest) {
+    System.out.println("favorite-restaurant 엔드포인트");
+    DeleteFavoriteRestaurantResponse deleteFavoriteRestaurantResponse = favoriteRestaurantService.deleteFavoriteRestaurant(deleteFavoriteRestaurantRequest, accessToken);
+    return ResponseEntity.ok(deleteFavoriteRestaurantResponse);
+  }
+
+  // 음식점 즐겨찾기 리스트 반환 엔드포인트
+  @GetMapping("/favorite-restaurants")
+  public ResponseEntity<GetFavoriteRestaurantsResponse> getFavoriteRestaurants(@RequestHeader("Authorization") String accessToken) {
+    System.out.println("favorite-restaurants 엔드포인트");
+    GetFavoriteRestaurantsResponse getFavoriteRestaurantsResponse = favoriteRestaurantService.getUserFavorites(accessToken);
+    return ResponseEntity.ok(getFavoriteRestaurantsResponse);
+  }
+
+  // 음식점 즐겨찾기
 }

@@ -29,6 +29,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+    passwordFocus.dispose();
+    rePasswordFocus.dispose();
+  }
+
   // 비밀번호 변경 요청 함수
   Future<void> changePassword() async {
     print("비밀번호 변경 요청");

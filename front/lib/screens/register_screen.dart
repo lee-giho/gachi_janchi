@@ -49,6 +49,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    // TextEditingController dispose
+    nameController.dispose();
+    emailController.dispose();
+    idController.dispose();
+    passwordController.dispose();
+    rePasswordController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    emailFocus.dispose();
+    idFocus.dispose();
+    passwordFocus.dispose();
+    rePasswordFocus.dispose();
+  }
+
   // 입력 상태 체크 함수
   void checkFormValid() {
     setState(() {
@@ -170,30 +189,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  void dispose() {
-    // TextEditingController dispose
-    nameController.dispose();
-    emailController.dispose();
-    idController.dispose();
-    passwordController.dispose();
-    rePasswordController.dispose();
-
-    // FocusNode dispose
-    nameFocus.dispose();
-    emailFocus.dispose();
-    idFocus.dispose();
-    passwordFocus.dispose();
-    rePasswordFocus.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
           },

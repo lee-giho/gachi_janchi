@@ -7,6 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class IngredientResponse {
     private String name;
-    private String imagePath;
 }
 

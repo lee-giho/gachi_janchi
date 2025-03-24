@@ -16,11 +16,8 @@ public class Ingredient {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(name = "image_path")
-    private String imagePath; // ✅ 이미지 경로 추가
 
-    public Ingredient(String name, String imagePath) {
+    public Ingredient(String name) {
         this.name = name;
-        this.imagePath = imagePath;
     }
 }

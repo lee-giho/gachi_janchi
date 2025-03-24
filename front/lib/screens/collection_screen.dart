@@ -19,7 +19,6 @@ class _CollectionScreenState extends State<CollectionScreen>
 
   Map<String, int> userIngredients = {};
   List<String> completedCollections = [];
-  List<String> unlockedCollections = [];
   List<Map<String, dynamic>> collections = [];
 
   late final AnimationController _lockAnimation;
@@ -99,7 +98,6 @@ class _CollectionScreenState extends State<CollectionScreen>
       if (res.statusCode == 200) {
         final raw = List<Map<String, dynamic>>.from(res.data);
 
-        // ✅ 재료 이름순 정렬
         for (var collection in raw) {
           List ingredients = collection["ingredients"];
           ingredients.sort(
@@ -107,7 +105,7 @@ class _CollectionScreenState extends State<CollectionScreen>
         }
 
         setState(() {
-          collections = raw;
+          collections = raw.where((c) => c["name"] != null).toList();
         });
       }
     } catch (e) {
@@ -174,38 +172,35 @@ class _CollectionScreenState extends State<CollectionScreen>
     );
   }
 
+  String toAssetPath(String name) {
+    return 'assets/images/${name.toString().replaceAll(' ', '').replaceAll('\n', '')}.png';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("🍲 음식 컬렉션")),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("👤 $nickname", style: const TextStyle(fontSize: 18)),
+            Text("🏆 ${ranking}위", style: const TextStyle(fontSize: 18)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(title,
+                  style: const TextStyle(fontSize: 12, color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // 유저 정보
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("닉네임: $nickname",
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text("순위: ${ranking}위",
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Text(title,
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.white)),
-                  ),
-                ],
-              ),
-            ),
 
             // 컬렉션 그리드
             GridView.builder(
@@ -221,8 +216,8 @@ class _CollectionScreenState extends State<CollectionScreen>
               ),
               itemBuilder: (context, index) {
                 final collection = collections[index];
-                final name = collection["name"];
-                final description = collection["description"];
+                final name = collection["name"] ?? "default";
+                final description = collection["description"] ?? "";
                 final List ingredients = collection["ingredients"];
 
                 final isCompleted = completedCollections.contains(name);
@@ -259,10 +254,12 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(12)),
                                 child: Image.asset(
-                                  collection["imagePath"],
+                                  toAssetPath(name),
                                   height: 120,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.broken_image),
                                 ),
                               ),
                               const SizedBox(height: 5),
@@ -292,12 +289,11 @@ class _CollectionScreenState extends State<CollectionScreen>
                                     final ing = i["name"];
                                     final qty = i["quantity"];
                                     final owned = userIngredients[ing] ?? 0;
-                                    final imgPath = i["imagePath"];
                                     return Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Image.asset(
-                                          imgPath,
+                                          toAssetPath(ing),
                                           width: 40,
                                           height: 40,
                                           errorBuilder: (_, __, ___) =>

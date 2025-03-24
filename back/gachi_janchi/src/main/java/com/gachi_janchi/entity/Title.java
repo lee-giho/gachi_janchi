@@ -25,8 +25,6 @@ public class Title {
 
     private String description;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleCondition> conditions = new ArrayList<>();
@@ -36,8 +34,4 @@ public class Title {
         this.description = description;
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

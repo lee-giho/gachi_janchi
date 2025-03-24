@@ -24,15 +24,13 @@ public class Collection {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image_path")
-    private String imagePath;
+
 
     @OneToMany(mappedBy = "collection", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CollectionIngredient> ingredients = new HashSet<>();
 
-    public Collection(String name, String imagePath, String description) {
+    public Collection(String name,  String description) {
         this.name = name;
-        this.imagePath = imagePath;
         this.description = description;
     }
 }

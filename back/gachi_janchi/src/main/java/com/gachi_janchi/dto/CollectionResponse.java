@@ -9,7 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CollectionResponse {
     private String name;
-    private String imagePath;
     private String description;
     private List<CollectionIngredientDto> ingredients;
 }

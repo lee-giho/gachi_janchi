@@ -45,8 +45,8 @@ public class AuthService {
     Role roleUser = roleRepository.findById("ROLE_USER")
             .orElseThrow(() -> new IllegalArgumentException("기본 권한 ROLE_USER가 설정되어 있지 않습니다."));
 
-    Title defaultTitle = titleRepository.findByName("요리 입문자")
-            .orElseThrow(() -> new IllegalArgumentException("기본 칭호 '요리 입문자'가 존재하지 않습니다."));
+    Title defaultTitle = titleRepository.findByName("기본 칭호")
+            .orElseThrow(() -> new IllegalArgumentException("기본 칭호 '기본 칭호'가 존재하지 않습니다."));
 
     // User 생성 (대표 칭호는 설정하지 않음)
     User user = new User();
@@ -100,8 +100,8 @@ public class AuthService {
         Role roleUser = roleRepository.findById("ROLE_USER")
                 .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
 
-        Title defaultTitle = titleRepository.findByName("요리 입문자")
-                .orElseThrow(() -> new IllegalArgumentException("칭호 '요리 입문자' 없음"));
+        Title defaultTitle = titleRepository.findByName("기본 칭호")
+                .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
 
         user = new User();
         user.setId(id);
@@ -144,8 +144,8 @@ public class AuthService {
         Role roleUser = roleRepository.findById("ROLE_USER")
                 .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
 
-        Title defaultTitle = titleRepository.findByName("요리 입문자")
-                .orElseThrow(() -> new IllegalArgumentException("칭호 '요리 입문자' 없음"));
+        Title defaultTitle = titleRepository.findByName("기본 칭호")
+                .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
 
         user = new User();
         user.setId(id);

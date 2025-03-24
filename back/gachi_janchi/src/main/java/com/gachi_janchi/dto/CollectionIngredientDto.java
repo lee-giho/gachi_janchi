@@ -8,5 +8,4 @@ import lombok.Getter;
 public class CollectionIngredientDto {
     private String name;
     private int quantity;
-    private String imagePath;
 }

@@ -35,14 +35,11 @@ public class CollectionService {
                     List<CollectionIngredientDto> ingredients = c.getIngredients().stream()
                             .map(ci -> new CollectionIngredientDto(
                                     ci.getIngredient().getName(),
-                                    ci.getQuantity(),
-                                    ci.getIngredient().getImagePath()
-                            ))
+                                    ci.getQuantity()))
                             .collect(Collectors.toList());
 
                     return new CollectionResponse(
                             c.getName(),
-                            c.getImagePath(),
                             c.getDescription(),
                             ingredients
                     );

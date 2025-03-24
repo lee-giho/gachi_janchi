@@ -44,8 +44,8 @@ public class UserIngredientService {
         // 재료 조회 (없으면 자동 추가)
         Ingredient ingredient = ingredientRepository.findByName(request.getIngredientName())
                 .orElseGet(() -> {
-                    Ingredient newIngredient = new Ingredient(request.getIngredientName(), "/images/ingredients/default.png");
-                    return ingredientRepository.save(newIngredient); // ✅ 기본 이미지 포함
+                    Ingredient newIngredient = new Ingredient(request.getIngredientName());
+                    return ingredientRepository.save(newIngredient); // ✅ 기본 이미지 제거됨
                 });
 
         // 유저가 이미 보유한 재료인지 확인
@@ -60,13 +60,14 @@ public class UserIngredientService {
         return new AddIngredientResponse(request.getIngredientName() + " 재료가 추가되었습니다.");
     }
 
+
     /**
-     * ✅ 전체 재료 목록 조회 (이름 + 이미지)
+     * ✅ 전체 재료 목록 조회 (이름)
      */
     public List<IngredientResponse> getAllIngredients() {
         List<Ingredient> ingredients = ingredientRepository.findAll();
         return ingredients.stream()
-                .map(i -> new IngredientResponse(i.getName(), i.getImagePath()))
+                .map(i -> new IngredientResponse(i.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -79,9 +80,7 @@ public class UserIngredientService {
         return userIngredientRepository.findByUserId(userId).stream()
                 .map(ui -> new UserIngredientResponse(
                         ui.getIngredient().getName(),
-                        ui.getQuantity(),
-                        ui.getIngredient().getImagePath() // ✅ 이미지 포함
-                ))
+                        ui.getQuantity()))
                 .collect(Collectors.toList());
     }
 }

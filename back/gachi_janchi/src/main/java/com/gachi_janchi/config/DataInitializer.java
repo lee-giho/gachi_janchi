@@ -51,41 +51,40 @@ public class DataInitializer {
 
         for (Map.Entry<String, String> entry : ingredients.entrySet()) {
             if (!ingredientRepository.existsByName(entry.getKey())) {
-                ingredientRepository.save(new Ingredient(entry.getKey(), entry.getValue()));
+                ingredientRepository.save(new Ingredient(entry.getKey()));
             }
         }
     }
 
     @Transactional
     public void addCollections(CollectionRepository collectionRepository) {
-        Map<String, String[]> collections = Map.ofEntries(
-                Map.entry("김치찌개", new String[]{"assets/images/kimchi_stew.png", "매콤하고 구수한 김치찌개입니다."}),
-                Map.entry("된장찌개", new String[]{"assets/images/doenjang_stew.png", "구수한 된장으로 끓인 전통 찌개입니다."}),
-                Map.entry("불고기", new String[]{"assets/images/bulgogi.png", "달콤한 양념의 한국식 불고기입니다."}),
-                Map.entry("과일 샐러드", new String[]{"assets/images/fruit_salad.png", "신선한 과일로 만든 건강 샐러드입니다."}),
-                Map.entry("오므라이스", new String[]{"assets/images/omelet_rice.png", "계란으로 감싼 볶음밥 요리입니다."}),
-                Map.entry("팟타이", new String[]{"assets/images/pad_thai.png", "달콤짭짤한 태국식 볶음면입니다."}),
-                Map.entry("떡볶이", new String[]{"assets/images/tteokbokki.png", "매콤한 고추장 소스 떡볶이입니다."}),
-                Map.entry("비빔밥", new String[]{"assets/images/bibimbap.png", "다양한 나물을 비벼먹는 전통 한식입니다."}),
-                Map.entry("해물파전", new String[]{"assets/images/seafood_pancake.png", "바삭한 해물과 파가 가득한 파전입니다."}),
-                Map.entry("스테이크", new String[]{"assets/images/steak.png", "육즙 가득한 두툼한 스테이크입니다."}),
-                Map.entry("볶음밥", new String[]{"assets/images/fried_rice.png", "재료를 볶아 만든 간편한 밥요리입니다."}),
-                Map.entry("오징어볶음", new String[]{"assets/images/squid_stirfry.png", "매콤한 양념의 오징어 볶음입니다."}),
-                Map.entry("카레라이스", new String[]{"assets/images/curry_rice.png", "향신료 가득한 카레와 밥입니다."}),
-                Map.entry("라자냐", new String[]{"assets/images/lasagna.png", "층층이 쌓인 파스타와 치즈의 조화입니다."}),
-                Map.entry("감바스", new String[]{"assets/images/gambas.png", "올리브오일에 마늘과 새우를 볶은 요리입니다."}),
-                Map.entry("크림스프", new String[]{"assets/images/cream_soup.png", "부드럽고 고소한 크림 스프입니다."}),
-                Map.entry("팬케이크", new String[]{"assets/images/pancake.png", "폭신한 식감의 아침용 팬케이크입니다."}),
-                Map.entry("과일주스", new String[]{"assets/images/fruit_juice.png", "싱싱한 과일로 만든 주스입니다."}),
-                Map.entry("스무디볼", new String[]{"assets/images/smoothie_bowl.png", "과일과 곡물이 어우러진 건강식입니다."})
+        Map<String, String> collections = Map.ofEntries(
+                Map.entry("김치찌개", "매콤하고 구수한 김치찌개입니다."),
+                Map.entry("된장찌개", "구수한 된장으로 끓인 전통 찌개입니다."),
+                Map.entry("불고기", "달콤한 양념의 한국식 불고기입니다."),
+                Map.entry("과일 샐러드", "신선한 과일로 만든 건강 샐러드입니다."),
+                Map.entry("오므라이스", "계란으로 감싼 볶음밥 요리입니다."),
+                Map.entry("팟타이", "달콤짭짤한 태국식 볶음면입니다."),
+                Map.entry("떡볶이", "매콤한 고추장 소스 떡볶이입니다."),
+                Map.entry("비빔밥", "다양한 나물을 비벼먹는 전통 한식입니다."),
+                Map.entry("해물파전", "바삭한 해물과 파가 가득한 파전입니다."),
+                Map.entry("스테이크", "육즙 가득한 두툼한 스테이크입니다."),
+                Map.entry("볶음밥", "재료를 볶아 만든 간편한 밥요리입니다."),
+                Map.entry("오징어볶음", "매콤한 양념의 오징어 볶음입니다."),
+                Map.entry("카레라이스", "향신료 가득한 카레와 밥입니다."),
+                Map.entry("라자냐", "층층이 쌓인 파스타와 치즈의 조화입니다."),
+                Map.entry("감바스", "올리브오일에 마늘과 새우를 볶은 요리입니다."),
+                Map.entry("크림스프", "부드럽고 고소한 크림 스프입니다."),
+                Map.entry("팬케이크", "폭신한 식감의 아침용 팬케이크입니다."),
+                Map.entry("과일주스", "싱싱한 과일로 만든 주스입니다."),
+                Map.entry("스무디볼", "과일과 곡물이 어우러진 건강식입니다.")
         );
 
-        for (Map.Entry<String, String[]> entry : collections.entrySet()) {
+        for (Map.Entry<String, String> entry : collections.entrySet()) {
             if (!collectionRepository.existsByName(entry.getKey())) {
                 Collection c = new Collection();
                 c.setName(entry.getKey());
-                c.setImagePath(entry.getValue()[0]);
-                c.setDescription(entry.getValue()[1]);
+                c.setDescription(entry.getValue());
                 collectionRepository.save(c);
             }
         }

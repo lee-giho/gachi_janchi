@@ -173,7 +173,7 @@ class _CollectionScreenState extends State<CollectionScreen>
   }
 
   String toAssetPath(String name) {
-    return 'assets/images/${name.toString().replaceAll(' ', '').replaceAll('\n', '')}.png';
+    return 'assets/images/collection/${name.toString().replaceAll(' ', '').replaceAll('\n', '')}.png';
   }
 
   @override

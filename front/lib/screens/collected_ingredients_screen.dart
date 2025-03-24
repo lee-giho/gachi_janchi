@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/translation.dart';
 import '../utils/secure_storage.dart';
 
 class CollectedIngredientsScreen extends StatefulWidget {
@@ -223,7 +224,7 @@ class _CollectedIngredientsScreenState
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    name,
+                    Translation.translateIngredient(name),
                     style: TextStyle(
                       fontSize: 14,
                       color: isCollected ? Colors.black : Colors.grey,

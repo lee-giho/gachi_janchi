@@ -261,14 +261,14 @@ class _HomeScreenState extends State<HomeScreen> {
         double longitude = restaurant["location"]["longitude"];
         String restaurantName = restaurant["restaurantName"];
         String ingredient = restaurant["ingredientName"];
-        print("assets/images/material/${ingredient}.png");
+        print("assets/images/${ingredient}.png");
 
         // ✅ 현재 지도 영역 내에 있는지 확인
         if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
           NMarker marker = NMarker(
             id: restaurantName,
             position: NLatLng(latitude, longitude),
-            icon: NOverlayImage.fromAssetImage("assets/images/material/${ingredient}.png"),
+            icon: NOverlayImage.fromAssetImage("assets/images/${ingredient}.png"),
             caption: NOverlayCaption(text: restaurantName),
           );
 

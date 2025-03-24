@@ -21,32 +21,6 @@ public class UserController {
   @Autowired
   private FavoriteRestaurantService favoriteRestaurantService;
 
-
-  @GetMapping("/info")
-  public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
-    return ResponseEntity.ok(userService.getUserInfo(accessToken));
-  }
-
-  // 이름 업데이트 엔드포인트
-  @PatchMapping("/name")
-  public ResponseEntity<UpdateNameResponse> updateName(
-          @RequestHeader("Authorization") String accessToken,
-          @RequestBody UpdateNameRequest updateNameRequest) {  // ✅ UpdateNameRequest 사용
-    UpdateNameResponse updateNameResponse = userService.updateName(updateNameRequest, accessToken);
-    return ResponseEntity.ok(updateNameResponse);
-  }
-
-  /* 이메일 업데이트 엔드포인트
-  @PatchMapping("/email")
-  public ResponseEntity<UpdateEmailResponse> updateEmail(
-          @RequestHeader("Authorization") String accessToken,
-          @RequestBody UpdateEmailRequest updateEmailRequest) {
-
-    UpdateEmailResponse updateEmailResponse = userService.updateEmail(updateEmailRequest, accessToken);
-    return ResponseEntity.ok(updateEmailResponse);
-  } */
-
-
   @GetMapping("/info")
   public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
     return ResponseEntity.ok(userService.getUserInfo(accessToken));

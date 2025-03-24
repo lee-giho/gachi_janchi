@@ -32,9 +32,12 @@ dependencies:
     sdk: flutter
   http: ^1.2.2
   dio: ^5.8.0+1
+  image_picker: ^1.0.7
   dio_cookie_manager: ^3.2.0
   cookie_jar: ^4.0.8
   flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.2
 
 
 

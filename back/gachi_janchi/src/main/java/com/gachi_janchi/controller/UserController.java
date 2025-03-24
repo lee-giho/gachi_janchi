@@ -32,7 +32,7 @@ public class UserController {
     return ResponseEntity.ok(updateNameResponse);
   }
 
-  // 이메일 업데이트 엔드포인트
+  /* 이메일 업데이트 엔드포인트
   @PatchMapping("/email")
   public ResponseEntity<UpdateEmailResponse> updateEmail(
           @RequestHeader("Authorization") String accessToken,
@@ -40,7 +40,7 @@ public class UserController {
 
     UpdateEmailResponse updateEmailResponse = userService.updateEmail(updateEmailRequest, accessToken);
     return ResponseEntity.ok(updateEmailResponse);
-  }
+  } */
 
   // 닉네임 업데이트 엔드포인트
   @RequestMapping(value = "/nick-name", method = RequestMethod.PATCH)
@@ -64,9 +64,18 @@ public class UserController {
     return ResponseEntity.ok(checkNickNameDuplicationResponse);
   }
 
+  // ✅ 현재 비밀번호 검증 API
+  @PostMapping("/verify-password")
+  public ResponseEntity<Boolean> verifyPassword(
+          @RequestHeader("Authorization") String token,
+          @RequestBody UpdatePasswordRequest request) {
+
+    boolean isValid = userService.verifyPassword(token, request.getPassword());
+    return ResponseEntity.ok(isValid);
+  }
+
 
    //✅ 회원 탈퇴 API (탈퇴 사유 포함)
-
   @DeleteMapping
   public ResponseEntity<DeleteUserResponse> deleteUser(
           @RequestHeader("Authorization") String token,
@@ -74,7 +83,8 @@ public class UserController {
     DeleteUserResponse response = userService.deleteUser(request, token);
     return ResponseEntity.ok(response);
   }
-  // 로그아웃 엔드포인트
+
+   // 로그아웃 엔드포인트
 //  @DeleteMapping("/logout")
 //  public ResponseEntity<String> logout(@RequestHeader("Authorization") String refreshToken) {
 //    boolean isLoggedOut = userService.logout(refreshToken);

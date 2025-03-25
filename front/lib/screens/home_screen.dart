@@ -93,13 +93,58 @@ class _HomeScreenState extends State<HomeScreen> {
   void qrScanData() async {
     // QrCodeScanner 화면으로 이동
     // QR코드 스캔한 결과를 value로 받아서 사용
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (context) => const QrCodeScanner(),
-            settings: RouteSettings(name: 'qr_scan')))
-        .then((value) {
-      print('QR value: ${value}');
-    });
+
+    // 서버를 배포해서 실제 핸드폰으로 qr코드를 찍을 수 있을 때 사용
+    // Navigator.of(context)
+    //   .push(MaterialPageRoute(
+    //     builder: (context) => const QrCodeScanner(),
+    //     settings: RouteSettings(name: 'qr_scan')))
+    //   .then((value) {
+    //     print('QR value: ${value}');
+    //     getRestaurant(value);
+    //   }
+    // );
+
+    // 임시로 음식점 아이디를 통해 정보를 가져오는 것
+    getRestaurant("67c9e0b479b5e9cfd182e150");
+  }
+
+  // 재료가 포함된 음식점 정보 요청하는 함수
+  Future<void> getRestaurant(String restaurantId) async {
+
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/ingredientId?restaurantId=$restaurantId");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        print("방문 음식점에 대한 재료 아이디 요청 완료");
+        
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+
+        print("ingredientId: $data");
+
+
+      } else {
+        print("방문 음식점에 대한 재료 아이디를 불러올 수 없습니다.");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
   }
 
   // 음식점 리스트 요청하는 함수

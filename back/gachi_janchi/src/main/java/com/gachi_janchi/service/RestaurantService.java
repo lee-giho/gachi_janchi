@@ -1,5 +1,6 @@
 package com.gachi_janchi.service;
 
+import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
 import com.gachi_janchi.dto.RestaurantWithIngredientDto;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
@@ -60,6 +61,15 @@ public class RestaurantService {
     restaurantRepository.deleteById(restaurantId);
 
     System.out.println("음식점 삭제 완료: " + restaurantId);
+  }
+
+  // 음식점 id로 restaurant 찾기
+  public GetIngredientByRestaurantIdResponse findIngredientByRestaurantId(String restaurantId) {
+
+    // 찾은 음식점에 대한 재료 찾기
+    Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurantId);
+
+    return new GetIngredientByRestaurantIdResponse(ingredient.getId());
   }
 
   // List<Restaurant>로 List<RestaurantWithIngredientDto> 만들어주는 함수

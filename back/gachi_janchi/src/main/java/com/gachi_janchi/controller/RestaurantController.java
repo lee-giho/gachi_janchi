@@ -1,5 +1,6 @@
 package com.gachi_janchi.controller;
 
+import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
 import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
@@ -41,4 +42,12 @@ public class RestaurantController {
     RestaurantsByKeywordResponse restaurantsByKeywordResponse = restaurantService.findRestaurantsByKeyword(keyword);
     return ResponseEntity.ok(restaurantsByKeywordResponse);
   }
+
+  // 음식점 id로 Restaurant 검색해서 정보 가져오기
+  @GetMapping("/ingredientId")
+  public ResponseEntity<GetIngredientByRestaurantIdResponse> getIngredientByRestaurantId(@RequestParam("restaurantId") String restaurantId) {
+    GetIngredientByRestaurantIdResponse getRestaurantInfoByIdResponse = restaurantService.findIngredientByRestaurantId(restaurantId);
+    return ResponseEntity.ok(getRestaurantInfoByIdResponse);
+  }
+  
 }

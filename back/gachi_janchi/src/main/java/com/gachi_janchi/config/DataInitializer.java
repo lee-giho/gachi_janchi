@@ -1,8 +1,8 @@
 package com.gachi_janchi.config;
 import com.gachi_janchi.entity.Collection;
+import com.gachi_janchi.repository.*;
 
 import com.gachi_janchi.entity.*;
-import com.gachi_janchi.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,29 +32,18 @@ public class DataInitializer {
 
     @Transactional
     public void addIngredients(IngredientRepository ingredientRepository) {
-        Map<String, String> ingredients = Map.ofEntries(
-                Map.entry("마늘", "assets/images/garlic.png"),
-                Map.entry("고기", "assets/images/meat.png"),
-                Map.entry("버섯", "assets/images/mushroom.png"),
-                Map.entry("토마토", "assets/images/tomato.png"),
-                Map.entry("가지", "assets/images/eggplant.png"),
-                Map.entry("계란", "assets/images/egg.png"),
-                Map.entry("당근", "assets/images/carrot.png"),
-                Map.entry("피자", "assets/images/pizza.png"),
-                Map.entry("바나나", "assets/images/banana.png"),
-                Map.entry("파인애플", "assets/images/pineapple.png"),
-                Map.entry("딸기", "assets/images/strawberry.png"),
-                Map.entry("우유", "assets/images/milk.png"),
-                Map.entry("옥수수", "assets/images/corn.png"),
-                Map.entry("케이크", "assets/images/cake.png")
+        List<String> ingredients = List.of(
+                "마늘", "고기", "버섯", "토마토", "가지", "계란", "당근",
+                "피자", "바나나", "파인애플", "딸기", "우유", "옥수수", "케이크"
         );
 
-        for (Map.Entry<String, String> entry : ingredients.entrySet()) {
-            if (!ingredientRepository.existsByName(entry.getKey())) {
-                ingredientRepository.save(new Ingredient(entry.getKey()));
+        for (String name : ingredients) {
+            if (!ingredientRepository.existsByName(name)) {
+                ingredientRepository.save(new Ingredient(name));
             }
         }
     }
+
 
     @Transactional
     public void addCollections(CollectionRepository collectionRepository) {

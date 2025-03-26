@@ -14,12 +14,25 @@ class VisitScreen extends StatefulWidget {
 
 class _VisitScreenState extends State<VisitScreen> {
 
+  final TextEditingController searchKeywordController = TextEditingController();
+  final FocusNode searchKeywordFocus = FocusNode();
+  // 검색 상태 관리
+  bool isKeywordSearch = false;
+
   List<dynamic> visitedRestaurants = [];
+  List<dynamic> searchVisitedRestaurants = [];
 
   @override
   void initState() {
     super.initState();
     fetchVisitedRestaurants();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    searchKeywordController.dispose();
+    searchKeywordFocus.dispose();
   }
 
   // 서버에서 방문한 음식점 리스트 가져오는 함수
@@ -66,6 +79,27 @@ class _VisitScreenState extends State<VisitScreen> {
     }
   }
 
+  // 방문한 음식점 검색 함수
+  Future<void> searchVisitedRestaurantsByKeyword() async {
+    String keyword = searchKeywordController.text.trim().toLowerCase();
+
+    if (keyword.isNotEmpty) {
+      setState(() {
+        searchVisitedRestaurants = visitedRestaurants.where((restaurant) {
+          final res = restaurant["restaurant"]; // 내부에 restaurant 객체가 들어있음
+
+          String name = (res["restaurantName"] ?? "").toString().toLowerCase();
+          String category = (res["category"] ?? "").toString().toLowerCase();
+          String menu = (res["menu"] ?? "").toString().toLowerCase();
+
+          return name.contains(keyword) || category.contains(keyword) || menu.contains(keyword);
+        }).toList();
+      });
+
+      isKeywordSearch = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,13 +118,104 @@ class _VisitScreenState extends State<VisitScreen> {
                   ),
                 )
               ),
+              Container( // 검색바
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                // decoration: const BoxDecoration(
+                //   color: Colors.white,
+                //   border: Border(bottom: BorderSide(color: Colors.black26)),
+                // ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset( // 가치, 잔치 로고
+                      'assets/images/gachi_janchi_logo.png',
+                      fit: BoxFit.contain,
+                      height: 40,
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: searchKeywordController,
+                                focusNode: searchKeywordFocus,
+                                keyboardType: TextInputType.text,
+                                decoration: const InputDecoration(
+                                  hintText: "찾고 있는 잔치집이 있나요?",
+                                  hintStyle: TextStyle(fontSize: 15),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            if (searchKeywordFocus.hasFocus)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 20),
+                                onPressed: () {
+                                  searchKeywordController.clear();
+                                },
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.search, size: 20),
+                              onPressed: () {
+                                print("${searchKeywordController.text} 검색!!!");
+                                // 검색 함수 실행
+                                searchVisitedRestaurantsByKeyword();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.qr_code_scanner, size: 30),
+                      onPressed: () {
+                        print("QR코드 아이콘 클릭!!");
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              if (isKeywordSearch) // 검색했을 경우만 나오는 초기화 버튼
+                ElevatedButton( // 검색 초기화 버튼
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    side: const BorderSide(
+                      width: 0.5,
+                      color: Colors.black
+                    )
+                  ),
+                  onPressed: () {
+                    print("초기화 버튼 클릭!!!");
+                    searchKeywordController.clear();
+                    setState(() {
+                      isKeywordSearch = false;
+                    });
+                  },
+                  child: const Text(
+                    "초기화",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  )
+                ),
               Expanded(
                 child: CustomScrollView(
                   slivers:[
                     SliverList.builder(
-                      itemCount: visitedRestaurants.length,
+                      itemCount: isKeywordSearch
+                        ? searchVisitedRestaurants.length
+                        : visitedRestaurants.length,
                       itemBuilder: (context, index) {
-                        final visitedRestaurant = visitedRestaurants[index];
+                        final visitedRestaurant = isKeywordSearch
+                          ? searchVisitedRestaurants[index]
+                          : visitedRestaurants[index];
                         return VisitedRestaurantTile(
                           visitedRestaurant: visitedRestaurant
                         );

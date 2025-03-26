@@ -40,7 +40,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
     searchKeywordFocus.dispose();
   }
 
-  // 즐겨찾기 음식점 검색 요청 함수
+  // 즐겨찾기 음식점 검색 함수
   Future<void> searchFavoriteRestaurantsByKeword() async {
     String keyword = searchKeywordController.text.trim().toLowerCase();
     final favoriteRestaurants = ref.read(favoriteProvider); // 즐겨찾기 목록 가져오기
@@ -70,19 +70,19 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
     });
   }
 
-  void qrScanData() async{
-    // QrCodeScanner 화면으로 이동
-    // QR코드 스캔한 결과를 value로 받아서 사용
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const QrCodeScanner(),
-        settings: RouteSettings(name: 'qr_scan')
-      )
-    )
-    .then((value) {
-      print('QR value: ${value}');
-    });
-  }
+  // void qrScanData() async{
+  //   // QrCodeScanner 화면으로 이동
+  //   // QR코드 스캔한 결과를 value로 받아서 사용
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => const QrCodeScanner(),
+  //       settings: RouteSettings(name: 'qr_scan')
+  //     )
+  //   )
+  //   .then((value) {
+  //     print('QR value: ${value}');
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +163,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                     IconButton(
                       icon: const Icon(Icons.qr_code_scanner, size: 30),
                       onPressed: () {
-                        qrScanData();
+                        print("QR코드 아이콘 클릭!!");
                       },
                     ),
                   ],

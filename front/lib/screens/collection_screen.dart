@@ -174,7 +174,11 @@ class _CollectionScreenState extends State<CollectionScreen>
   }
 
   String toAssetPath(String name) {
-    return 'assets/images/collection/${name.toString().replaceAll(' ', '').replaceAll('\n', '')}.png';
+    return 'assets/images/collection/${name.replaceAll(' ', '').replaceAll('\n', '')}.png';
+  }
+
+  String toIngredientAssetPath(String name) {
+    return 'assets/images/ingredient/${name.replaceAll(' ', '').replaceAll('\n', '')}.png';
   }
 
   @override
@@ -201,9 +205,6 @@ class _CollectionScreenState extends State<CollectionScreen>
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 유저 정보
-
-            // 컬렉션 그리드
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -264,13 +265,10 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                Translation.translateCollection(name),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16
-                                )
-                              ),
+                              Text(Translation.translateCollection(name),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8),
@@ -297,7 +295,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Image.asset(
-                                          toAssetPath(ing),
+                                          toIngredientAssetPath(ing),
                                           width: 40,
                                           height: 40,
                                           errorBuilder: (_, __, ___) =>

@@ -141,7 +141,8 @@ public class TitleService {
                 List<String> requiredNames = Arrays.asList(conditionValue.split(","));
                 List<String> userCollectionNames = userCollectionRepository.findByUserId(userId)
                         .stream().map(c -> c.getCollection().getName()).toList();
-                yield (int) requiredNames.stream().filter(userCollectionNames::contains).count();
+                boolean allCompleted = requiredNames.stream().allMatch(userCollectionNames::contains);
+                yield allCompleted ? 1 : 0;
             }
             case "ALL_COLLECTIONS" -> {
                 long total = collectionRepository.count();
@@ -157,6 +158,7 @@ public class TitleService {
             default -> 0;
         };
     }
+
 
     private int parseConditionValue(String value) {
         try {

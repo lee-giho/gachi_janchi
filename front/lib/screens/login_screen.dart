@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/find_id_screen.dart';
 import 'package:gachi_janchi/screens/find_password_screen.dart';
 import 'package:gachi_janchi/screens/home_screen.dart';
@@ -8,6 +9,7 @@ import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:gachi_janchi/screens/nickName_registration_screen.dart';
 import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
+import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -37,6 +39,15 @@ class _LoginScreenState extends State<LoginScreen> {
   FocusNode passwordFocus = FocusNode();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    super.dispose();
+    idController.dispose();
+    passwordController.dispose();
+    idFocus.dispose();
+    passwordFocus.dispose();
+  }
 
   // 자동로그인 상태 저장 함수
   void saveIsAutoLogin(bool? isAutoLogin) async {
@@ -73,6 +84,10 @@ class _LoginScreenState extends State<LoginScreen> {
         // 토큰을 secure_storage에 저장
         await SecureStorage.saveAccessToken(accessToken);
         await SecureStorage.saveRefreshToken(refreshToken);
+
+        // 즐겨찾기 목록 불러오기
+        final container = ProviderContainer();
+        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         print("isexistNickName: ${existNickName}");
 
@@ -162,6 +177,10 @@ class _LoginScreenState extends State<LoginScreen> {
         // 로그인 타입 저장
         await SecureStorage.saveLoginType("google");
 
+        // 즐겨찾기 목록 불러오기
+        final container = ProviderContainer();
+        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+
         print("existNickName: ${existNickName}");
 
         if (existNickName) {
@@ -219,6 +238,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 로그인 타입 저장
         await SecureStorage.saveLoginType("naver");
+
+        // 즐겨찾기 목록 불러오기
+        final container = ProviderContainer();
+        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         if (existNickName) {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동

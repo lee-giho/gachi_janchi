@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/translation.dart';
 
 class EditTitleScreen extends StatefulWidget {
   const EditTitleScreen({super.key});
@@ -96,7 +97,6 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
       if (res.statusCode == 200) {
         print("\u2705 대표 칭호 저장 완료: $titleName ($titleId)");
-        Navigator.pop(context, titleName);
       }
     } catch (e) {
       print("\u274C 대표 칭호 설정 실패: $e");
@@ -140,9 +140,13 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
       case "COLLECTION":
         return "컬렉션 $value개 완성 (현재: ${title['progress']})";
       case "COLLECTION_NAME":
-        return "$value 컬렉션 완성";
+        return "${Translation.translateCollection(value)} 컬렉션 완성";
       case "COLLECTION_NAMES":
-        return "${value.toString().split(',').join(', ')} 컬렉션 완성";
+        final names = value.toString().split(',');
+        final translated = names
+            .map((e) => Translation.translateCollection(e.trim()))
+            .join(", ");
+        return "$translated 컬렉션 완성";
       case "ALL_COLLECTIONS":
         return "모든 컬렉션 완성";
       case "ALL_INGREDIENTS":
@@ -182,17 +186,21 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                   }).toList(),
                 ],
                 onChanged: (value) {
+                  final selected = userTitles.firstWhere(
+                    (t) => t['titleId'] == value,
+                    orElse: () => {'titleName': "칭호 없음"},
+                  );
+
                   setState(() {
                     selectedTitleId = value;
-                    selectedTitle = userTitles.firstWhere(
-                      (t) => t['titleId'] == value,
-                      orElse: () => {'titleName': "칭호 없음"},
-                    )['titleName'];
+                    selectedTitle = selected['titleName'];
                   });
+
+                  _saveSelectedTitle(value, selected['titleName']);
                 },
               ),
               const SizedBox(height: 20),
-              Center(
+              /*Center(
                 child: ElevatedButton(
                   onPressed: () => _saveSelectedTitle(
                     selectedTitleId,
@@ -200,9 +208,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                   ),
                   child: const Text("저장"),
                 ),
-              ),
-              const SizedBox(height: 30),
-              const Divider(),
+              ),*/
               const Text("획득하지 않은 칭호",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),

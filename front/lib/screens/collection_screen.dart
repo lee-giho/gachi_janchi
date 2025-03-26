@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
 
@@ -157,7 +158,7 @@ class _CollectionScreenState extends State<CollectionScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("컬렉션 완성"),
-        content: Text("‘$name’을(를) 완성할까요?"),
+        content: Text("‘${Translation.translateCollection(name)}’을(를) 완성할까요?"),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context), child: const Text("취소")),
@@ -173,7 +174,11 @@ class _CollectionScreenState extends State<CollectionScreen>
   }
 
   String toAssetPath(String name) {
-    return 'assets/images/${name.toString().replaceAll(' ', '').replaceAll('\n', '')}.png';
+    return 'assets/images/collection/${name.replaceAll(' ', '').replaceAll('\n', '')}.png';
+  }
+
+  String toIngredientAssetPath(String name) {
+    return 'assets/images/ingredient/${name.replaceAll(' ', '').replaceAll('\n', '')}.png';
   }
 
   @override
@@ -200,9 +205,6 @@ class _CollectionScreenState extends State<CollectionScreen>
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 유저 정보
-
-            // 컬렉션 그리드
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -263,7 +265,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(name,
+                              Text(Translation.translateCollection(name),
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16)),
@@ -293,7 +295,7 @@ class _CollectionScreenState extends State<CollectionScreen>
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Image.asset(
-                                          toAssetPath(ing),
+                                          toIngredientAssetPath(ing),
                                           width: 40,
                                           height: 40,
                                           errorBuilder: (_, __, ___) =>

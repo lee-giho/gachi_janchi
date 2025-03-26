@@ -27,6 +27,13 @@ class _NicknameRegistrationScreenState
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    super.dispose();
+    nickNameController.dispose();
+    nickNameFocus.dispose();
+  }
+
   // 닉네임 중복확인 요청 함수
   Future<void> checkNickNameDuplication() async {
     print("닉네임 중복확인");

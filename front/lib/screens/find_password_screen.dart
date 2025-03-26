@@ -22,15 +22,6 @@ class _FindPasswordState extends State<FindPasswordScreen> {
   late CookieJar cookieJar;
   String sessionId = "";
 
-  @override
-  void initState() {
-    super.initState();
-
-    // 쿠키 저장용 CookieJar 초기화
-    cookieJar = CookieJar();
-    dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
-  }
-
   // 이름 & 아이디 & 이메일 & 인증번호 입력 값 저장
   var nameController = TextEditingController();
   var idController = TextEditingController();
@@ -60,6 +51,33 @@ class _FindPasswordState extends State<FindPasswordScreen> {
   // 타이머 시간
   int remainingTime = 180; // 3분(180초)
   Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 쿠키 저장용 CookieJar 초기화
+    cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar)); // CookieManager 추가
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel(); // 화면 종료 시 타이머 취소
+    super.dispose();
+
+    // TextEditingController dispose
+    nameController.dispose();
+    idController.dispose();
+    emailController.dispose();
+    codeController.dispose();
+
+    // FocusNode dispose
+    nameFocus.dispose();
+    idFocus.dispose();
+    emailFocus.dispose();
+    codeFocus.dispose();
+  }
 
   // 이메일 상태를 개별적으로 검증하는 함수
   void validateEmail(String email) {
@@ -237,24 +255,6 @@ class _FindPasswordState extends State<FindPasswordScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
     }
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel(); // 화면 종료 시 타이머 취소
-    super.dispose();
-
-    // TextEditingController dispose
-    nameController.dispose();
-    idController.dispose();
-    emailController.dispose();
-    codeController.dispose();
-
-    // FocusNode dispose
-    nameFocus.dispose();
-    idFocus.dispose();
-    emailFocus.dispose();
-    codeFocus.dispose();
   }
 
   @override

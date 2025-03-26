@@ -1,8 +1,8 @@
 package com.gachi_janchi.config;
 import com.gachi_janchi.entity.Collection;
-import com.gachi_janchi.repository.*;
 
 import com.gachi_janchi.entity.*;
+import com.gachi_janchi.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,17 +32,6 @@ public class DataInitializer {
 
     @Transactional
     public void addIngredients(IngredientRepository ingredientRepository) {
-<<<<<<< HEAD
-        List<String> ingredients = List.of(
-                "마늘", "고기", "버섯", "토마토", "가지", "계란", "당근",
-                "피자", "바나나", "파인애플", "딸기", "우유", "옥수수", "케이크"
-        );
-
-        for (String name : ingredients) {
-            if (!ingredientRepository.existsByName(name)) {
-                ingredientRepository.save(new Ingredient(name));
-            }
-=======
         // Map<String, String> ingredients = Map.ofEntries(
         //         Map.entry("마늘", "assets/images/garlic.png"),
         //         Map.entry("고기", "assets/images/meat.png"),
@@ -65,34 +54,32 @@ public class DataInitializer {
         //         ingredientRepository.save(new Ingredient(entry.getKey()));
         //     }
         // }
-        
+
         List<String> ingredients = new ArrayList<>(
-          Arrays.asList(
-            "garlic",
-            "meat",
-            "mushroom",
-            "tomato",
-            "eggplant",
-            "egg",
-            "carrot",
-            "pizza",
-            "banana",
-            "pineapple",
-            "strawberry",
-            "milk",
-            "corn",
-            "cake"
-          )
+                Arrays.asList(
+                        "garlic",
+                        "meat",
+                        "mushroom",
+                        "tomato",
+                        "eggplant",
+                        "egg",
+                        "carrot",
+                        "pizza",
+                        "banana",
+                        "pineapple",
+                        "strawberry",
+                        "milk",
+                        "corn",
+                        "cake"
+                )
         );
 
         for (String ingredient : ingredients) {
-          if (!ingredientRepository.existsByName(ingredient)) {
-            ingredientRepository.save(new Ingredient(ingredient));
-          }
->>>>>>> combine
+            if (!ingredientRepository.existsByName(ingredient)) {
+                ingredientRepository.save(new Ingredient(ingredient));
+            }
         }
     }
-
 
     @Transactional
     public void addCollections(CollectionRepository collectionRepository) {
@@ -130,10 +117,10 @@ public class DataInitializer {
 
     @Transactional
     public void addCollectionIngredients(
-        
-      CollectionRepository collectionRepository,
-      IngredientRepository ingredientRepository,
-      CollectionIngredientRepository collectionIngredientRepository) {
+
+            CollectionRepository collectionRepository,
+            IngredientRepository ingredientRepository,
+            CollectionIngredientRepository collectionIngredientRepository) {
 
         Map<String, Map<String, Integer>> collectionIngredients = Map.ofEntries(
                 Map.entry("kimchiStew", Map.of("garlic", 1, "meat", 1, "mushroom", 1, "tomato", 1)), // 김치찌개

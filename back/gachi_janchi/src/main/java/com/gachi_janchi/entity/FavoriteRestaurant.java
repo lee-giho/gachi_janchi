@@ -26,7 +26,7 @@ public class FavoriteRestaurant {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
   private LocalDateTime createdAt;
 
-  // ✅ createdAt을 자동 생성하는 생성자 추가
+  // createdAt을 자동 생성하는 생성자 추가
   public FavoriteRestaurant(String id, String userId, String restaurantId) {
     this.id = id;
     this.userId = userId;

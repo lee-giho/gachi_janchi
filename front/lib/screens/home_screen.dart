@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     getRestaurant("67c9e0b479b5e9cfd182e150");
   }
 
-  // 재료가 포함된 음식점 정보 요청하는 함수
+  // 음식점 아이디로 재료 요청하는 함수
   Future<void> getRestaurant(String restaurantId) async {
 
     String? accessToken = await SecureStorage.getAccessToken();
@@ -130,12 +130,55 @@ class _HomeScreenState extends State<HomeScreen> {
         
         final decodedData = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedData);
+        final ingredientId = data["ingredientId"];
+        print("ingredientId: $ingredientId");
 
-        print("ingredientId: $data");
-
+        addVisitedRestaurant(restaurantId, ingredientId);
 
       } else {
         print("방문 음식점에 대한 재료 아이디를 불러올 수 없습니다.");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
+  // 방문한 음식점 저장하는 함수
+  Future<void> addVisitedRestaurant(String restaurantId, int ingredientId) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/visited-restaurant");
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      print("방문한 음식점 저장 요청 보내기 시작");
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          "restaurantId": restaurantId,
+          "ingredientId": ingredientId
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("방문 음식점 저장 요청 완료");
+        
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+
+        print("result: $data");
+
+
+      } else {
+        print("방문 음식점 저장 요청 실패");
       }
     } catch (e) {
       // 예외 처리

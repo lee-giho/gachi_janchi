@@ -4,9 +4,14 @@ import com.gachi_janchi.dto.*;
 import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
+import com.gachi_janchi.service.VisitedRestaurantService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -20,6 +25,9 @@ public class UserController {
 
   @Autowired
   private FavoriteRestaurantService favoriteRestaurantService;
+
+  @Autowired
+  private VisitedRestaurantService visitedRestaurantService;
 
   @GetMapping("/info")
   public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
@@ -139,5 +147,12 @@ public class UserController {
     return ResponseEntity.ok(getFavoriteRestaurantsResponse);
   }
 
-  // 음식점 즐겨찾기
+  // 방문한 음식점 저장 엔드포인트
+  @PostMapping("/visited-restaurant")
+  public ResponseEntity<AddVisitedRestaurantResponse> addvisitedRestaurant(@RequestHeader("Authorization") String accessToken, @RequestBody AddVisitedRestaurantRequest addVisitedRestaurantRequest) {
+    System.out.println("visited-restaurant 엔드포인트");
+    AddVisitedRestaurantResponse addVisitedRestaurantResponse = visitedRestaurantService.addVisitedRestaurantResponse(addVisitedRestaurantRequest, accessToken);
+    return ResponseEntity.ok(addVisitedRestaurantResponse);
+  }
+    
 }

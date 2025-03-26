@@ -1,18 +1,23 @@
 package com.gachi_janchi.service;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gachi_janchi.dto.AddVisitedRestaurantRequest;
 import com.gachi_janchi.dto.AddVisitedRestaurantResponse;
+import com.gachi_janchi.dto.VisitedRestaurantDto;
+import com.gachi_janchi.dto.VisitedRestaurantList;
+import com.gachi_janchi.entity.Ingredient;
+import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.VisitedRestaurant;
 import com.gachi_janchi.repository.IngredientRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
 import com.gachi_janchi.repository.VisitedRestaurantRepository;
 import com.gachi_janchi.util.JwtProvider;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,5 +60,27 @@ public class VisitedRestaurantService {
       System.out.println("음식점이 존재하지 않습니다. - " + restaurantId);
       return new AddVisitedRestaurantResponse("음식점이 존재하지 않습니다.");
     }
+  }
+
+  public VisitedRestaurantList getVisitedRestaurants(String token) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+    String userId = jwtProvider.getUserId(accessToken);
+
+    // 방문한 음식점 리스트 가져오기
+    List<VisitedRestaurant> visitedRestaurants = visitedRestaurantRepository.findByUserId(userId);
+
+    List<VisitedRestaurantDto> visitedRestaurantDtos = visitedRestaurants.stream()
+      .map(visitedRestaurant -> {
+        Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId()).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));
+        Ingredient ingredient = ingredientRepository.findById(visitedRestaurant.getIngredientId()).orElseThrow(() -> new IllegalArgumentException("해당 재료가 존재하지 않습니다. - " + visitedRestaurant.getIngredientId()));
+        return VisitedRestaurantDto.builder()
+          .restaurant(restaurant)
+          .visitedAt(visitedRestaurant.getVisitedAt())
+          .ingredientName(ingredient.getName())
+          .build();
+      })
+      .collect(Collectors.toList());
+
+    return new VisitedRestaurantList(visitedRestaurantDtos);
   }
 }

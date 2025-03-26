@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // );
 
     // 임시로 음식점 아이디를 통해 정보를 가져오는 것
-    getRestaurant("67c9e0b479b5e9cfd182e150");
+    getRestaurant("67c9e0bb79b5e9cfd182e151");
   }
 
   // 음식점 아이디로 재료 요청하는 함수
@@ -252,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         print("API 응답 데이터: ${data}");
 
-        // 🔹 리스트만 전달하도록 수정
+        // 리스트만 저장
         if (data.containsKey("restaurants")) {
           updateMarkers(data["restaurants"]);
           setState(() {

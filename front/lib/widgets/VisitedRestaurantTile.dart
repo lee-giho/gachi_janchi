@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
 import 'package:gachi_janchi/screens/review_registration_screen.dart';
 
 class VisitedRestaurantTile extends StatefulWidget {
-  const VisitedRestaurantTile({super.key});
+  final Map<String, dynamic> visitedRestaurant;
+  const VisitedRestaurantTile({
+    super.key,
+    required this.visitedRestaurant
+  });
 
   @override
   State<VisitedRestaurantTile> createState() => _VisitedrestauranttileState();
@@ -11,9 +16,20 @@ class VisitedRestaurantTile extends StatefulWidget {
 class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> restaurant = widget.visitedRestaurant["restaurant"];
+
     return InkWell(
       onTap: () {
-        print("방문 음식점 tile 클릭");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RestaurantDetailScreen(
+              data: {
+                "restaurant": restaurant
+              }
+            )
+          )
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -27,16 +43,21 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black, width: 1),
               ),
-              child: const SizedBox(
-                height: 100,
-                child: Center(
-                  child: Text(
-                    "사진 준비중",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
+              child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
+                  ? Image.network(
+                      restaurant["imageUrl"],
+                      fit: BoxFit.contain,
+                    )
+                  : const SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: Text(
+                          "사진 준비중",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
             ),
             Expanded( // 방문 정보
               child: Container(
@@ -49,7 +70,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text( // 음식점 이름
-                      "음식점 이름",
+                      restaurant["restaurantName"],
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       softWrap: true,
                       maxLines: 2,
@@ -62,14 +83,8 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                           size: 20,
                         ),
                         Text( // 날짜
-                          "2025.03.12"
+                          widget.visitedRestaurant["visitedAt"].toString().replaceFirst('T', ' ')
                         ),
-                        Text(
-                          " / "
-                        ),
-                        Text( // 시간
-                          "15:30"
-                        )
                       ],
                     ),
                     ElevatedButton(
@@ -104,7 +119,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
               )
             ),
             Image.asset(
-              'assets/images/ingredient/tomato.png',
+              'assets/images/ingredient/${widget.visitedRestaurant["ingredientName"]}.png',
               fit: BoxFit.contain,
               height: 50,
             ),

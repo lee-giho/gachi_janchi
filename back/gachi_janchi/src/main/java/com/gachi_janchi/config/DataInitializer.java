@@ -163,16 +163,16 @@ public class DataInitializer {
     @Transactional
     public void addTitles(TitleRepository titleRepository) {
         List<Title> titles = List.of(
-                new Title("기본 칭호", "회원가입 시 자동으로 부여되는 칭호"),
-                new Title("요리 입문자", "처음으로 재료를 획득한 유저에게 주어지는 칭호"),
-                new Title("재료 수집가", "재료를 20개 이상 모은 유저에게 주어지는 칭호"),
-                new Title("맛있는 한 상", "컬렉션을 3개 완성한 유저에게 주어지는 칭호"),
-                new Title("컬렉션 장인", "컬렉션을 10개 완성한 유저에게 주어지는 칭호"),
-                new Title("한식 마스터", "김치찌개, 된장찌개, 불고기를 완성한 유저에게 주어지는 칭호"),
-                new Title("샐러드 마스터", "과일 샐러드를 완성한 유저에게 주어지는 칭호"),
-                new Title("단짠 요정", "스테이크와 팬케이크를 완성한 유저에게 주어지는 칭호"),
-                new Title("식재료 마스터", "모든 재료를 1개 이상 보유한 유저에게 주어지는 칭호"),
-                new Title("컬렉션 완전체", "모든 컬렉션을 완성한 유저에게 주어지는 칭호")
+                new Title("기본 칭호"),
+                new Title("요리 입문자"),
+                new Title("재료 수집가"),
+                new Title("맛있는 한 상"),
+                new Title("컬렉션 장인"),
+                new Title("한식 마스터"),
+                new Title("샐러드 마스터"),
+                new Title("단짠 요정"),
+                new Title("식재료 마스터"),
+                new Title("컬렉션 완전체")
         );
 
         for (Title t : titles) {

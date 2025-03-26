@@ -11,7 +11,6 @@ public class TitleConditionProgressResponse {
     private String titleName;
     private String conditionType;
     private String conditionValue;
-    private String description;
     private int progress;
 
     @JsonProperty("achievable")

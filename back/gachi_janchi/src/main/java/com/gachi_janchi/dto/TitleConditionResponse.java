@@ -10,5 +10,4 @@ public class TitleConditionResponse {
     private String titleName;
     private String conditionType;
     private String conditionValue;
-    private String description;
 }

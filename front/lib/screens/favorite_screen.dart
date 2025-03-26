@@ -63,11 +63,9 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
           return nameMatch || categoryMatch || menuMatch;
         }).toList();
       });
-    }
-    print("searchFavoriteRestaurants: ${searchFavoriteRestaurants.length}");
-    setState(() {
+
       isKeywordSearch = true;
-    });
+    }
   }
 
   // void qrScanData() async{

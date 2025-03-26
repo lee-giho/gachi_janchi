@@ -8,7 +8,7 @@ import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
-import 'package:http/http.dart'  as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
@@ -19,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
   var searchKeywordController = TextEditingController();
   FocusNode searchKeywordFocus = FocusNode();
 
@@ -34,7 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> restaurants = [];
   List<dynamic> searchRestaurants = [];
 
-  DraggableScrollableController sheetController = DraggableScrollableController();
+  DraggableScrollableController sheetController =
+      DraggableScrollableController();
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var status = await Permission.location.request();
     if (status.isGranted) {
       getCurrentLocation();
-    } else if  (status.isPermanentlyDenied) {
+    } else if (status.isPermanentlyDenied) {
       await openAppSettings();
     }
   }
@@ -68,8 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high
-      );
+          desiredAccuracy: LocationAccuracy.high);
 
       setState(() {
         currentPosition = NLatLng(position.latitude, position.longitude);
@@ -88,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print("현재 위치를 가져오는 데 실패했습니다: $e");
     }
   }
-
 
   void qrScanData() async {
     // QrCodeScanner 화면으로 이동
@@ -149,21 +147,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 음식점 리스트 요청하는 함수
   Future<void> getRestaurantList() async {
-
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
+    final apiAddress =
+        Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
     };
 
     try {
-      final response = await http.get(
-        apiAddress,
-        headers: headers
-      );
+      final response = await http.get(apiAddress, headers: headers);
 
       if (response.statusCode == 200) {
         print("음식점 리스트 요청 완료");
@@ -178,14 +173,12 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
     }
   }
 
   Future<void> fetchRestaurantsInBounds(NCameraPosition position) async {
-
     // 현재 지도 화면의 경계 가져오기
     NLatLngBounds bounds = await mapController!.getContentBounds();
 
@@ -197,17 +190,15 @@ class _HomeScreenState extends State<HomeScreen> {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/bounds?latMin=$latMin&latMax=$latMax&lonMin=$lonMin&lonMax=$lonMax");
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/restaurant/bounds?latMin=$latMin&latMax=$latMax&lonMin=$lonMin&lonMax=$lonMax");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
     };
 
     try {
-      final response = await http.get(
-        apiAddress,
-        headers: headers
-      );
+      final response = await http.get(apiAddress, headers: headers);
 
       if (response.statusCode == 200) {
         print("음식점 리스트 요청 완료");
@@ -232,9 +223,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
     }
   }
 
@@ -243,7 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String? accessToken = await SecureStorage.getAccessToken();
     String keyword = searchKeywordController.text.trim();
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/keyword?keyword=$keyword");
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/restaurant/keyword?keyword=$keyword");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
@@ -251,10 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (keyword.isNotEmpty) {
       try {
-        final response = await http.get(
-          apiAddress,
-          headers: headers
-        );
+        final response = await http.get(apiAddress, headers: headers);
 
         if (response.statusCode == 200) {
           print("음식점 리스트 요청 완료");
@@ -282,9 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       } catch (e) {
         // 예외 처리
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
       }
     }
   }
@@ -309,19 +296,25 @@ class _HomeScreenState extends State<HomeScreen> {
         print("assets/images/ingredient/$ingredient.png");
 
         // ✅ 현재 지도 영역 내에 있는지 확인
-        if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
+        if (latitude >= latMin &&
+            latitude <= latMax &&
+            longitude >= lonMin &&
+            longitude <= lonMax) {
           NMarker marker = NMarker(
             id: restaurantName,
             position: NLatLng(latitude, longitude),
-            icon: NOverlayImage.fromAssetImage("assets/images/ingredient/$ingredient.png"),
+            icon: NOverlayImage.fromAssetImage(
+                "assets/images/ingredient/$ingredient.png"),
             caption: NOverlayCaption(text: restaurantName),
           );
 
           marker.setOnTapListener((overlay) {
             setState(() {
               // 이전에 선택된 마커 크기 원래대로 되돌리기
-              if (selectedMarkerId != null && markerMap.containsKey(selectedMarkerId)) {
-                markerMap[selectedMarkerId]!.setSize(const Size(40, 40)); // 원래 크기로 되돌리기
+              if (selectedMarkerId != null &&
+                  markerMap.containsKey(selectedMarkerId)) {
+                markerMap[selectedMarkerId]!
+                    .setSize(const Size(40, 40)); // 원래 크기로 되돌리기
               }
 
               // 새로운 마커 크기 키우기
@@ -356,13 +349,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // 기존 마커 제거 후 새로운 마커 추가
     mapController?.clearOverlays();
-    Set<NAddableOverlay<NOverlay<void>>> castedMarkers = newMarkers.cast<NAddableOverlay<NOverlay<void>>>();
+    Set<NAddableOverlay<NOverlay<void>>> castedMarkers =
+        newMarkers.cast<NAddableOverlay<NOverlay<void>>>();
     mapController?.addOverlayAll(castedMarkers);
 
     print("현재 적용된 마커 개수: ${newMarkers.length}");
   }
 
-  String isRestaurantOpen(Map<String, dynamic> businessHours) { // 음식점이 영업중인지 확인하고 "영업중" 또는 "영업종료"를 반환하는 메서드
+  String isRestaurantOpen(Map<String, dynamic> businessHours) {
+    // 음식점이 영업중인지 확인하고 "영업중" 또는 "영업종료"를 반환하는 메서드
     // 현재 요일 가져오기
     DateTime now = DateTime.now();
     List<String> weekDays = ["월", "화", "수", "목", "금", "토", "일"];
@@ -371,20 +366,24 @@ class _HomeScreenState extends State<HomeScreen> {
     // 현재 요일의 영업시간 가져오기
     String? todayHours = businessHours[today];
 
-    if (todayHours == null || todayHours == "휴무일") { // 영업 시간이 없거나 "휴무일"이면 영업 종료
+    if (todayHours == null || todayHours == "휴무일") {
+      // 영업 시간이 없거나 "휴무일"이면 영업 종료
       return "영업종료";
     }
 
     // 영업시간 파싱 (ex. "11:30-21:30" -> "11:30", "21:30")
     List<String> hours = todayHours.split("-");
-    if (hours.length != 2) { // 예상 형식이 아니면 영업 종료
+    if (hours.length != 2) {
+      // 예상 형식이 아니면 영업 종료
       return "영업종료";
     }
 
     // 영업 시작 시간
-    DateTime openTime = DateTime(now.year, now.month, now.day, int.parse(hours[0].split(":")[0]), int.parse(hours[0].split(":")[1]));
+    DateTime openTime = DateTime(now.year, now.month, now.day,
+        int.parse(hours[0].split(":")[0]), int.parse(hours[0].split(":")[1]));
     // 영업 종료 시간
-    DateTime closeTime = DateTime(now.year, now.month, now.day, int.parse(hours[1].split(":")[0]), int.parse(hours[1].split(":")[1]));
+    DateTime closeTime = DateTime(now.year, now.month, now.day,
+        int.parse(hours[1].split(":")[0]), int.parse(hours[1].split(":")[1]));
 
     // 현재 시간과 비교하여 영업 여부 반환
     if (now.isAfter(openTime) && now.isBefore(closeTime)) {
@@ -406,11 +405,8 @@ class _HomeScreenState extends State<HomeScreen> {
         sheetChildSize = 0.018;
       });
 
-      sheetController.animateTo(
-        sheetChildSize,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut
-      );
+      sheetController.animateTo(sheetChildSize,
+          duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
     print("sheetChildSize: ${sheetChildSize}");
   }
@@ -426,12 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
               log("currentPosition: $currentPosition");
               // 현재 위치가 있으면 지도 이동
               if (currentPosition != null) {
-                mapController!.updateCamera(
-                  NCameraUpdate.withParams(
-                    target: currentPosition,
-                    zoom: 15
-                  )
-                );
+                mapController!.updateCamera(NCameraUpdate.withParams(
+                    target: currentPosition, zoom: 15));
               }
             },
             onMapTapped: (point, latLng) {
@@ -442,15 +434,15 @@ class _HomeScreenState extends State<HomeScreen> {
               print(isMarkerTap);
               updateSheetSize(); // 크기 업데이트
             },
-          options: const NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(
-                  // 첫 로딩 포지션
-                  target: NLatLng(37.5667070936, 126.97876548263318),
-                  zoom: 15,
-                  bearing: 0,
-                  tilt: 0),
-              locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
-            ),
+            options: const NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                    // 첫 로딩 포지션
+                    target: NLatLng(37.5667070936, 126.97876548263318),
+                    zoom: 15,
+                    bearing: 0,
+                    tilt: 0),
+                locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
+                ),
             onCameraChange: (reason, animated) async {
               setState(() {
                 isMarkerTap = false;
@@ -462,7 +454,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             onCameraIdle: () async {
               if (mapController != null) {
-                NCameraPosition position = await mapController!.getCameraPosition();
+                NCameraPosition position =
+                    await mapController!.getCameraPosition();
                 await fetchRestaurantsInBounds(position);
                 setState(() {
                   isMarkerTap = false;
@@ -471,17 +464,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 // setState(() {
                 //   currentPosition = position.target;
                 // });
-                print("카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
+                print(
+                    "카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
               } else {
                 log("mapController가 초기화되지 않았습니다.");
               }
             },
             onSymbolTapped: (symbolInfo) {
               log("symbolInfo: ${symbolInfo.caption}");
-            }
-          ),
-          // 검색바
-          Positioned(
+            }),
+        // 검색바
+        Positioned(
             top: 60,
             left: 0,
             right:
@@ -567,15 +560,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               print("${searchKeywordController.text} 검색!!!");
                               // searchRestaurantsByKeword();
                               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SearchRestaurantScreen(
-                                    data: {
-                                      "keyword": searchKeywordController.text
-                                    }
-                                  )
-                                )
-                              );
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          SearchRestaurantScreen(data: {
+                                            "keyword":
+                                                searchKeywordController.text
+                                          })));
                             },
                           )
                         ],
@@ -597,126 +588,120 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-            )
-          ),
-          // if (tapRestaurant.isNotEmpty)
-          //   Positioned(
-          //     bottom: 100,
-          //     child: Container(
-          //       decoration: const BoxDecoration(
-          //         color: Colors.white,                  
-          //       ),
-          //       width: MediaQuery.of(context).size.width,
-          //       child: RestaurantListTile(restaurant: tapRestaurant)
-          //     )
-          //   ),
-          isMarkerTap
-          ? DraggableScrollableSheet(
-            initialChildSize: sheetChildSize, // 동적으로 크기 조정
-            minChildSize: sheetChildSize,
-            maxChildSize: sheetChildSize, // 최대 크기 제한
-            controller: sheetController,
-            builder: (BuildContext context, scrollController) {
-              return Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  )
-                ),
-                child: CustomScrollView(
-                  controller: scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Center(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+            )),
+        // if (tapRestaurant.isNotEmpty)
+        //   Positioned(
+        //     bottom: 100,
+        //     child: Container(
+        //       decoration: const BoxDecoration(
+        //         color: Colors.white,
+        //       ),
+        //       width: MediaQuery.of(context).size.width,
+        //       child: RestaurantListTile(restaurant: tapRestaurant)
+        //     )
+        //   ),
+        isMarkerTap
+            ? DraggableScrollableSheet(
+                initialChildSize: sheetChildSize, // 동적으로 크기 조정
+                minChildSize: sheetChildSize,
+                maxChildSize: sheetChildSize, // 최대 크기 제한
+                controller: sheetController,
+                builder: (BuildContext context, scrollController) {
+                  return Container(
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                        )),
+                    child: CustomScrollView(
+                      controller: scrollController,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Center(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              height: 4,
+                              width: 80,
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                            ),
                           ),
-                          height: 4,
-                          width: 80,
-                          margin: const EdgeInsets.symmetric(vertical: 5),
                         ),
-                      ),
+                        SliverList.builder(
+                            itemCount: 1,
+                            itemBuilder: (context, index) {
+                              final restaurant = tapRestaurant;
+
+                              return RestaurantListTile(
+                                restaurant: restaurant,
+                                // onPressed: () {
+                                //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                                // },
+                                // onBookmarkPressed: () {
+                                //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                                // },
+                              );
+                            })
+                      ],
                     ),
-                    SliverList.builder(
-                      itemCount: 1,
-                      itemBuilder: (context, index) {
-                        final restaurant = tapRestaurant;
-                        
-                        return RestaurantListTile(
-                          restaurant: restaurant,
-                          // onPressed: () {
-                          //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                          // },
-                          // onBookmarkPressed: () {
-                          //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                          // },
-                        );
-                      }
-                    )
-                  ],
-                ),
-              );
-            }
-          )
-          : DraggableScrollableSheet(
-            initialChildSize: sheetChildSize,
-            maxChildSize: 0.85,
-            minChildSize: 0.018,
-            controller: sheetController,
-            builder: (BuildContext context, scrollController) {
-              return Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  )
-                ),
-                child: CustomScrollView(
-                  controller: scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Center(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                  );
+                })
+            : DraggableScrollableSheet(
+                initialChildSize: sheetChildSize,
+                maxChildSize: 0.85,
+                minChildSize: 0.018,
+                controller: sheetController,
+                builder: (BuildContext context, scrollController) {
+                  return Container(
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                        )),
+                    child: CustomScrollView(
+                      controller: scrollController,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Center(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              height: 4,
+                              width: 80,
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                            ),
                           ),
-                          height: 4,
-                          width: 80,
-                          margin: const EdgeInsets.symmetric(vertical: 5),
                         ),
-                      ),
+                        SliverList.builder(
+                            itemCount: restaurants.length,
+                            itemBuilder: (context, index) {
+                              final restaurant = restaurants[index];
+
+                              return RestaurantListTile(
+                                restaurant: restaurant,
+                                // onPressed: () {
+                                //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                                // },
+                                // onBookmarkPressed: () {
+                                //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                                // },
+                              );
+                            })
+                      ],
                     ),
-                    SliverList.builder(
-                      itemCount: restaurants.length,
-                      itemBuilder: (context, index) {
-                        final restaurant = restaurants[index];
-                        
-                        return RestaurantListTile(
-                          restaurant: restaurant,
-                          // onPressed: () {
-                          //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                          // },
-                          // onBookmarkPressed: () {
-                          //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                          // },
-                        );
-                      }
-                    )
-                  ],
-                ),
-              );
-            }
-          )
-        ]
-      ),
+                  );
+                })
+      ]),
     );
   }
 }

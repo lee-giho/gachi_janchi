@@ -32,7 +32,7 @@ public class TitleService {
 
     public List<TitleResponse> getAllTitles() {
         return titleRepository.findAll().stream()
-                .map(t -> new TitleResponse(t.getId(), t.getName(), t.getDescription()))
+                .map(t -> new TitleResponse(t.getId(), t.getName()))
                 .collect(Collectors.toList());
     }
 
@@ -100,9 +100,7 @@ public class TitleService {
                         tc.getTitle().getId(),
                         tc.getTitle().getName(),
                         tc.getConditionType(),
-                        tc.getConditionValue(),
-                        generateConditionDescription(tc)
-                ))
+                        tc.getConditionValue()))
                 .collect(Collectors.toList());
     }
 
@@ -120,7 +118,6 @@ public class TitleService {
                             tc.getTitle().getName(),
                             tc.getConditionType(),
                             tc.getConditionValue(),
-                            generateConditionDescription(tc),
                             progress,
                             progress >= required
                     );

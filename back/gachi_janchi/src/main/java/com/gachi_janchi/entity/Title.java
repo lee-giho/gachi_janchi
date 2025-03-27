@@ -23,15 +23,12 @@ public class Title {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private String description;
-
 
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TitleCondition> conditions = new ArrayList<>();
 
-    public Title(String name, String description) {
+    public Title(String name) {
         this.name = name;
-        this.description = description;
     }
 
 }

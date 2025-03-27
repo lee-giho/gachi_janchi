@@ -75,6 +75,7 @@ public class VisitedRestaurantService {
         Ingredient ingredient = ingredientRepository.findById(visitedRestaurant.getIngredientId()).orElseThrow(() -> new IllegalArgumentException("해당 재료가 존재하지 않습니다. - " + visitedRestaurant.getIngredientId()));
         return VisitedRestaurantDto.builder()
           .restaurant(restaurant)
+          .visitedId(visitedRestaurant.getId())
           .visitedAt(visitedRestaurant.getVisitedAt())
           .ingredientName(ingredient.getName())
           .build();

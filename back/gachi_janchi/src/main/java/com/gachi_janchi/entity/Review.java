@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "review")
+@Table(name = "review", uniqueConstraints = {
+  @UniqueConstraint(columnNames = {"user_id", "visited_id"}) // 중복된 리뷰 방지
+})
 public class Review {
   @Id
   @Column(name = "id")
@@ -22,6 +25,9 @@ public class Review {
 
   @Column(name = "user_id", nullable = false)
   private String userId;
+
+  @Column(name = "visited_id", nullable = false)
+  private String visitedId;
 
   @Column(name = "restaurant_id", nullable = false)
   private String restaurantId;
@@ -36,9 +42,10 @@ public class Review {
   private LocalDateTime createdAt;
 
   // createdAt을 자동 생성하는 생성자 추가
-  public Review(String id, String userId, String restaurantId, int rating, String content) {
+  public Review(String id, String userId, String visitedId, String restaurantId, int rating, String content) {
     this.id = id;
     this.userId = userId;
+    this.visitedId = visitedId;
     this.restaurantId = restaurantId;
     this.rating = rating;
     this.content = content;

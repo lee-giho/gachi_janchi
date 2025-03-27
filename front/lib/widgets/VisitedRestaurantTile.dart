@@ -106,6 +106,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                           MaterialPageRoute(
                             builder: (context) => ReviewRegistrationScreen(
                               data: {
+                                "visitedId": widget.visitedRestaurant["visitedId"],
                                 "restaurantId": restaurant["id"],
                                 "restaurantMenu": restaurant["menu"]
                               }

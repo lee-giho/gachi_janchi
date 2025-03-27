@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VisitedRestaurantDto {
   private Restaurant restaurant;
+  private String visitedId;
   private LocalDateTime visitedAt;
   private String ingredientName;
 }

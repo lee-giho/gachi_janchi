@@ -113,6 +113,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
     request.headers['Authorization'] = 'Bearer ${accessToken}';
 
     // 필수 데이터
+    request.fields['visitedId'] = widget.data['visitedId'];
     request.fields['restaurantId'] = widget.data['restaurantId'];
     request.fields['rating'] = reviewRating.toString();
     request.fields['content'] = contentController.text;
@@ -157,8 +158,6 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.data["restaurantId"]);
-    print(widget.data["restaurantMenu"]);
     return Scaffold(
       appBar: AppBar(
         title: const Align(

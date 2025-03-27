@@ -2,6 +2,8 @@ package com.gachi_janchi.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,53 +47,71 @@ public class ReviewService {
 
     String userId = jwtProvider.getUserId(accessToken);
     String reviewId = UUID.randomUUID().toString();
-    System.out.println("메뉴: " + addReviewRequest.getMenuNames());
-    System.out.println("사진: " + addReviewRequest.getImages());
-    // 리뷰 저장
-    Review review = new Review(
-      reviewId,
-      userId,
-      addReviewRequest.getRestaurantId(),
-      addReviewRequest.getRating(),
-      addReviewRequest.getContent() 
-    );
-    reviewRepository.save(review);
+    
+    // 이미지 저장 경로
+    List<File> savedFiles = new ArrayList<>();
+    List<String> savedFileNames = new ArrayList<>();
 
-    // 메뉴 저장
-    if (addReviewRequest.getMenuNames() != null) {
-      for (String menuName : addReviewRequest.getMenuNames()) {
-        ReviewMenu reviewMenu = new ReviewMenu(
-          UUID.randomUUID().toString(),
-          reviewId,
-          menuName
-        );
-        reviewMenuRepository.save(reviewMenu);
-      }
-    }
+    try {
+      // 이미지 파일 저장
+      if (addReviewRequest.getImages() != null) {
+        for (MultipartFile image : addReviewRequest.getImages()) {
+          String imageFileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+          String fullPath = reviewImageRelativePath = imageFileName;
 
-    // 이미지 저장
-    if (addReviewRequest.getImages() != null) {
-      for (MultipartFile image : addReviewRequest.getImages()) {
-        String imageFileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-        String fullPath = reviewImageRelativePath + imageFileName;
-
-        File dest = new File(fullPath);
-        dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성
-        try {
-          image.transferTo(dest);
-        } catch (IOException e) {
-          throw new RuntimeException("이미지 저장 실패" + image.getOriginalFilename(), e);
+          File dest = new File(fullPath);
+          dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성
+          image.transferTo(dest); // 이미지 저장
+          
+          savedFiles.add(dest);
+          savedFileNames.add(imageFileName); // DB 저장용 이름
         }
+      }
 
+      // 리뷰 저장
+      Review review = new Review(
+        reviewId,
+        userId,
+        addReviewRequest.getVisitedId(),
+        addReviewRequest.getRestaurantId(),
+        addReviewRequest.getRating(),
+        addReviewRequest.getContent()
+      );
+      reviewRepository.save(review);
+
+      // 메뉴 저장
+      if (addReviewRequest.getMenuNames() != null) {
+        for (String menuName : addReviewRequest.getMenuNames()) {
+          ReviewMenu reviewMenu = new ReviewMenu(
+            UUID.randomUUID().toString(),
+            reviewId,
+            menuName
+          );
+          reviewMenuRepository.save(reviewMenu);
+        }
+      }
+
+      // 이미지 DB 저장
+      for (String imageName : savedFileNames) {
         ReviewImage reviewImage = new ReviewImage(
           UUID.randomUUID().toString(),
           reviewId,
-          imageFileName
+          imageName
         );
         reviewImageRepository.save(reviewImage);
       }
-    }
 
-    return new AddReviewResponse("이미지 저장을 완료했습니다.");
+      return new AddReviewResponse("리뷰가 정상적으로 저장되었습니다.");
+    } catch (Exception e) {
+      // 예외 발생 시, 저장했던 파일들 삭제
+      if (!savedFiles.isEmpty()) {
+        for (File file : savedFiles) {
+          if (file.exists()) {
+            file.delete();
+          }
+        }
+      }
+      throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+    }
   }
 }

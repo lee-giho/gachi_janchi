@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AddReviewRequest {
+  private String visitedId;
   private String restaurantId;
   private int rating;
   private String content;

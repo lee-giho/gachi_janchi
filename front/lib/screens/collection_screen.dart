@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
@@ -49,11 +50,12 @@ class _CollectionScreenState extends State<CollectionScreen>
   }
 
   Future<void> _fetchUserData() async {
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/info").toString();
     String? token = await SecureStorage.getAccessToken();
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/user/info",
+        apiAddress,
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {

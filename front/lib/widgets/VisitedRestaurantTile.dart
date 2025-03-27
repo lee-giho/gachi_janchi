@@ -103,7 +103,14 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ReviewRegistrationScreen())
+                          MaterialPageRoute(
+                            builder: (context) => ReviewRegistrationScreen(
+                              data: {
+                                "restaurantId": restaurant["id"],
+                                "restaurantMenu": restaurant["menu"]
+                              }
+                            )
+                          )
                         );
                       },
                       child: Text(

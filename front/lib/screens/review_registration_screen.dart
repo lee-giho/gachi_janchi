@@ -3,9 +3,12 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class ReviewRegistrationScreen extends StatefulWidget {
-  const ReviewRegistrationScreen({super.key});
+  final Map<String, dynamic> data;
+
+  const ReviewRegistrationScreen({super.key, required this.data});
 
   @override
   State<ReviewRegistrationScreen> createState() => _ReviewRegistrationScreenState();
@@ -21,6 +24,8 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   final formKey = GlobalKey<FormState>();
   var contentController = TextEditingController(); // 리뷰 내용 값 저장
   FocusNode contentFocus = FocusNode(); // 리뷰 내용 FocusNode
+
+  List<String> selectedMenus = []; // 먹은 음식 선택 리스트
 
   int reviewRating = 0; // 리뷰 별점
 
@@ -91,6 +96,8 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.data["restaurantId"]);
+    print(widget.data["restaurantMenu"]);
     return Scaffold(
       appBar: AppBar(
         title: const Align(
@@ -128,7 +135,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "사진 등록",
+                                    "사진 등록 (선택)",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold
@@ -240,6 +247,46 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                                   ),
                                 ),
                               )
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Column( // 먹었던 메뉴 선택하는 부분
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "메뉴 (선택)",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                              MultiSelectBottomSheetField(
+                                initialChildSize: 0.4,
+                                maxChildSize: 0.9,
+                                title: const Text("메뉴 선택"),
+                                buttonText: const Text("메뉴를 선택하세요."),
+                                items: (widget.data["restaurantMenu"] as List<dynamic>)
+                                        .map<MultiSelectItem<String>>((menu) => MultiSelectItem<String>(
+                                          menu["name"] as String,
+                                          "${menu["name"]} (${menu["price"]})"
+                                        ))
+                                        .toList(),
+                                searchable: true,
+                                selectedColor: const Color.fromRGBO(122, 11, 11, 1),
+                                onConfirm: (values) {
+                                  setState(() {
+                                    selectedMenus = values.cast<String>();
+                                  });
+                                  print("선택된 메뉴: $selectedMenus");
+                                },
+                                chipDisplay: MultiSelectChipDisplay(
+                                  onTap: (value) {
+                                    setState(() {
+                                      selectedMenus.remove(value);
+                                    });
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),

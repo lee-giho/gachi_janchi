@@ -99,19 +99,19 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
     // QrCodeScanner 화면으로 이동
     // QR코드 스캔한 결과를 value로 받아서 사용
 
-    // 서버를 배포해서 실제 핸드폰으로 qr코드를 찍을 수 있을 때 사용
-    // Navigator.of(context)
-    //   .push(MaterialPageRoute(
-    //     builder: (context) => const QrCodeScanner(),
-    //     settings: RouteSettings(name: 'qr_scan')))
-    //   .then((value) {
-    //     print('QR value: ${value}');
-    //     getRestaurant(value);
-    //   }
-    // );
+    // 실제 핸드폰으로 qr코드를 찍을 수 있을 때 사용
+    Navigator.of(context)
+      .push(MaterialPageRoute(
+        builder: (context) => const QrCodeScanner(),
+        settings: RouteSettings(name: 'qr_scan')))
+      .then((value) {
+        print('QR value: ${value}');
+        getRestaurant(value);
+      }
+    );
 
     // 임시로 음식점 아이디를 통해 정보를 가져오는 것
-    getRestaurant("67c9e0b479b5e9cfd182e150");
+    // getRestaurant("67c9e0b479b5e9cfd182e150");
   }
 
   // 음식점 아이디로 재료 요청하는 함수

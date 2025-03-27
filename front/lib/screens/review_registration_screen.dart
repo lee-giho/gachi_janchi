@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ReviewRegistrationScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -92,6 +96,63 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
       formKey.currentState?.validate();
       isSubmitEnabled = formKey.currentState?.validate() == true && reviewRating > 0;
     });
+  }
+
+  // 리뷰 작성 요청 함수
+  Future<void> submitReview() async {
+    print("리뷰 작성 요청");
+
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review");
+
+    final request = http.MultipartRequest('POST', apiAddress);
+
+    // Header
+    request.headers['Authorization'] = 'Bearer ${accessToken}';
+
+    // 필수 데이터
+    request.fields['restaurantId'] = widget.data['restaurantId'];
+    request.fields['rating'] = reviewRating.toString();
+    request.fields['content'] = contentController.text;
+
+    // 선택된 메뉴 리스트
+    // for (String menu in selectedMenus) {
+    //   request.fields['menuNames'] = menu;
+    // }
+
+    for (int i = 0; i < selectedMenus.length; i++) {
+      request.fields['menuNames[$i]'] = selectedMenus[i];
+    }
+
+
+    // 선택된 이미지 리스트
+    for (var image in selectedImages) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'images', image.path
+      ));
+    }
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        print("리뷰 작성 성공!!!");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("리뷰를 작성했습니다."))
+        );
+        Navigator.pop(context);
+      } else {
+        print("리뷰 작성 실패!!!");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
   }
 
   @override
@@ -363,6 +424,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                         print("리뷰 등록 버튼 클릭!!!");
                         print("리뷰 내용: ${contentController.text}");
                         print("별점: $reviewRating");
+                        submitReview();
                       }
                     : null,
                   style: ElevatedButton.styleFrom(

@@ -31,6 +31,10 @@ public class User {
   @Column(name = "type", nullable = false)
   private String type;
 
+  @Column(name = "profile_image_path")
+  private String profileImagePath;
+
+
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false,
           columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt;

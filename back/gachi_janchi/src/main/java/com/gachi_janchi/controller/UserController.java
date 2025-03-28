@@ -7,6 +7,7 @@ import com.gachi_janchi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user")
@@ -138,6 +139,22 @@ public class UserController {
     GetFavoriteRestaurantsResponse getFavoriteRestaurantsResponse = favoriteRestaurantService.getUserFavorites(accessToken);
     return ResponseEntity.ok(getFavoriteRestaurantsResponse);
   }
+  // ✅ 프로필 이미지 업로드 API
+  @PostMapping("/profile-image")
+  public ResponseEntity<String> uploadProfileImage(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestParam("image") MultipartFile imageFile) {
+    String imagePath = userService.saveProfileImage(imageFile, accessToken);
+    return ResponseEntity.ok(imagePath);
+  }
+
+  @DeleteMapping("/profile-image")
+  public ResponseEntity<Void> deleteProfileImage(@RequestHeader("Authorization") String accessToken) {
+    System.out.println("🧹 프로필 이미지 삭제 요청 받음");
+    userService.deleteProfileImage(accessToken);
+    return ResponseEntity.ok().build();
+  }
+
 
   // 음식점 즐겨찾기
 }

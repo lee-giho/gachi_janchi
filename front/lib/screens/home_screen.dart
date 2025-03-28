@@ -114,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final response = await http.get(apiAddress, headers: headers);
+      if (!mounted) return; // ✅ context 사용 전에 꼭 체크
 
       if (response.statusCode == 200) {
         print("음식점 리스트 요청 완료");

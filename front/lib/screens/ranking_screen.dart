@@ -302,17 +302,21 @@ class _RankingScreenState extends State<RankingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Flexible(
-                      child: _buildPodiumUser(
-                          top3[1], 2, Colors.grey.shade400, 100)),
-                  const SizedBox(width: 8),
+                  if (top3.length >= 2) ...[
+                    Flexible(
+                        child: _buildPodiumUser(
+                            top3[1], 2, Colors.grey.shade400, 100)),
+                    const SizedBox(width: 8),
+                  ],
                   Flexible(
                       child: _buildPodiumUser(
                           top3[0], 1, Colors.amber.shade600, 130)),
-                  const SizedBox(width: 8),
-                  Flexible(
-                      child: _buildPodiumUser(
-                          top3[2], 3, Colors.brown.shade300, 90)),
+                  if (top3.length >= 3) ...[
+                    const SizedBox(width: 8),
+                    Flexible(
+                        child: _buildPodiumUser(
+                            top3[2], 3, Colors.brown.shade300, 90)),
+                  ],
                 ],
               ),
             ),

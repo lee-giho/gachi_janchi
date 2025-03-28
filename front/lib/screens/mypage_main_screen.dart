@@ -78,11 +78,16 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       if (response.statusCode == 200) {
         var data = response.data;
         print("✅ 서버 응답 데이터: $data");
+
+        int exp = data["exp"] ?? 0;
+        int calculatedLevel = (exp ~/ 100) + 1; // ✅ 1레벨부터 시작
+        double calculatedProgress = (exp % 100) / 100.0;
+
         setState(() {
           nickname = data["nickname"] ?? "정보 없음";
           title = data["title"] ?? "칭호 선택";
-          level = data["level"] ?? 1;
-          progress = (data["progress"] ?? 0) / 100.0;
+          level = calculatedLevel;
+          progress = calculatedProgress;
           profileImagePath = data["profileImagePath"] != null
               ? (data["profileImagePath"].toString().startsWith("http")
                       ? data["profileImagePath"]
@@ -235,7 +240,9 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const MypageScreen()),
-                );
+                ).then((_) {
+                  _fetchUserInfo(); // 돌아오면 유저 정보 갱신
+                });
               },
               child: Container(
                 padding: const EdgeInsets.all(20),

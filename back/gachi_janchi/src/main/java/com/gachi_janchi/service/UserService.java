@@ -59,7 +59,9 @@ public class UserService {
             user.getName(),
             user.getEmail(),
             user.getType(),
-            user.getProfileImagePath()
+            user.getProfileImagePath(),
+            user.getExp() // ✅ exp로 레벨 및 진행도 계산
+
     );
   }
 
@@ -196,4 +198,12 @@ public class UserService {
     user.setProfileImagePath(null);
     userRepository.save(user);
   }
+
+  public void gainExp(String userId, int amount) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    user.setExp(user.getExp() + amount);
+    userRepository.save(user);
+  }
+
 }

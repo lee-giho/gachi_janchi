@@ -34,7 +34,6 @@ public class User {
   @Column(name = "profile_image_path")
   private String profileImagePath;
 
-
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false,
           columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt;
@@ -56,6 +55,10 @@ public class User {
   // ✅ 유저가 보유한 재료 (UserIngredient 연결)
   @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<UserIngredient> ingredients = new LinkedHashSet<>();
+
+  // ✅ 경험치 필드 추가
+  @Column(name = "exp", nullable = false)
+  private int exp = 0;
 
   // ✨ (선택) 유저가 완성한 컬렉션, 획득한 칭호 등도 연결 가능
 }

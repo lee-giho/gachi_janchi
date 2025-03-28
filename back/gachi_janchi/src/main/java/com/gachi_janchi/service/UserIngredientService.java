@@ -11,7 +11,6 @@ import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +30,8 @@ public class UserIngredientService {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private UserService userService;
     /**
      * ✅ 재료 추가 (획득)
      */
@@ -56,6 +57,7 @@ public class UserIngredientService {
         // 수량 증가 후 저장
         userIngredient.setQuantity(userIngredient.getQuantity() + 1);
         userIngredientRepository.save(userIngredient);
+        userService.gainExp(userId, 20);
 
         return new AddIngredientResponse(request.getIngredientName() + " 재료가 추가되었습니다.");
     }

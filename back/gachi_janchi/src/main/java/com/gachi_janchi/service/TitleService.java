@@ -32,7 +32,7 @@ public class TitleService {
 
     public List<TitleResponse> getAllTitles() {
         return titleRepository.findAll().stream()
-                .map(t -> new TitleResponse(t.getId(), t.getName()))
+                .map(t -> new TitleResponse(t.getId(), t.getName(),t.getExp()))
                 .collect(Collectors.toList());
     }
 
@@ -83,6 +83,8 @@ public class TitleService {
         if (alreadyOwned) {
             throw new IllegalStateException("이미 획득한 칭호입니다.");
         }
+        user.setExp(user.getExp() + title.getExp());
+        userRepository.save(user);
 
         userTitleRepository.save(new UserTitle(userId, title));
     }
@@ -163,18 +165,5 @@ public class TitleService {
         } catch (NumberFormatException e) {
             return 1;
         }
-    }
-
-    private String generateConditionDescription(TitleCondition tc) {
-        return switch (tc.getConditionType()) {
-            case "COLLECTION" -> "컬렉션 " + tc.getConditionValue() + "개 완성";
-            case "COLLECTION_NAME" -> tc.getConditionValue() + " 컬렉션 완성";
-            case "COLLECTION_NAMES" -> Arrays.stream(tc.getConditionValue().split(","))
-                    .map(String::trim).collect(Collectors.joining(", ")) + " 컬렉션 완성";
-            case "INGREDIENT" -> "재료 " + tc.getConditionValue() + "개 수집";
-            case "ALL_COLLECTIONS" -> "모든 컬렉션 완성";
-            case "ALL_INGREDIENTS" -> "모든 재료 수집";
-            default -> "기본 칭호";
-        };
     }
 }

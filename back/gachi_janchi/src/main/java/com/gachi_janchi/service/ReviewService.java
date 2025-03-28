@@ -57,7 +57,7 @@ public class ReviewService {
       if (addReviewRequest.getImages() != null) {
         for (MultipartFile image : addReviewRequest.getImages()) {
           String imageFileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
-          String fullPath = reviewImageRelativePath = imageFileName;
+          String fullPath = reviewImageRelativePath + imageFileName;
 
           File dest = new File(fullPath);
           dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성

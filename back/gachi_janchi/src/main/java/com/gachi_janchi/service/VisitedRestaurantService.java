@@ -15,6 +15,7 @@ import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.VisitedRestaurant;
 import com.gachi_janchi.repository.IngredientRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
+import com.gachi_janchi.repository.ReviewRepository;
 import com.gachi_janchi.repository.VisitedRestaurantRepository;
 import com.gachi_janchi.util.JwtProvider;
 import java.util.List;
@@ -26,6 +27,7 @@ public class VisitedRestaurantService {
   private final VisitedRestaurantRepository visitedRestaurantRepository;
   private final RestaurantRepository restaurantRepository;
   private final IngredientRepository ingredientRepository;
+  private final ReviewRepository reviewRepository;
   private final JwtProvider jwtProvider;
 
   @Transactional
@@ -73,11 +75,15 @@ public class VisitedRestaurantService {
       .map(visitedRestaurant -> {
         Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId()).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));
         Ingredient ingredient = ingredientRepository.findById(visitedRestaurant.getIngredientId()).orElseThrow(() -> new IllegalArgumentException("해당 재료가 존재하지 않습니다. - " + visitedRestaurant.getIngredientId()));
+        // 방문한 음심점에 리뷰를 작성했는지 여부 확인
+        Boolean isReviewWrite = reviewRepository.existsByVisitedId(visitedRestaurant.getId());
+        System.out.println("isReviewWrite: " + isReviewWrite);
         return VisitedRestaurantDto.builder()
           .restaurant(restaurant)
           .visitedId(visitedRestaurant.getId())
           .visitedAt(visitedRestaurant.getVisitedAt())
           .ingredientName(ingredient.getName())
+          .isReviewWrite(isReviewWrite)
           .build();
       })
       .collect(Collectors.toList());

@@ -18,4 +18,5 @@ public class VisitedRestaurantDto {
   private String visitedId;
   private LocalDateTime visitedAt;
   private String ingredientName;
+  private boolean isReviewWrite;
 }

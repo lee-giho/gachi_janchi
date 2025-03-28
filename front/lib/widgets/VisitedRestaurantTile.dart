@@ -4,9 +4,12 @@ import 'package:gachi_janchi/screens/review_registration_screen.dart';
 
 class VisitedRestaurantTile extends StatefulWidget {
   final Map<String, dynamic> visitedRestaurant;
+  final VoidCallback onReviewCompleted;
+
   const VisitedRestaurantTile({
     super.key,
-    required this.visitedRestaurant
+    required this.visitedRestaurant,
+    required this.onReviewCompleted
   });
 
   @override
@@ -17,6 +20,8 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> restaurant = widget.visitedRestaurant["restaurant"];
+    print("visitedRestaurant: ${widget.visitedRestaurant}");
+    print("reviewWrite: ${widget.visitedRestaurant["reviewWrite"]}");
 
     return InkWell(
       onTap: () {
@@ -100,27 +105,38 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                           borderRadius: BorderRadius.circular(10.0)
                         )
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReviewRegistrationScreen(
-                              data: {
-                                "visitedId": widget.visitedRestaurant["visitedId"],
-                                "restaurantId": restaurant["id"],
-                                "restaurantMenu": restaurant["menu"]
-                              }
+                      onPressed: () async { widget.visitedRestaurant["reviewWrite"]
+                        ? null
+                        : await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReviewRegistrationScreen(
+                                data: {
+                                  "visitedId": widget.visitedRestaurant["visitedId"],
+                                  "restaurantId": restaurant["id"],
+                                  "restaurantMenu": restaurant["menu"]
+                                }
+                              )
                             )
-                          )
-                        );
+                          );
+                          // pop 후 콜백 실행
+                          widget.onReviewCompleted();
                       },
-                      child: Text(
-                        "리뷰 작성하기",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16
-                        ),
-                      )
+                      child: widget.visitedRestaurant["reviewWrite"]
+                      ? const Text(
+                          "리뷰 작성완료",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          ),
+                        ) 
+                      : const Text(
+                          "리뷰 작성하기",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                          ),
+                        )
                     )
                   ],
                 ),

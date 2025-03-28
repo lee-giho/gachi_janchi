@@ -217,7 +217,10 @@ class _VisitScreenState extends State<VisitScreen> {
                           ? searchVisitedRestaurants[index]
                           : visitedRestaurants[index];
                         return VisitedRestaurantTile(
-                          visitedRestaurant: visitedRestaurant
+                          visitedRestaurant: visitedRestaurant,
+                          onReviewCompleted: () {
+                            fetchVisitedRestaurants();
+                          },
                         );
                       },
                     ),

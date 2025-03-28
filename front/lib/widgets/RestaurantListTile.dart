@@ -170,7 +170,7 @@ class RestaurantListTile extends ConsumerWidget {
             Image.asset(
               'assets/images/ingredient/${restaurant["ingredientName"]}.png',
               fit: BoxFit.contain,
-              height: 60,
+              width: 60,
             ),
               
             // 즐겨찾기 아이콘 -> 추후 즐겨찾기 기능이 생기면 실제 값으로 수정해야함

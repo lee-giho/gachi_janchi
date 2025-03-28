@@ -145,7 +145,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
             Image.asset(
               'assets/images/ingredient/${widget.visitedRestaurant["ingredientName"]}.png',
               fit: BoxFit.contain,
-              height: 50,
+              width: 60,
             ),
           ],
         ),

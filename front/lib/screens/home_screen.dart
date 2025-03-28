@@ -155,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final response = await http.get(apiAddress, headers: headers);
+      if (!mounted) return; // ✅ 여기가 핵심!
 
       if (response.statusCode == 200) {
         print("음식점 리스트 요청 완료");
@@ -168,6 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
         // 🔹 리스트만 전달하도록 수정
         if (data.containsKey("restaurants")) {
           updateMarkers(data["restaurants"]);
+          if (!mounted) return; // 🔁 혹시 모를 두 번째 안전 장치
+
           setState(() {
             restaurants = data["restaurants"];
           });
@@ -178,6 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
         print("음식점 리스트를 불러올 수 없습니다.");
       }
     } catch (e) {
+      if (!mounted) return;
+
       // 예외 처리
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
@@ -409,10 +414,14 @@ class _HomeScreenState extends State<HomeScreen> {
               print("카메라 이동");
             },
             onCameraIdle: () async {
+              if (!mounted) return; // ✅ 위젯이 여전히 살아있는지 먼저 확인
+
               if (mapController != null) {
                 NCameraPosition position =
                     await mapController!.getCameraPosition();
                 await fetchRestaurantsInBounds(position);
+                if (!mounted) return; // ✅ 위젯이 여전히 살아있는지 먼저 확인
+
                 setState(() {
                   isMarkerTap = false;
                   tapRestaurant = {};

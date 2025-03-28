@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
@@ -44,9 +45,11 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _fetchRanking() async {
     String? token = await SecureStorage.getAccessToken();
+    String imageBaseUrl = dotenv.get("IMAGE_BASE_URL");
+
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/user/ranking?page=0&size=1000",
+        "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=0&size=1000",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -56,7 +59,7 @@ class _RankingScreenState extends State<RankingScreen> {
             if (user['profileImagePath'] != null &&
                 !user['profileImagePath'].toString().startsWith("http")) {
               user['profileImagePath'] =
-                  "http://localhost:8080" + user['profileImagePath'];
+                  "$imageBaseUrl${user['profileImagePath']}";
             }
             return user;
           }).toList();
@@ -69,9 +72,11 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _fetchMyInfoAndRanking() async {
     String? token = await SecureStorage.getAccessToken();
+    String imageBaseUrl = dotenv.get("IMAGE_BASE_URL");
+
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/user/info",
+        "${dotenv.get("API_ADDRESS")}/api/user/info",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -81,7 +86,7 @@ class _RankingScreenState extends State<RankingScreen> {
         String? profileImagePath = data['profileImagePath'];
 
         if (profileImagePath != null && !profileImagePath.startsWith("http")) {
-          profileImagePath = "http://localhost:8080" + profileImagePath;
+          profileImagePath = "$imageBaseUrl$profileImagePath";
         }
 
         setState(() {

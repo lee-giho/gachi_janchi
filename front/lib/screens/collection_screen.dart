@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
@@ -59,7 +60,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/user/info",
+        "${dotenv.get("API_ADDRESS")}/api/user/info",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -79,7 +80,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/user/ranking?page=0&size=1000",
+        "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=0&size=1000",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -102,7 +103,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/ingredients/user",
+        "${dotenv.get("API_ADDRESS")}/api/ingredients/user",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -122,7 +123,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/collections",
+        "${dotenv.get("API_ADDRESS")}/api/collections",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -148,7 +149,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/collections/user",
+        "${dotenv.get("API_ADDRESS")}/api/collections/user",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -167,7 +168,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.post(
-        "http://localhost:8080/api/collections/complete",
+        "${dotenv.get("API_ADDRESS")}/api/collections/complete",
         data: {"collectionName": name},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );

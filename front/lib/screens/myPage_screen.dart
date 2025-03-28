@@ -9,6 +9,7 @@ import 'edit_nickname_screen.dart';
 import 'edit_title_screen.dart';
 import 'edit_name_screen.dart';
 import '../widgets/ProfileWidget.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -60,7 +61,7 @@ class _MypageScreenState extends State<MypageScreen> {
           profileImagePath = data["profileImagePath"] != null
               ? (data["profileImagePath"].toString().startsWith("http")
                       ? data["profileImagePath"]
-                      : "http://localhost:8080${data["profileImagePath"]}") +
+                      : "${dotenv.get("IMAGE_BASE_URL")}${data["profileImagePath"]}") +
                   "?v=${DateTime.now().millisecondsSinceEpoch}"
               : null;
         });
@@ -235,7 +236,7 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      await dio.delete("http://localhost:8080/api/user",
+      await dio.delete("${dotenv.get("API_ADDRESS")}/api/user",
           data: {"reason": _reasonController.text});
 
       await SecureStorage.deleteTokens();
@@ -340,7 +341,7 @@ class _MypageScreenState extends State<MypageScreen> {
       });
 
       final response = await dio.post(
-        "http://localhost:8080/api/user/profile-image",
+        "${dotenv.get("API_ADDRESS")}/user/profile-image",
         data: formData,
       );
 
@@ -349,7 +350,7 @@ class _MypageScreenState extends State<MypageScreen> {
         setState(() {
           profileImagePath = returnedPath.startsWith("http")
               ? returnedPath
-              : "http://localhost:8080$returnedPath";
+              : "${dotenv.get("API_ADDRESS")}$returnedPath";
         });
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("프로필 이미지가 변경되었습니다.")));
@@ -370,7 +371,7 @@ class _MypageScreenState extends State<MypageScreen> {
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
       final response =
-          await dio.delete("http://localhost:8080/api/user/profile-image");
+          await dio.delete("${dotenv.get("API_ADDRESS")}/user/profile-image");
 
       if (response.statusCode == 200) {
         setState(() {

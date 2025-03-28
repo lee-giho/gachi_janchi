@@ -45,7 +45,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _fetchRanking() async {
     String? token = await SecureStorage.getAccessToken();
-    String imageBaseUrl = dotenv.get("IMAGE_BASE_URL");
+    String imageBaseUrl = dotenv.get("API_ADDRESS");
 
     try {
       final res = await _dio.get(
@@ -72,7 +72,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _fetchMyInfoAndRanking() async {
     String? token = await SecureStorage.getAccessToken();
-    String imageBaseUrl = dotenv.get("IMAGE_BASE_URL");
+    String imageBaseUrl = dotenv.get("API_ADDRESS");
 
     try {
       final res = await _dio.get(

@@ -45,7 +45,8 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      final response = await dio.get("http://localhost:8080/api/user/info");
+      final response =
+          await dio.get("${dotenv.get("API_ADDRESS")}/api/user/info");
 
       if (response.statusCode == 200) {
         var data = response.data;
@@ -61,7 +62,7 @@ class _MypageScreenState extends State<MypageScreen> {
           profileImagePath = data["profileImagePath"] != null
               ? (data["profileImagePath"].toString().startsWith("http")
                       ? data["profileImagePath"]
-                      : "${dotenv.get("IMAGE_BASE_URL")}${data["profileImagePath"]}") +
+                      : "${dotenv.get("API_ADDRESS")}${data["profileImagePath"]}") +
                   "?v=${DateTime.now().millisecondsSinceEpoch}"
               : null;
         });

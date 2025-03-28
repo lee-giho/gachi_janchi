@@ -10,6 +10,7 @@ import 'reviews_screen.dart';
 import 'discount_coupons_screen.dart';
 import 'notices_screen.dart';
 import 'settings_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MyPageMainScreen extends StatefulWidget {
   const MyPageMainScreen({super.key});
@@ -40,8 +41,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
       print("📤 기본 이미지 설정 DELETE 요청 보냄");
-      final response =
-          await dio.delete("http://localhost:8080/api/user/profile-image");
+      final response = await dio
+          .delete("${dotenv.get("API_ADDRESS")}/api/user/profile-image");
       print("📥 응답 상태 코드: ${response.statusCode}");
 
       if (response.statusCode == 200) {
@@ -73,7 +74,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
     try {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
-      final response = await dio.get("http://localhost:8080/api/user/info");
+      final response =
+          await dio.get("${dotenv.get("API_ADDRESS")}/api/user/info");
 
       if (response.statusCode == 200) {
         var data = response.data;
@@ -91,7 +93,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
           profileImagePath = data["profileImagePath"] != null
               ? (data["profileImagePath"].toString().startsWith("http")
                       ? data["profileImagePath"]
-                      : "http://localhost:8080${data["profileImagePath"]}") +
+                      : "${dotenv.get("API_ADDRESS")}${data["profileImagePath"]}") +
                   "?v=${DateTime.now().millisecondsSinceEpoch}"
               : null;
         });
@@ -204,7 +206,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       });
 
       final response = await dio.post(
-        "http://localhost:8080/api/user/profile-image",
+        "${dotenv.get("API_ADDRESS")}/api/user/profile-image",
         data: formData,
       );
 
@@ -213,7 +215,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
         setState(() {
           profileImagePath = returnedPath.startsWith("http")
               ? returnedPath
-              : "http://localhost:8080$returnedPath";
+              : "${dotenv.get("API_ADDRESS")}$returnedPath";
         });
         if (!mounted) return;
         ScaffoldMessenger.of(context)

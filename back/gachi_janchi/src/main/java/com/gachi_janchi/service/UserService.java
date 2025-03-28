@@ -11,10 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,7 +63,6 @@ public class UserService {
             user.getType(),
             user.getProfileImagePath(),
             user.getExp() // ✅ exp로 레벨 및 진행도 계산
-
     );
   }
 
@@ -204,6 +205,15 @@ public class UserService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
     user.setExp(user.getExp() + amount);
     userRepository.save(user);
+  }
+
+  public List<RankingUserResponse> getRanking(Pageable pageable) {
+    System.out.println("🔍 랭킹 조회 시작");
+    List<User> topUsers = userRepository.findTopUsers(pageable).getContent();
+    System.out.println("✅ 사용자 수: " + topUsers.size());
+    return topUsers.stream()
+            .map(u -> new RankingUserResponse(u.getNickName(), u.getProfileImagePath(),    u.getTitle() != null ? u.getTitle().getName() : null,u.getExp()))
+            .toList();
   }
 
 }

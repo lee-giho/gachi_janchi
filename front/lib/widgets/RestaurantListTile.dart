@@ -194,7 +194,10 @@ class RestaurantListTile extends ConsumerWidget {
                       favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                     },
                   ),
-                  const Text("500", style: TextStyle(fontSize: 12)),
+                  const Text(
+                    "500",
+                    style: TextStyle(fontSize: 12)
+                  ),
                 ],
               ),
             ),

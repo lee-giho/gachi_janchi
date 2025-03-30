@@ -15,4 +15,7 @@ public interface FavoriteRestaurantRepository extends JpaRepository<FavoriteRest
 
   // 특정 즐겨찾기 삭제
   void deleteByUserIdAndRestaurantId(String userId, String restaurantId);
+
+  // 음식점 즐겨찾기 수 가져오기
+  Long countByRestaurantId(String restaurantId);
 }

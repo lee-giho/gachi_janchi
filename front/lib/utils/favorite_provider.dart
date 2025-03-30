@@ -106,4 +106,38 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     print("음식점 즐겨찾기 리스트 초기화");
     state = [];
   }
+
+  // 즐겨찾기 수 요청하는 함수
+  Future<String> getFavoriteCount(String restaurantId) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/count?restaurantId=$restaurantId");
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      print("즐겨찾기 수 요청 보내기 시작");
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        print("즐겨찾기 수 요청 완료");
+
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+        return data["favoriteCount"];
+      } else {
+        print("즐겨찾기 수 요청 실패");
+        return "";
+      }
+    } catch (e) {
+      print("네트워크 오류: $e");
+      return "";
+    }
+  }
 }

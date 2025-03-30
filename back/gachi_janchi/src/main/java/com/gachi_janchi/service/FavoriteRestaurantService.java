@@ -92,4 +92,10 @@ public class FavoriteRestaurantService {
     favoriteRestaurantRepository.deleteByUserIdAndRestaurantId(userId, restaurantId);
     return new DeleteFavoriteRestaurantResponse("즐겨찾기 삭제 완료");
   }
+
+  // 음식점별 즐겨찾기 수 반환
+  public GetFavoriteCountResponse getFavoriteCount(String restaurantId) {
+    String favoriteCount = favoriteRestaurantRepository.countByRestaurantId(restaurantId).toString();
+    return new GetFavoriteCountResponse(favoriteCount);
+  }
 }

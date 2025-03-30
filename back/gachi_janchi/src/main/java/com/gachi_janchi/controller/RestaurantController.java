@@ -1,10 +1,12 @@
 package com.gachi_janchi.controller;
 
+import com.gachi_janchi.dto.GetFavoriteCountResponse;
 import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
 import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
 import com.gachi_janchi.entity.Restaurant;
+import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,9 @@ import java.util.Map;
 public class RestaurantController {
   @Autowired
   private RestaurantService restaurantService;
+
+  @Autowired
+  private FavoriteRestaurantService favoriteRestaurantService;
 
   // dong을 기준으로 Restaurant 리스트 가져오기
   @GetMapping("/dong")
@@ -53,6 +58,13 @@ public class RestaurantController {
   public ResponseEntity<GetIngredientByRestaurantIdResponse> getIngredientByRestaurantId(@RequestParam("restaurantId") String restaurantId) {
     GetIngredientByRestaurantIdResponse getRestaurantInfoByIdResponse = restaurantService.findIngredientByRestaurantId(restaurantId);
     return ResponseEntity.ok(getRestaurantInfoByIdResponse);
+  }
+  
+  // 음식점별 즐겨찾기 수 반환 엔드포인트
+  @GetMapping("/count")
+  public ResponseEntity<GetFavoriteCountResponse> getFavoriteCount(@RequestParam("restaurantId") String restaurantId) {
+    GetFavoriteCountResponse getFavoriteCount = favoriteRestaurantService.getFavoriteCount(restaurantId);
+    return ResponseEntity.ok(getFavoriteCount);
   }
   
 }

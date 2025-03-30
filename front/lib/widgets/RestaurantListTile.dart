@@ -82,127 +82,133 @@ class RestaurantListTile extends ConsumerWidget {
         );
       },
       borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        decoration: const BoxDecoration(
-          border: Border(bottom:BorderSide(width: 1, color: Colors.grey))
-        ),
-        child: Row(
-          children: [
-            // 음식점 이미지
-            Container(
-              width: 100,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1),
-              ),
-              child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
-                  ? Image.network(
-                      restaurant["imageUrl"],
-                      fit: BoxFit.contain,
-                    )
-                  : const SizedBox(
-                      height: 100,
-                      child: Center(
-                        child: Text(
-                          "사진 준비중",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
+      child: FutureBuilder<String>(
+        future: favoriteProviderNotifier.getFavoriteCount(restaurant["id"]),
+        builder: (context, snapshot) {
+          final favoriteCount = snapshot.data ?? "0";
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            decoration: const BoxDecoration(
+              border: Border(bottom:BorderSide(width: 1, color: Colors.grey))
             ),
-              
-            // 음식점 정보
-            Expanded(
-              child: Container(
-                height: 100,
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 음식점 이름
-                    Text(
-                      restaurant["restaurantName"],
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      softWrap: true,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-              
-                    // 리뷰 -> 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
-                    const Row(
-                      children: [
-                        Icon(Icons.star, size: 16, color: Colors.amberAccent),
-                        SizedBox(width: 5),
-                        Text("4.8 (500)", style: TextStyle(fontSize: 16)),
-                      ],
-                    ),
-              
-                    // 영업 여부
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.schedule,
-                          size: 10,
-                          color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          isRestaurantOpen(restaurant["businessHours"]),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
-                                ? Colors.green
-                                : Colors.red,
+            child: Row(
+              children: [
+                // 음식점 이미지
+                Container(
+                  width: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
+                  ),
+                  child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
+                      ? Image.network(
+                          restaurant["imageUrl"],
+                          fit: BoxFit.contain,
+                        )
+                      : const SizedBox(
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              "사진 준비중",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
+                ),
+                  
+                // 음식점 정보
+                Expanded(
+                  child: Container(
+                    height: 100,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 음식점 이름
+                        Text(
+                          restaurant["restaurantName"],
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                  
+                        // 리뷰 -> 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
+                        const Row(
+                          children: [
+                            Icon(Icons.star, size: 16, color: Colors.amberAccent),
+                            SizedBox(width: 5),
+                            Text("4.8 (500)", style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                  
+                        // 영업 여부
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.schedule,
+                              size: 10,
+                              color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              isRestaurantOpen(restaurant["businessHours"]),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-              
-            // 재료 아이콘 -> 추후 재료를 얻을 수 있는 기능이 생기면 실제 값으로 수정해야함
-            Image.asset(
-              'assets/images/ingredient/${restaurant["ingredientName"]}.png',
-              fit: BoxFit.contain,
-              width: 60,
-            ),
-              
-            // 즐겨찾기 아이콘 -> 추후 즐겨찾기 기능이 생기면 실제 값으로 수정해야함
-            SizedBox(
-              height: 100,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isFavorite
-                        ? Icons.turned_in
-                        : Icons.turned_in_not,
-                      size: 30, 
-                      color: isFavorite
-                        ? Colors.yellow
-                        : Colors.black,
-                    ),
-                    onPressed: () {
-                      favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
-                    },
+                  
+                // 재료 아이콘 -> 추후 재료를 얻을 수 있는 기능이 생기면 실제 값으로 수정해야함
+                Image.asset(
+                  'assets/images/ingredient/${restaurant["ingredientName"]}.png',
+                  fit: BoxFit.contain,
+                  width: 60,
+                ),
+                  
+                // 즐겨찾기 아이콘 -> 추후 즐겨찾기 기능이 생기면 실제 값으로 수정해야함
+                SizedBox(
+                  height: 100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          isFavorite
+                            ? Icons.turned_in
+                            : Icons.turned_in_not,
+                          size: 30, 
+                          color: isFavorite
+                            ? Colors.yellow
+                            : Colors.black,
+                        ),
+                        onPressed: () {
+                          favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
+                        },
+                      ),
+                      Text(
+                        favoriteCount,
+                        style: const TextStyle(fontSize: 12)
+                      ),
+                    ],
                   ),
-                  const Text(
-                    "500",
-                    style: TextStyle(fontSize: 12)
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

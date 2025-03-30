@@ -188,38 +188,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // 음식점 리스트 요청하는 함수
-  Future<void> getRestaurantList() async {
-    String? accessToken = await SecureStorage.getAccessToken();
+  // // 음식점 리스트 요청하는 함수
+  // Future<void> getRestaurantList() async {
+  //   String? accessToken = await SecureStorage.getAccessToken();
 
-    // .env에서 서버 URL 가져오기
-    final apiAddress =
-        Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
-    final headers = {
-      'Authorization': 'Bearer ${accessToken}',
-      'Content-Type': 'application/json'
-    };
+  //   // .env에서 서버 URL 가져오기
+  //   final apiAddress =
+  //       Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
+  //   final headers = {
+  //     'Authorization': 'Bearer ${accessToken}',
+  //     'Content-Type': 'application/json'
+  //   };
 
-    try {
-      final response = await http.get(apiAddress, headers: headers);
+  //   try {
+  //     final response = await http.get(apiAddress, headers: headers);
 
-      if (response.statusCode == 200) {
-        print("음식점 리스트 요청 완료");
+  //     if (response.statusCode == 200) {
+  //       print("음식점 리스트 요청 완료");
 
-        // 🔹 UTF-8로 디코딩
-        final decodedData = utf8.decode(response.bodyBytes);
-        final data = json.decode(decodedData);
+  //       // 🔹 UTF-8로 디코딩
+  //       final decodedData = utf8.decode(response.bodyBytes);
+  //       final data = json.decode(decodedData);
 
-        print("RestaurantList: ${data}");
-      } else {
-        print("음식점 리스트를 불러올 수 없습니다.");
-      }
-    } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
-    }
-  }
+  //       print("RestaurantList: ${data}");
+  //     } else {
+  //       print("음식점 리스트를 불러올 수 없습니다.");
+  //     }
+  //   } catch (e) {
+  //     // 예외 처리
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+  //   }
+  // }
 
   Future<void> fetchRestaurantsInBounds(NCameraPosition position) async {
     // 현재 지도 화면의 경계 가져오기

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.gachi_janchi.dto.AddReviewRequest;
 import com.gachi_janchi.dto.AddReviewResponse;
+import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
+import com.gachi_janchi.dto.ReviewWithImageAndMenu;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
@@ -113,5 +116,20 @@ public class ReviewService {
       }
       throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
     }
+  }
+
+  // 음식점 ID로 리뷰 가져오기
+  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId) {
+    // 음식점에 대한 리뷰 다 가져오기
+    List<Review> reviewList = reviewRepository.findAllByRestaurantId(restaurantId);
+    List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
+      .map(review -> {
+        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
+        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
+        return new ReviewWithImageAndMenu(review, reviewImages, reviewMenus);
+      })
+      .collect(Collectors.toList());
+
+    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
   }
 }

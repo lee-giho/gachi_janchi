@@ -46,7 +46,11 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
               "menu": restaurant["menu"]
             },
           ),
-          RestaurantDetailReviewScreen()
+          RestaurantDetailReviewScreen(
+            data: {
+              "restaurantId": restaurant["id"]
+            }
+          )
         ];
       });
     }

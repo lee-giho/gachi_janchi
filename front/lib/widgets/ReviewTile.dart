@@ -14,6 +14,20 @@ class ReviewTile extends StatefulWidget {
 }
 
 class _ReviewtileState extends State<ReviewTile> {
+
+  List<Widget> drawStarRating(int rating) {
+    const int maxStars = 5;
+
+    return List.generate(maxStars, (index) {
+      return Icon(
+        Icons.star,
+        color: index < rating
+          ? Colors.yellow
+          : Colors.grey
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> review = widget.reviewInfo["review"];
@@ -54,14 +68,12 @@ class _ReviewtileState extends State<ReviewTile> {
               )
             ],
           ),
+          SizedBox(height: 10),
           Row( // 별점, 작성 날짜
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.star,
-                color: Colors.yellow,
-              ),
-              Text(
-                review["rating"].toString()
+              Row(
+                children: drawStarRating(review["rating"])
               ),
               SizedBox(width: 15),
               Text(
@@ -72,6 +84,7 @@ class _ReviewtileState extends State<ReviewTile> {
               )
             ],
           ),
+          SizedBox(height: 10),
           Container(
             height: 100,
             child: ListView.builder(
@@ -93,11 +106,13 @@ class _ReviewtileState extends State<ReviewTile> {
                   }
                 ),
           ),
+          SizedBox(height: 10),
           ExpandableText(
             text: review["content"],
             trimLines: 3,
             style: TextStyle(fontSize: 16),
           ),
+          SizedBox(height: 10),
           Container(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,

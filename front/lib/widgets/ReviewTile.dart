@@ -33,6 +33,7 @@ class _ReviewtileState extends State<ReviewTile> {
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row( // 리뷰 작성자 정보(프로필 사진, 닉네임, 칭호)
             children: [
@@ -75,7 +76,6 @@ class _ReviewtileState extends State<ReviewTile> {
             height: 100,
             child: ListView.builder(
                   scrollDirection: Axis.horizontal, // 가로 스크롤
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   itemCount: reviewImages.length,
                   itemBuilder: (context, index) {
                     return Padding(
@@ -97,7 +97,27 @@ class _ReviewtileState extends State<ReviewTile> {
             text: review["content"],
             trimLines: 3,
             style: TextStyle(fontSize: 16),
-          )
+          ),
+          Container(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: reviewMenus.map<Widget>((menu) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Text(menu["menuName"]),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
         ],
       ),
     );

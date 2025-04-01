@@ -42,6 +42,7 @@ public class RestaurantController {
     @RequestParam("lonMin") double lonMin,
     @RequestParam("lonMax") double lonMax
   ) {
+    System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
     RestaurantsByBoundsResponse restaurantsByBoundsResponse = restaurantService.findRestaurantsInBounds(latMin, latMax, lonMin, lonMax);
     return ResponseEntity.ok(restaurantsByBoundsResponse);
   }

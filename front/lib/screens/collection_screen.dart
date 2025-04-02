@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
@@ -18,6 +19,7 @@ class _CollectionScreenState extends State<CollectionScreen>
   String nickname = "로딩 중...";
   int ranking = 0;
   String title = "초보 맛객";
+  int exp = 0;
 
   Map<String, int> userIngredients = {};
   List<String> completedCollections = [];
@@ -37,10 +39,15 @@ class _CollectionScreenState extends State<CollectionScreen>
       CurvedAnimation(parent: _lockAnimation, curve: Curves.easeInOut),
     );
 
-    _fetchUserData();
+    _initializeUserInfo();
     _fetchUserIngredients();
     _fetchCollections();
     _fetchUserCollections();
+  }
+
+  Future<void> _initializeUserInfo() async {
+    await _fetchUserData();
+    await _fetchUserRanking();
   }
 
   @override
@@ -61,12 +68,35 @@ class _CollectionScreenState extends State<CollectionScreen>
       if (res.statusCode == 200) {
         setState(() {
           nickname = res.data["nickname"];
-          ranking = res.data["ranking"] ?? 999;
           title = res.data["title"] ?? "초보 맛객";
+          exp = res.data["exp"];
         });
       }
     } catch (e) {
       print("❌ 유저 정보 실패: $e");
+    }
+  }
+
+  Future<void> _fetchUserRanking() async {
+    String? token = await SecureStorage.getAccessToken();
+    if (token == null) return;
+    try {
+      final res = await _dio.get(
+        "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=0&size=1000",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+      if (res.statusCode == 200) {
+        final List rankings = res.data;
+        final index =
+            rankings.indexWhere((user) => user["nickname"] == nickname);
+        if (index != -1) {
+          setState(() {
+            ranking = index + 1;
+          });
+        }
+      }
+    } catch (e) {
+      print("❌ 유저 랭킹 불러오기 실패: $e");
     }
   }
 
@@ -75,7 +105,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/ingredients/user",
+        "${dotenv.get("API_ADDRESS")}/api/ingredients/user",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -95,7 +125,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/collections",
+        "${dotenv.get("API_ADDRESS")}/api/collections",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -121,7 +151,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/collections/user",
+        "${dotenv.get("API_ADDRESS")}/api/collections/user",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -140,7 +170,7 @@ class _CollectionScreenState extends State<CollectionScreen>
     if (token == null) return;
     try {
       final res = await _dio.post(
-        "http://localhost:8080/api/collections/complete",
+        "${dotenv.get("API_ADDRESS")}/api/collections/complete",
         data: {"collectionName": name},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
@@ -190,16 +220,22 @@ class _CollectionScreenState extends State<CollectionScreen>
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("👤 $nickname", style: const TextStyle(fontSize: 18)),
-            Text("🏆 ${ranking}위", style: const TextStyle(fontSize: 18)),
+            Text("👤 $nickname"),
+            Text("🏆 ${ranking}위"),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(5),
+                color: Colors.deepOrange,
+                borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(title,
-                  style: const TextStyle(fontSize: 12, color: Colors.white)),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+              ),
             ),
           ],
         ),

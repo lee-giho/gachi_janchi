@@ -8,4 +8,5 @@ import lombok.Data;
 public class TitleResponse {
     private Long id;
     private String name;
+    private int exp;
 }

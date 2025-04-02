@@ -1,20 +1,23 @@
 package com.gachi_janchi.controller;
 
 import com.gachi_janchi.dto.*;
+import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
 import com.gachi_janchi.service.VisitedRestaurantService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-
+import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -32,6 +35,8 @@ public class UserController {
   @Autowired
   private VisitedRestaurantService visitedRestaurantService;
 
+  @Autowired
+  private UserRepository userRepository;
   @GetMapping("/info")
   public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
     return ResponseEntity.ok(userService.getUserInfo(accessToken));
@@ -148,6 +153,31 @@ public class UserController {
     System.out.println("favorite-restaurants 엔드포인트");
     GetFavoriteRestaurantsResponse getFavoriteRestaurantsResponse = favoriteRestaurantService.getUserFavorites(accessToken);
     return ResponseEntity.ok(getFavoriteRestaurantsResponse);
+  }
+  // ✅ 프로필 이미지 업로드 API
+  @PostMapping("/profile-image")
+  public ResponseEntity<String> uploadProfileImage(
+          @RequestHeader("Authorization") String accessToken,
+          @RequestParam("image") MultipartFile imageFile) {
+    String imagePath = userService.saveProfileImage(imageFile, accessToken);
+    return ResponseEntity.ok(imagePath);
+  }
+
+  @DeleteMapping("/profile-image")
+  public ResponseEntity<Void> deleteProfileImage(@RequestHeader("Authorization") String accessToken) {
+    System.out.println("🧹 프로필 이미지 삭제 요청 받음");
+    userService.deleteProfileImage(accessToken);
+    return ResponseEntity.ok().build();
+  }
+
+  // UserController.java
+  @GetMapping("/ranking")
+  public ResponseEntity<List<RankingUserResponse>> getRanking(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size) {
+    System.out.println("📥 /api/user/ranking 호출됨 - page: " + page + ", size: " + size);
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(userService.getRanking(pageable));
   }
 
   // 방문한 음식점 저장 엔드포인트

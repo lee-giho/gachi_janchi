@@ -11,7 +11,6 @@ import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class CollectionService {
     @Autowired private UserIngredientRepository userIngredientRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private JwtProvider jwtProvider;
-
+    @Autowired private UserService userService;
     // ✅ 모든 컬렉션 + 재료(이름, 수량, 이미지) 반환
     public List<CollectionResponse> getAllCollections(String token) {
         List<Collection> collections = collectionRepository.findAll();
@@ -97,6 +96,7 @@ public class CollectionService {
         // ✅ 컬렉션 완성 저장
         UserCollection userCollection = new UserCollection(user, collection);
         userCollectionRepository.save(userCollection);
+        userService.gainExp(userId, 50);
 
         return request.getCollectionName() + " 컬렉션을 완성했습니다!";
     }

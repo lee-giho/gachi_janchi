@@ -25,7 +25,8 @@ public class GachiJanchiApplication {
     System.setProperty("NAVER_USER_INFO_URL", dotenv.get("NAVER_USER_INFO_URL"));
     System.setProperty("GOOGLE_MAIL_PASSWORD", dotenv.get("GOOGLE_MAIL_PASSWORD"));
     System.setProperty("REVIEW_IMAGE_PATH", dotenv.get("REVIEW_IMAGE_PATH"));
-
+    System.setProperty("PROFILE_IMAGE_PATH", dotenv.get("PROFILE_IMAGE_PATH"));
+    
     SpringApplication.run(GachiJanchiApplication.class, args);
   }
 

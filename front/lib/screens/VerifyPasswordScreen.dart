@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/secure_storage.dart';
 import 'edit_password_screen.dart'; // ✅ 새로운 비밀번호 입력 화면
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class VerifyPasswordScreen extends StatefulWidget {
   const VerifyPasswordScreen({super.key});
@@ -38,7 +39,7 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
     }
 
     final apiAddress =
-        Uri.parse("http://localhost:8080/api/user/verify-password");
+        Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/verify-password");
     final headers = {
       'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json'

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/secure_storage.dart';
 import 'package:gachi_janchi/utils/translation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EditTitleScreen extends StatefulWidget {
   const EditTitleScreen({super.key});
@@ -30,7 +31,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
     try {
       final userRes = await _dio.get(
-        "http://localhost:8080/api/user/info",
+        "${dotenv.get("API_ADDRESS")}/api/user/info",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
@@ -41,7 +42,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
       }
 
       final res = await _dio.get(
-        "http://localhost:8080/api/titles/user",
+        "${dotenv.get("API_ADDRESS")}/api/titles/user",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
@@ -71,7 +72,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/titles/progress",
+        "${dotenv.get("API_ADDRESS")}/api/titles/progress",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
@@ -90,7 +91,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
     try {
       final res = await _dio.post(
-        "http://localhost:8080/api/titles/set",
+        "${dotenv.get("API_ADDRESS")}/api/titles/set",
         data: {"titleId": titleId},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
@@ -109,7 +110,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
     try {
       final res = await _dio.post(
-        "http://localhost:8080/api/titles/claim",
+        "${dotenv.get("API_ADDRESS")}/api/titles/claim",
         data: {"titleId": titleId},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );

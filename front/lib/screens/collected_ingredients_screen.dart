@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import '../utils/secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CollectedIngredientsScreen extends StatefulWidget {
   const CollectedIngredientsScreen({super.key});
@@ -36,7 +37,7 @@ class _CollectedIngredientsScreenState
 
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/ingredients/all",
+        "${dotenv.get("API_ADDRESS")}/api/ingredients/all",
         options: Options(headers: {
           "Authorization": "Bearer $token",
         }),
@@ -67,7 +68,7 @@ class _CollectedIngredientsScreenState
 
     try {
       final res = await _dio.get(
-        "http://localhost:8080/api/ingredients/user",
+        "${dotenv.get("API_ADDRESS")}/api/ingredients/user",
         options: Options(
           headers: {
             "Authorization": "Bearer $token",
@@ -97,7 +98,7 @@ class _CollectedIngredientsScreenState
 
     try {
       final res = await _dio.post(
-        "http://localhost:8080/api/ingredients/add",
+        "${dotenv.get("API_ADDRESS")}/api/ingredients/add",
         data: {"ingredientName": ingredientName},
         options: Options(
           headers: {

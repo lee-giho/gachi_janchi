@@ -1,13 +1,15 @@
+import 'VerifyPasswordScreen.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import '../utils/secure_storage.dart';
-import 'package:gachi_janchi/screens/login_screen.dart';
+import 'login_screen.dart';
 import 'edit_nickname_screen.dart';
 import 'edit_title_screen.dart';
 import 'edit_name_screen.dart';
-import 'VerifyPasswordScreen.dart';
-import 'ProfileWidget.dart';
+import '../widgets/ProfileWidget.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -22,6 +24,7 @@ class _MypageScreenState extends State<MypageScreen> {
   String name = "로딩 중...";
   String email = "로딩 중...";
   String loginType = "";
+  String? profileImagePath;
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -42,7 +45,8 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      final response = await dio.get("http://localhost:8080/api/user/info");
+      final response =
+          await dio.get("${dotenv.get("API_ADDRESS")}/api/user/info");
 
       if (response.statusCode == 200) {
         var data = response.data;
@@ -54,6 +58,11 @@ class _MypageScreenState extends State<MypageScreen> {
           email = loginType == "social"
               ? _getUserIdFromToken(accessToken)
               : data["email"] ?? "정보 없음";
+
+          profileImagePath = data["profileImagePath"] != null
+              ? "${dotenv.get("PROFILE_IMAGE_BASE_URL")}/${data["profileImagePath"]}" +
+                  "?v=${DateTime.now().millisecondsSinceEpoch}"
+              : null;
         });
       }
     } catch (e) {
@@ -66,14 +75,11 @@ class _MypageScreenState extends State<MypageScreen> {
   String _getUserIdFromToken(String token) {
     try {
       List<String> tokenParts = token.split('.');
-      if (tokenParts.length != 3) {
-        throw Exception("Invalid token format");
-      }
+      if (tokenParts.length != 3) throw Exception("Invalid token format");
 
       String payload = tokenParts[1];
       String decoded =
           utf8.decode(base64Url.decode(base64Url.normalize(payload)));
-
       Map<String, dynamic> payloadMap = json.decode(decoded);
       return payloadMap["sub"] ?? "알 수 없음";
     } catch (e) {
@@ -89,7 +95,11 @@ class _MypageScreenState extends State<MypageScreen> {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          const ProfileWidget(),
+          GestureDetector(
+            onTap: _showProfileOptions,
+            onLongPress: _showImagePreview,
+            child: ProfileWidget(imagePath: profileImagePath),
+          ),
           const SizedBox(height: 20),
           _buildInfoBox(),
           const SizedBox(height: 20),
@@ -112,22 +122,17 @@ class _MypageScreenState extends State<MypageScreen> {
           _buildListTile("닉네임", nickname,
               onTap: () => _navigateToEditScreen(
                   EditnicknameScreen(currentValue: nickname))),
-
-          // ✅ 칭호 변경 화면으로 단순 이동
           _buildListTile("대표 칭호", selectedTitle, onTap: () async {
             await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const EditTitleScreen()),
             );
-            _fetchUserInfo(); // ✅ 돌아오면 갱신
+            _fetchUserInfo();
           }),
-
           _buildListTile("이름", name,
               onTap: () =>
                   _navigateToEditScreen(EditnameScreen(currentValue: name))),
-
           _buildListTile("이메일", email),
-
           if (loginType == "local")
             _buildListTile("비밀번호 변경", "",
                 onTap: () =>
@@ -230,7 +235,7 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      await dio.delete("http://localhost:8080/api/user",
+      await dio.delete("${dotenv.get("API_ADDRESS")}/api/user",
           data: {"reason": _reasonController.text});
 
       await SecureStorage.deleteTokens();
@@ -238,6 +243,146 @@ class _MypageScreenState extends State<MypageScreen> {
           MaterialPageRoute(builder: (context) => const LoginScreen()));
     } catch (e) {
       print("❌ [API 오류] $e");
+    }
+  }
+
+  void _showProfileOptions() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Dialog(
+          insetPadding: const EdgeInsets.all(30),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("프로필 선택", style: TextStyle(fontSize: 20)),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.image, color: Colors.purple),
+                  label: const Text("갤러리에서 선택",
+                      style: TextStyle(color: Colors.purple)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shadowColor: Colors.black12,
+                    elevation: 4,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final picker = ImagePicker();
+                    final pickedFile =
+                        await picker.pickImage(source: ImageSource.gallery);
+                    if (pickedFile != null) {
+                      await _uploadImage(pickedFile.path);
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.person, color: Colors.purple),
+                  label: const Text("기본 이미지 선택",
+                      style: TextStyle(color: Colors.purple)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shadowColor: Colors.black12,
+                    elevation: 4,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _resetToDefaultImage();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showImagePreview() {
+    if (profileImagePath == null) return;
+    showDialog(
+      context: context,
+      builder: (_) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Dialog(child: Image(image: NetworkImage(profileImagePath!))),
+      ),
+    );
+  }
+
+  Future<void> _uploadImage(String path) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    if (accessToken == null) return;
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      FormData formData = FormData.fromMap({
+        "image":
+            await MultipartFile.fromFile(path, filename: path.split("/").last),
+      });
+
+      final response = await dio.post(
+        "${dotenv.get("API_ADDRESS")}/api/user/profile-image",
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        final returnedPath = response.data.toString();
+        setState(() {
+          profileImagePath = returnedPath.startsWith("http")
+              ? returnedPath
+              : "${dotenv.get("API_ADDRESS")}$returnedPath";
+        });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("프로필 이미지가 변경되었습니다.")));
+      }
+    } catch (e) {
+      print("❌ [이미지 업로드 실패] $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("이미지 업로드 실패: $e")));
+    }
+  }
+
+  Future<void> _resetToDefaultImage() async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    if (accessToken == null) return;
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      final response = await dio
+          .delete("${dotenv.get("API_ADDRESS")}/api/user/profile-image");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          profileImagePath = null;
+        });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("기본 이미지로 변경되었습니다.")));
+      }
+    } catch (e) {
+      print("❌ [기본 이미지 설정 실패] $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("기본 이미지 설정 실패: $e")));
     }
   }
 }

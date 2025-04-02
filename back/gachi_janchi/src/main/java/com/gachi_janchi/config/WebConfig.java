@@ -6,15 +6,20 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer{
+public class WebConfig implements WebMvcConfigurer {
 
   @Value("${REVIEW_IMAGE_PATH}")
   private String reviewImageRelativePath;
+
+  @Value("${PROFILE_IMAGE_PATH}")
+  private String profileImageRelativePath;
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     registry.addResourceHandler("/images/review/**")
             .addResourceLocations("file:" + reviewImageRelativePath + "/");
+
+    registry.addResourceHandler("/images/profile/**")
+            .addResourceLocations("file:" + profileImageRelativePath + "/");
   }
-  
 }

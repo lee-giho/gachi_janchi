@@ -39,7 +39,7 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @Value("${profile.image.path}")
+  @Value("${PROFILE_IMAGE_PATH}")
   private String profileImagePath;
 
   // ✅ 사용자 정보 조회 (DTO 반환)

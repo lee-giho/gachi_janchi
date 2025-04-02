@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,8 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  private final String PROFILE_IMAGE_DIR = new File("./upload/images/profile").getAbsolutePath();
+  @Value("${profile.image.path}")
+  private String profileImagePath;
 
   // ✅ 사용자 정보 조회 (DTO 반환)
   public UserResponse getUserInfo(String token) {
@@ -141,10 +143,6 @@ public class UserService {
     return new DeleteUserResponse(true, "회원 탈퇴가 완료되었습니다.");
   }
 
-  public boolean validateToken(String token) {
-    return jwtProvider.validateToken(token);
-  }
-
   public String saveProfileImage(MultipartFile file, String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
     if (!jwtProvider.validateToken(accessToken)) {
@@ -155,32 +153,30 @@ public class UserService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     // 기존 이미지 삭제
-    String oldImagePath = user.getProfileImagePath();
-    if (oldImagePath != null && oldImagePath.startsWith("/images/profile/")) {
-      File oldFile = new File(PROFILE_IMAGE_DIR, oldImagePath.replace("/images/profile/", ""));
+    String oldImageName = user.getProfileImagePath();
+    if (oldImageName != null) {
+      File oldFile = new File(profileImagePath, oldImageName);
       if (oldFile.exists()) {
         oldFile.delete();
       }
     }
 
     String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-    File dir = new File(PROFILE_IMAGE_DIR);
-    if (!dir.exists()) {
-      dir.mkdirs();
-    }
+    File dir = new File(profileImagePath);
+    if (!dir.exists()) dir.mkdirs();
     File dest = new File(dir, fileName);
+    System.out.println("✅ 저장 경로: " + dest.getAbsolutePath());
+    System.out.println("✅ 파일 이름: " + fileName);
 
     try {
       file.transferTo(dest);
-      String imagePath = "/images/profile/" + fileName;
-      user.setProfileImagePath(imagePath);
+      user.setProfileImagePath(fileName); // 파일 이름만 저장
       userRepository.save(user);
-      return imagePath;
+      return fileName;
     } catch (IOException e) {
       throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
     }
   }
-
   public void deleteProfileImage(String token) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
     if (!jwtProvider.validateToken(accessToken)) {
@@ -189,9 +185,9 @@ public class UserService {
     String userId = jwtProvider.getUserId(accessToken);
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    String oldImagePath = user.getProfileImagePath();
-    if (oldImagePath != null && oldImagePath.startsWith("/images/profile/")) {
-      File oldFile = new File(PROFILE_IMAGE_DIR, oldImagePath.replace("/images/profile/", ""));
+    String oldImageName = user.getProfileImagePath();
+    if (oldImageName != null) {
+      File oldFile = new File(profileImagePath, oldImageName);
       if (oldFile.exists()) {
         oldFile.delete();
       }

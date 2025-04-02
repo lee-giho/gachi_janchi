@@ -40,10 +40,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      print("📤 기본 이미지 설정 DELETE 요청 보냄");
       final response = await dio
           .delete("${dotenv.get("API_ADDRESS")}/api/user/profile-image");
-      print("📥 응답 상태 코드: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -55,7 +53,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
         );
       }
     } catch (e) {
-      print("❌ [기본 이미지 설정 실패] $e");
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("기본 이미지 설정 실패: $e")));
@@ -79,10 +76,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
 
       if (response.statusCode == 200) {
         var data = response.data;
-        print("✅ 서버 응답 데이터: $data");
-
         int exp = data["exp"] ?? 0;
-        int calculatedLevel = (exp ~/ 100) + 1; // ✅ 1레벨부터 시작
+        int calculatedLevel = (exp ~/ 100) + 1;
         double calculatedProgress = (exp % 100) / 100.0;
 
         setState(() {
@@ -91,18 +86,45 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
           level = calculatedLevel;
           progress = calculatedProgress;
           profileImagePath = data["profileImagePath"] != null
-              ? (data["profileImagePath"].toString().startsWith("http")
-                      ? data["profileImagePath"]
-                      : "${dotenv.get("API_ADDRESS")}${data["profileImagePath"]}") +
-                  "?v=${DateTime.now().millisecondsSinceEpoch}"
+              ? "${dotenv.get("PROFILE_IMAGE_BASE_URL")}/${data["profileImagePath"]}?v=${DateTime.now().millisecondsSinceEpoch}"
               : null;
         });
       }
     } catch (e) {
-      print("❌ [API 오류] $e");
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+    }
+  }
+
+  Future<void> _uploadImage(String path) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    if (accessToken == null) return;
+
+    try {
+      var dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+
+      FormData formData = FormData.fromMap({
+        "image":
+            await MultipartFile.fromFile(path, filename: path.split("/").last),
+      });
+
+      final response = await dio.post(
+        "${dotenv.get("API_ADDRESS")}/api/user/profile-image",
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        await _fetchUserInfo(); // ✅ 변경 직후 갱신 추가
+        if (!mounted) return;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("프로필 이미지가 변경되었습니다.")));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("이미지 업로드 실패: $e")));
     }
   }
 
@@ -192,47 +214,10 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
     );
   }
 
-  Future<void> _uploadImage(String path) async {
-    String? accessToken = await SecureStorage.getAccessToken();
-    if (accessToken == null) return;
-
-    try {
-      var dio = Dio();
-      dio.options.headers["Authorization"] = "Bearer $accessToken";
-
-      FormData formData = FormData.fromMap({
-        "image":
-            await MultipartFile.fromFile(path, filename: path.split("/").last),
-      });
-
-      final response = await dio.post(
-        "${dotenv.get("API_ADDRESS")}/api/user/profile-image",
-        data: formData,
-      );
-
-      if (response.statusCode == 200) {
-        final returnedPath = response.data.toString();
-        setState(() {
-          profileImagePath = returnedPath.startsWith("http")
-              ? returnedPath
-              : "${dotenv.get("API_ADDRESS")}$returnedPath";
-        });
-        if (!mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("프로필 이미지가 변경되었습니다.")));
-      }
-    } catch (e) {
-      print("❌ [이미지 업로드 실패] $e");
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("이미지 업로드 실패: $e")));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("마이페이지")),
+      appBar: AppBar(title: const Text("마이지")),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -243,7 +228,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => const MypageScreen()),
                 ).then((_) {
-                  _fetchUserInfo(); // 돌아오면 유저 정보 갱신
+                  _fetchUserInfo();
                 });
               },
               child: Container(

@@ -60,9 +60,7 @@ class _MypageScreenState extends State<MypageScreen> {
               : data["email"] ?? "정보 없음";
 
           profileImagePath = data["profileImagePath"] != null
-              ? (data["profileImagePath"].toString().startsWith("http")
-                      ? data["profileImagePath"]
-                      : "${dotenv.get("API_ADDRESS")}${data["profileImagePath"]}") +
+              ? "${dotenv.get("PROFILE_IMAGE_BASE_URL")}/${data["profileImagePath"]}" +
                   "?v=${DateTime.now().millisecondsSinceEpoch}"
               : null;
         });
@@ -342,7 +340,7 @@ class _MypageScreenState extends State<MypageScreen> {
       });
 
       final response = await dio.post(
-        "${dotenv.get("API_ADDRESS")}/user/profile-image",
+        "${dotenv.get("API_ADDRESS")}/api/user/profile-image",
         data: formData,
       );
 
@@ -371,8 +369,8 @@ class _MypageScreenState extends State<MypageScreen> {
       var dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $accessToken";
 
-      final response =
-          await dio.delete("${dotenv.get("API_ADDRESS")}/user/profile-image");
+      final response = await dio
+          .delete("${dotenv.get("API_ADDRESS")}/api/user/profile-image");
 
       if (response.statusCode == 200) {
         setState(() {

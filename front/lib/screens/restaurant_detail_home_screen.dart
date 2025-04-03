@@ -42,91 +42,93 @@ class _RestaurantDetailHomeScreenState extends State<RestaurantDetailHomeScreen>
       position: NLatLng(latitude, longitude),
       
     );
-    return Column(
-      children: [
-        Container( // 네이버 지도
-          height: 250,
-          child: NaverMap(
-            onMapReady: (controller) {
-              mapController = controller; // mapController 초기화
-              mapController!.addOverlay(marker); // 마커 추가
-              log("준비 완료!");
-            },
-          options: NaverMapViewOptions(
-            initialCameraPosition: NCameraPosition( // 첫 로딩 포지션
-              target: NLatLng(latitude, longitude),
-              zoom: 15,
-              bearing: 0,
-              tilt: 0
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container( // 네이버 지도
+            height: 250,
+            child: NaverMap(
+              onMapReady: (controller) {
+                mapController = controller; // mapController 초기화
+                mapController!.addOverlay(marker); // 마커 추가
+                log("준비 완료!");
+              },
+            options: NaverMapViewOptions(
+              initialCameraPosition: NCameraPosition( // 첫 로딩 포지션
+                target: NLatLng(latitude, longitude),
+                zoom: 15,
+                bearing: 0,
+                tilt: 0
+              ),
+              locationButtonEnable: false, // 내 위치 찾기 위젯이 하단에 생김
+              scrollGesturesEnable: false, // 드래그 방지
             ),
-            locationButtonEnable: false, // 내 위치 찾기 위젯이 하단에 생김
-            scrollGesturesEnable: false, // 드래그 방지
+            ),
           ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "정보",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "정보",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.place
-                  ),
-                  const SizedBox(width: 5),
-                  Text(fullAddress),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.copy,
-                      size: 18,
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.place
                     ),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: fullAddress));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("주소가 복사되었습니다."))
-                      );
-                    }
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.phone
-                  ),
-                  const SizedBox(width: 5),
-                  phoneNumber.isNotEmpty 
-                    ? Text(phoneNumber)
-                    : const Text("준비중"),
-                  phoneNumber.isNotEmpty 
-                  ? IconButton(
+                    const SizedBox(width: 5),
+                    Text(fullAddress),
+                    IconButton(
                       icon: const Icon(
                         Icons.copy,
                         size: 18,
                       ),
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: phoneNumber));
+                        Clipboard.setData(ClipboardData(text: fullAddress));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("전화번호가 복사되었습니다."))
+                          const SnackBar(content: Text("주소가 복사되었습니다."))
                         );
                       }
                     )
-                  : const Text("")
-                ],
-              )
-            ],
-          ),
-        )
-      ],
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.phone
+                    ),
+                    const SizedBox(width: 5),
+                    phoneNumber.isNotEmpty 
+                      ? Text(phoneNumber)
+                      : const Text("준비중"),
+                    phoneNumber.isNotEmpty 
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.copy,
+                          size: 18,
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: phoneNumber));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("전화번호가 복사되었습니다."))
+                          );
+                        }
+                      )
+                    : const Text("")
+                  ],
+                )
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

@@ -17,12 +17,15 @@ import com.gachi_janchi.dto.AddReviewRequest;
 import com.gachi_janchi.dto.AddReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
 import com.gachi_janchi.dto.ReviewWithImageAndMenu;
+import com.gachi_janchi.dto.UserInfoWithProfileImageAndTitle;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
+import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.ReviewImageRepository;
 import com.gachi_janchi.repository.ReviewMenuRepository;
 import com.gachi_janchi.repository.ReviewRepository;
+import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 
 @Service
@@ -39,6 +42,9 @@ public class ReviewService {
 
   @Autowired
   private ReviewImageRepository reviewImageRepository;
+
+  @Autowired
+  private UserRepository userRepository;
 
   @Value("${REVIEW_IMAGE_PATH}")
   private String reviewImageRelativePath;
@@ -126,7 +132,14 @@ public class ReviewService {
       .map(review -> {
         List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
         List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
-        return new ReviewWithImageAndMenu(review, reviewImages, reviewMenus);
+        User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+        String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
+        return new ReviewWithImageAndMenu(new UserInfoWithProfileImageAndTitle(
+          user.getId(), titleName, user.getProfileImage()),
+          review,
+          reviewImages,
+          reviewMenus
+        );
       })
       .collect(Collectors.toList());
 

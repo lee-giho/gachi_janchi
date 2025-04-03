@@ -30,9 +30,11 @@ class _ReviewtileState extends State<ReviewTile> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> writer = widget.reviewInfo["writerInfo"];
     final Map<String, dynamic> review = widget.reviewInfo["review"];
     final List<dynamic> reviewImages = widget.reviewInfo["reviewImages"];
     final List<dynamic> reviewMenus = widget.reviewInfo["reviewMenus"];
+    print("writer: $writer");
     print("review: $review");
     print("reviewImages: $reviewImages");
     print("reviewMenus: $reviewMenus");
@@ -51,9 +53,9 @@ class _ReviewtileState extends State<ReviewTile> {
         children: [
           Row( // 리뷰 작성자 정보(프로필 사진, 닉네임, 칭호)
             children: [
-              Icon(
-                Icons.account_circle,
-                size: 50
+              CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${writer["profileImage"]}")
               ),
               SizedBox(width: 15,),
               Text(
@@ -63,8 +65,8 @@ class _ReviewtileState extends State<ReviewTile> {
                 ),
               ),
               SizedBox(width: 10,),
-              const Text(
-                "칭호",
+              Text(
+                writer["title"]
               )
             ],
           ),

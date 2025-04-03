@@ -5,6 +5,7 @@ import java.util.List;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
+import com.gachi_janchi.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewWithImageAndMenu {
+  UserInfoWithProfileImageAndTitle writerInfo;
   Review review;
   List<ReviewImage> reviewImages;
   List<ReviewMenu> reviewMenus;

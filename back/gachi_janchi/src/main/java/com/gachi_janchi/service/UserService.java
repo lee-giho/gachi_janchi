@@ -63,7 +63,7 @@ public class UserService {
             user.getName(),
             user.getEmail(),
             user.getType(),
-            user.getProfileImagePath(),
+            user.getProfileImage(),
             user.getExp() // ✅ exp로 레벨 및 진행도 계산
     );
   }
@@ -153,7 +153,7 @@ public class UserService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     // 기존 이미지 삭제
-    String oldImageName = user.getProfileImagePath();
+    String oldImageName = user.getProfileImage();
     if (oldImageName != null) {
       File oldFile = new File(profileImagePath, oldImageName);
       if (oldFile.exists()) {
@@ -170,7 +170,7 @@ public class UserService {
 
     try {
       file.transferTo(dest);
-      user.setProfileImagePath(fileName); // 파일 이름만 저장
+      user.setProfileImage(fileName); // 파일 이름만 저장
       userRepository.save(user);
       return fileName;
     } catch (IOException e) {
@@ -185,14 +185,14 @@ public class UserService {
     String userId = jwtProvider.getUserId(accessToken);
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    String oldImageName = user.getProfileImagePath();
+    String oldImageName = user.getProfileImage();
     if (oldImageName != null) {
       File oldFile = new File(profileImagePath, oldImageName);
       if (oldFile.exists()) {
         oldFile.delete();
       }
     }
-    user.setProfileImagePath(null);
+    user.setProfileImage(null);
     userRepository.save(user);
   }
 
@@ -208,7 +208,7 @@ public class UserService {
     List<User> topUsers = userRepository.findTopUsers(pageable).getContent();
     System.out.println("✅ 사용자 수: " + topUsers.size());
     return topUsers.stream()
-            .map(u -> new RankingUserResponse(u.getNickName(), u.getProfileImagePath(),    u.getTitle() != null ? u.getTitle().getName() : null,u.getExp()))
+            .map(u -> new RankingUserResponse(u.getNickName(), u.getProfileImage(),    u.getTitle() != null ? u.getTitle().getName() : null,u.getExp()))
             .toList();
   }
 

@@ -213,276 +213,278 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
           child: Text(restaurant['restaurantName'])
         ),
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                InkWell( // 음식점 사진
-                  onTap: () {
-                    showImageDialog(context);
-                  },
-                  child: Container(
-                    height: 200,
-                    width: double.maxFinite,
-                    child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
-                          ? Image.network(
-                              restaurant["imageUrl"],
-                              fit: BoxFit.fitWidth,
-                            )
-                          : Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(width: 1)
-                              ),
-                              height: 200,
-                              child: const Center(
-                                child: Text(
-                                  "사진 준비중",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
+      body: SafeArea(
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  InkWell( // 음식점 사진
+                    onTap: () {
+                      showImageDialog(context);
+                    },
+                    child: Container(
+                      height: 200,
+                      width: double.maxFinite,
+                      child: restaurant["imageUrl"] != null && restaurant["imageUrl"].toString().isNotEmpty
+                            ? Image.network(
+                                restaurant["imageUrl"],
+                                fit: BoxFit.fitWidth,
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 1)
                                 ),
-                              ),
-                            ),
-                  ),
-                ),
-                Container( // 음식점 기본 정보
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text( // 음식점 이름
-                            restaurant["restaurantName"],
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold
-                            ),
-                            softWrap: true,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Row( // 음식점 카테고리
-                            children: restaurant["categories"].map<Widget>((category) {
-                              return Container(
-                                margin: const EdgeInsets.only(right: 8), // 카테고리 간 간격
-                                child: Text(
-                                  category,
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 108, 108, 108),
-                                    fontSize: 14,
+                                height: 200,
+                                child: const Center(
+                                  child: Text(
+                                    "사진 준비중",
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                          const Row( // 리뷰 - 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow,
                               ),
-                              Text(
-                                "4.8",
-                                style: TextStyle(
-                                  fontSize: 16
+                    ),
+                  ),
+                  Container( // 음식점 기본 정보
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text( // 음식점 이름
+                              restaurant["restaurantName"],
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold
+                              ),
+                              softWrap: true,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Row( // 음식점 카테고리
+                              children: restaurant["categories"].map<Widget>((category) {
+                                return Container(
+                                  margin: const EdgeInsets.only(right: 8), // 카테고리 간 간격
+                                  child: Text(
+                                    category,
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 108, 108, 108),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            const Row( // 리뷰 - 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
                                 ),
-                              ),
-                              SizedBox(width: 2,),
-                              Text(
-                                "(500)"
-                              )
-                            ],
-                          ),
-                          // 영업 여부
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.schedule,
-                                size: 20,
-                                color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                isRestaurantOpen(restaurant["businessHours"]),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                Text(
+                                  "4.8",
+                                  style: TextStyle(
+                                    fontSize: 16
+                                  ),
+                                ),
+                                SizedBox(width: 2,),
+                                Text(
+                                  "(500)"
+                                )
+                              ],
+                            ),
+                            // 영업 여부
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.schedule,
+                                  size: 20,
                                   color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
                                       ? Colors.green
                                       : Colors.red,
                                 ),
-                              ),
-                              const SizedBox(width: 10,),
-                              Text(
-                                "${restaurant["businessHours"][DateTime.now().weekday == 1 ? "월" : 
-                                        DateTime.now().weekday == 2 ? "화" : 
-                                        DateTime.now().weekday == 3 ? "수" : 
-                                        DateTime.now().weekday == 4 ? "목" : 
-                                        DateTime.now().weekday == 5 ? "금" : 
-                                        DateTime.now().weekday == 6 ? "토" : "일"] ?? "휴무"}", // 🔥 영업 시간 표시
-                                style: const TextStyle(
-                                  fontSize: 16
-                                ),
-                              ),
-                              CompositedTransformTarget(
-                                link: layerLink, // 아이콘의 위치를 추적
-                                child: IconButton(
-                                  icon: Icon(
-                                    overlayEntry == null ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
-                                    size: 20,
+                                const SizedBox(width: 5),
+                                Text(
+                                  isRestaurantOpen(restaurant["businessHours"]),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isRestaurantOpen(restaurant["businessHours"]) == "영업중"
+                                        ? Colors.green
+                                        : Colors.red,
                                   ),
+                                ),
+                                const SizedBox(width: 10,),
+                                Text(
+                                  "${restaurant["businessHours"][DateTime.now().weekday == 1 ? "월" : 
+                                          DateTime.now().weekday == 2 ? "화" : 
+                                          DateTime.now().weekday == 3 ? "수" : 
+                                          DateTime.now().weekday == 4 ? "목" : 
+                                          DateTime.now().weekday == 5 ? "금" : 
+                                          DateTime.now().weekday == 6 ? "토" : "일"] ?? "휴무"}", // 🔥 영업 시간 표시
+                                  style: const TextStyle(
+                                    fontSize: 16
+                                  ),
+                                ),
+                                CompositedTransformTarget(
+                                  link: layerLink, // 아이콘의 위치를 추적
+                                  child: IconButton(
+                                    icon: Icon(
+                                      overlayEntry == null ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      toggleOverlay(context);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Column(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero, // 내부 패딩 제거
+                                  constraints: const BoxConstraints(), // 기본 크기 제한 제거
                                   onPressed: () {
-                                    toggleOverlay(context);
+                                    print("즐겨찾기 버튼 클릭!!!");
+                                    favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                                   },
+                                  icon: Icon(
+                                    isFavorite
+                                      ? Icons.turned_in
+                                      : Icons.turned_in_not,
+                                    size: 40,
+                                    color: isFavorite
+                                      ? Colors.yellow
+                                      : Colors.black
+                                  ),
+              
                                 ),
+                                const Text(
+                                  "즐겨찾기"
+                                )
+                              ],
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              children: [
+                                IconButton(
+                                  padding: EdgeInsets.zero, // 내부 패딩 제거
+                                  constraints: const BoxConstraints(), // 기본 크기 제한 제거
+                                  onPressed: () {
+                                    print("공유 버튼 클릭!!!");
+                                  },
+                                  icon: const Icon(
+                                    Icons.share,
+                                    size: 40,
+                                  ),
+                                ),
+                                const Text(
+                                  "공유"
+                                )
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: TabBarDelegate(
+                Container(
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _currentIndex = 0;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _currentIndex == 0
+                                  ? const Color.fromARGB(118, 122, 11, 11)
+                                  : Colors.white,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "홈",
+                                style: TextStyle(fontSize: 24),
                               ),
-                            ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Column(
-                            children: [
-                              IconButton(
-                                padding: EdgeInsets.zero, // 내부 패딩 제거
-                                constraints: const BoxConstraints(), // 기본 크기 제한 제거
-                                onPressed: () {
-                                  print("즐겨찾기 버튼 클릭!!!");
-                                  favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
-                                },
-                                icon: Icon(
-                                  isFavorite
-                                    ? Icons.turned_in
-                                    : Icons.turned_in_not,
-                                  size: 40,
-                                  color: isFavorite
-                                    ? Colors.yellow
-                                    : Colors.black
-                                ),
-            
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _currentIndex = 1;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _currentIndex == 1
+                                  ? const Color.fromARGB(118, 122, 11, 11)
+                                  : Colors.white,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "메뉴",
+                                style: TextStyle(fontSize: 24),
                               ),
-                              const Text(
-                                "즐겨찾기"
-                              )
-                            ],
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          Column(
-                            children: [
-                              IconButton(
-                                padding: EdgeInsets.zero, // 내부 패딩 제거
-                                constraints: const BoxConstraints(), // 기본 크기 제한 제거
-                                onPressed: () {
-                                  print("공유 버튼 클릭!!!");
-                                },
-                                icon: const Icon(
-                                  Icons.share,
-                                  size: 40,
-                                ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _currentIndex = 2;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _currentIndex == 2
+                                  ? const Color.fromARGB(118, 122, 11, 11)
+                                  : Colors.white,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "리뷰",
+                                style: TextStyle(fontSize: 24),
                               ),
-                              const Text(
-                                "공유"
-                              )
-                            ],
+                            ),
                           ),
-                        ],
-                      )
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: TabBarDelegate(
-              Container(
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _currentIndex = 0;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: _currentIndex == 0
-                                ? const Color.fromARGB(118, 122, 11, 11)
-                                : Colors.white,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "홈",
-                              style: TextStyle(fontSize: 24),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _currentIndex = 1;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: _currentIndex == 1
-                                ? const Color.fromARGB(118, 122, 11, 11)
-                                : Colors.white,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "메뉴",
-                              style: TextStyle(fontSize: 24),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _currentIndex = 2;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: _currentIndex == 2
-                                ? const Color.fromARGB(118, 122, 11, 11)
-                                : Colors.white,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "리뷰",
-                              style: TextStyle(fontSize: 24),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              )
             )
-          )
-        ],
-        body: screens[_currentIndex]
+          ],
+          body: screens[_currentIndex]
+        ),
       ),
     );
   }

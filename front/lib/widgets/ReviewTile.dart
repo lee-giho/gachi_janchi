@@ -53,10 +53,27 @@ class _ReviewtileState extends State<ReviewTile> {
         children: [
           Row( // 리뷰 작성자 정보(프로필 사진, 닉네임, 칭호)
             children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${writer["profileImage"]}")
-              ),
+              writer["profileImage"] != null
+              ? CircleAvatar(
+                  radius: 25,
+                  backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${writer["profileImage"]}")
+                )
+              : Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(25), // 반지름도 같게
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(3.0), // 내부 padding 적용
+                    child: Icon(
+                      Icons.person,
+                      size: 44, // 아이콘 크기는 padding 고려해서 살짝 줄이기
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
               SizedBox(width: 15,),
               Text(
                 review["userId"],
@@ -66,7 +83,9 @@ class _ReviewtileState extends State<ReviewTile> {
               ),
               SizedBox(width: 10,),
               Text(
-                writer["title"]
+                writer["title"] == null
+                ? ""
+                : writer["title"]
               )
             ],
           ),

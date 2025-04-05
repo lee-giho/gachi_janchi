@@ -86,7 +86,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
           level = calculatedLevel;
           progress = calculatedProgress;
           profileImagePath = data["profileImagePath"] != null
-              ? "${dotenv.get("PROFILE_IMAGE_BASE_URL")}/${data["profileImagePath"]}?v=${DateTime.now().millisecondsSinceEpoch}"
+              ? data["profileImagePath"]
               : null;
         });
       }

@@ -60,8 +60,7 @@ class _MypageScreenState extends State<MypageScreen> {
               : data["email"] ?? "정보 없음";
 
           profileImagePath = data["profileImagePath"] != null
-              ? "${dotenv.get("PROFILE_IMAGE_BASE_URL")}/${data["profileImagePath"]}" +
-                  "?v=${DateTime.now().millisecondsSinceEpoch}"
+              ? data["profileImagePath"]
               : null;
         });
       }

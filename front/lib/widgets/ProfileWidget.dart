@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProfileWidget extends StatelessWidget {
   final String? imagePath;
@@ -11,7 +12,7 @@ class ProfileWidget extends StatelessWidget {
     final resolvedImagePath = (imagePath != null && imagePath!.isNotEmpty)
         ? (imagePath!.startsWith("http")
             ? imagePath!
-            : "http://localhost:8080$imagePath")
+            : "${dotenv.get("API_ADDRESS")}/images/profile/$imagePath")
         : null;
 
     return CircleAvatar(

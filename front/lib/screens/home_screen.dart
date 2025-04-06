@@ -12,7 +12,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(int)? changeTap;
+  const HomeScreen({
+    super.key,
+    this.changeTap
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

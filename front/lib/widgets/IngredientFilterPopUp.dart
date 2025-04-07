@@ -100,119 +100,103 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
         child: Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: allIngredients.map((ingredient) {
-            String name = ingredient["name"];
-            String imagePath = 'assets/images/ingredient/$name.png';
-            bool isSelected = selectIngredients.contains(name);
-        
-            return GestureDetector(
+          children: [
+            ...allIngredients.map((ingredient) {
+              String name = ingredient["name"];
+              String imagePath = 'assets/images/ingredient/$name.png';
+              bool isSelected = selectIngredients.contains(name);
+          
+              return GestureDetector(
+                onTap: () {
+                  clickIngredient(name, isSelected);
+                  widget.selectIngredient!(name);
+                  print("name: $name");
+                  print("selectIngredients: $selectIngredients");
+                },
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: isSelected
+                      ? Border.all(width: 2, color: const Color.fromRGBO(122, 11, 11, 1))
+                      : Border.all(width: 1, color: Colors.black26),
+                  ),
+                  child: Center(
+                    child: ColorFiltered(
+                      colorFilter: isSelected
+                        ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
+                        : const ColorFilter.matrix([
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0, 0, 0, 1, 0,
+                          ]),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          imagePath,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(Icons.error),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            SizedBox(
+              width: 60,
+              height: 60,
+            ),
+            GestureDetector(
               onTap: () {
-                clickIngredient(name, isSelected);
-                widget.selectIngredient!(name);
-                print("name: $name");
-                print("selectIngredients: $selectIngredients");
+                if (selectIngredients.isNotEmpty) { // 초기화 버튼 활성화
+                  print("초기화 버튼 활성화!!!!");
+                  setState(() {
+                    selectIngredients = [];
+                    widget.selectIngredient!("all");
+                  });
+                } else { // 초기화 버튼 비활성화
+                  print("초기화 버튼 비활성화!!!!");
+                }
               },
               child: Container(
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  border: Border.all(width: 1, color: const Color.fromRGBO(122, 11, 11, 1)),
                   borderRadius: BorderRadius.circular(12),
-                  border: isSelected
-                    ? Border.all(width: 2, color: const Color.fromRGBO(122, 11, 11, 1),)
-                    : Border.all(width: 1, color: Colors.black26),
+                  color: selectIngredients.isNotEmpty
+                    ? const Color.fromRGBO(122, 11, 11, 1)
+                    : Colors.white
                 ),
-                child: Center(
-                  child: ColorFiltered(
-                    colorFilter: isSelected
-                      ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
-                      : const ColorFilter.matrix([
-                          0.2126, 0.7152, 0.0722, 0, 0,
-                          0.2126, 0.7152, 0.0722, 0, 0,
-                          0.2126, 0.7152, 0.0722, 0, 0,
-                          0, 0, 0, 1, 0,
-                        ]),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.error),
-                      ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.refresh,
+                      color: selectIngredients.isNotEmpty
+                        ? Colors.white
+                        : Colors.black
                     ),
-                  ),
+                    Text(
+                      "초기화",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: selectIngredients.isNotEmpty
+                          ? Colors.white
+                          : Colors.black
+                      ),
+                    )
+                  ],
                 ),
               ),
-            );
-          }).toList(),
+            )
+          ]
         ),
       ),
-      // child: GridView.builder(
-      //   itemCount: allIngredients.length,
-      //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      //     crossAxisCount: 4,
-      //     childAspectRatio: 1,
-      //     crossAxisSpacing: 10,
-      //     mainAxisSpacing: 10,
-      //   ),
-      //   itemBuilder: (context, index) {
-      //     final ingredient = allIngredients[index];
-      //     String name = ingredient["name"];
-      //     String imagePath = 'assets/images/ingredient/$name.png'; // 여기 수정
-      //     bool isSelected = false;
-            
-      //     return GestureDetector(
-      //       onTap: () {
-            
-      //       },
-      //       child: Container(
-      //         decoration: BoxDecoration(
-      //           color: Colors.white,
-      //           borderRadius: BorderRadius.circular(12),
-      //           border: Border.all(color: Colors.black26),
-      //         ),
-      //         child: Center(
-      //           child: ColorFiltered(
-      //             colorFilter: isSelected
-      //                 ? const ColorFilter.mode(
-      //                     Colors.transparent, BlendMode.dst)
-      //                 : const ColorFilter.matrix([
-      //                     0.2126,
-      //                     0.7152,
-      //                     0.0722,
-      //                     0,
-      //                     0,
-      //                     0.2126,
-      //                     0.7152,
-      //                     0.0722,
-      //                     0,
-      //                     0,
-      //                     0.2126,
-      //                     0.7152,
-      //                     0.0722,
-      //                     0,
-      //                     0,
-      //                     0,
-      //                     0,
-      //                     0,
-      //                     1,
-      //                     0,
-      //                   ]),
-      //             child: Padding(
-      //               padding: const EdgeInsets.all(8.0),
-      //               child: Image.asset(
-      //                 imagePath,
-      //                 fit: BoxFit.contain,
-      //                 errorBuilder: (_, __, ___) =>
-      //                     const Icon(Icons.error),
-      //               ),
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
     );
   }
 } 

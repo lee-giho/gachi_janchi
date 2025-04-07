@@ -520,10 +520,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void selectIngredient(String name) {
     setState(() {
-      if (selectIngredients.contains(name)) {
-        selectIngredients.remove(name);
+      if (name == "all") {
+        selectIngredients = [];
       } else {
-        selectIngredients.add(name);
+        if (selectIngredients.contains(name)) {
+          selectIngredients.remove(name);
+        } else {
+          selectIngredients.add(name);
+        }
       }  
     });
     fetchFilterRestaurants();

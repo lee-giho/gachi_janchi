@@ -7,7 +7,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class IngredientFilterPopUp extends StatefulWidget {
-  const IngredientFilterPopUp({super.key});
+  List<dynamic> selected;
+  final void Function(String)? selectIngredient;
+  IngredientFilterPopUp({
+    super.key,
+    required this.selected,
+    required this.selectIngredient
+  });
 
   @override
   State<IngredientFilterPopUp> createState() => _IngredientFilterPopUpState();
@@ -22,6 +28,7 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
   void initState() {
     super.initState();
     fetchAllIngredients();
+    selectIngredients = List.from(widget.selected);
   }
 
   /// 전체 재료 목록 불러오기 (이름순 정렬 추가됨)
@@ -101,7 +108,7 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
             return GestureDetector(
               onTap: () {
                 clickIngredient(name, isSelected);
-                
+                widget.selectIngredient!(name);
                 print("name: $name");
                 print("selectIngredients: $selectIngredients");
               },

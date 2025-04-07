@@ -37,6 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<dynamic> restaurants = [];
   List<dynamic> searchRestaurants = [];
+  List<dynamic> filterRestaurants = [];
+
+  List<dynamic> selectIngredients = [];
 
   DraggableScrollableController sheetController =
       DraggableScrollableController();
@@ -482,7 +485,10 @@ class _HomeScreenState extends State<HomeScreen> {
             elevation: 5,
             borderRadius: BorderRadius.circular(15),
             color: Colors.white,
-            child: IngredientFilterPopUp()
+            child: IngredientFilterPopUp(
+              selected: selectIngredients,
+              selectIngredient: selectIngredient,
+            )
           ),
         )
       )
@@ -505,6 +511,39 @@ class _HomeScreenState extends State<HomeScreen> {
       removeOverlay();
     }
   }
+
+  void selectIngredient(String name) {
+    setState(() {
+      if (selectIngredients.contains(name)) {
+        selectIngredients.remove(name);
+      } else {
+        selectIngredients.add(name);
+      }  
+    });
+    fetchFilterRestaurants();
+    print("----selectIngredients: $selectIngredients");
+  }
+
+  void fetchFilterRestaurants() {
+    List<dynamic> filtered = restaurants.where((restaurant) {
+      final String ingredient = restaurant["ingredientName"];
+      return selectIngredients.contains(ingredient);
+    }).toList();
+
+    setState(() {
+      filterRestaurants = filtered;
+    });
+
+    print("필터링된 음식점 수: ${filterRestaurants.length}");
+
+    if (selectIngredients.isNotEmpty) {
+      updateMarkers(filterRestaurants);
+    } else {
+      updateMarkers(restaurants);
+    }
+    
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -743,19 +743,48 @@ class _HomeScreenState extends State<HomeScreen> {
                 print("aaa");
                 toggleOverlay(context);
               },
-              child: Container(
-                width: buttonWidth,
-                height: 55,
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white
+              child: Stack(
+                children: [
+                  Container(
+                    width: buttonWidth,
+                    height: 55,
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white
+                      ),
+                    child: Icon(
+                      Icons.shopping_cart,
+                      size: 30,
+                    ),
                   ),
-                child: Icon(
-                  Icons.shopping_cart,
-                  size: 30,
-                ),
+                  selectIngredients.isNotEmpty
+                  ? Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: const Color.fromRGBO(122, 11, 11, 1)
+                        ),
+                        child: Center(
+                          child: Text(
+                            selectIngredients.isNotEmpty
+                              ? selectIngredients.length.toString()
+                              : "",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                      )
+                    )
+                  : const SizedBox()
+                ]
               ),
             ),
           )

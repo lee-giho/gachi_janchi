@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   OverlayEntry? overlayEntry; // 오버레이 창을 위한 변수
   final LayerLink layerLink = LayerLink(); // 위젯의 위치를 추적하는 변수
+  final GlobalKey buttonKey = GlobalKey();
   double buttonWidth = 55;
   double overlayWidth = 300;
 
@@ -478,43 +479,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 오버레이 창을 표시하는 함수
   void showOverlay(BuildContext context) {
-    if (overlayEntry != null) return; // 이미 열려있으면 중복 생성 방지
+    if (overlayEntry != null) return;
 
-    OverlayState overlayState = Overlay.of(context);
     overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        width: overlayWidth,
-        child: CompositedTransformFollower(
-          link: layerLink,
-          offset: Offset(-overlayWidth + buttonWidth, -300), // 위치 조정
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(15),
-            color: Colors.white,
-            child: IngredientFilterPopUp(
-              selected: selectIngredients,
-              selectIngredient: selectIngredient,
-            )
+      builder: (context) => Stack(
+        children: [
+          // 오버레이 바깥쪽 터치 감지해서 닫기
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: removeOverlay,
+              behavior: HitTestBehavior.translucent,
+            ),
           ),
-        )
-      )
+          Positioned(
+            width: overlayWidth,
+            child: CompositedTransformFollower(
+              link: layerLink,
+              offset: Offset(-overlayWidth + buttonWidth, -300),
+              child: Material(
+                elevation: 5,
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                child: IngredientFilterPopUp(
+                  selected: selectIngredients,
+                  selectIngredient: selectIngredient,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
 
-    overlayState.insert(overlayEntry!);
+    Overlay.of(context).insert(overlayEntry!);
+    setState(() {});
   }
+
 
   // 오버레이 창 닫는 함수
   void removeOverlay() {
     overlayEntry?.remove();
     overlayEntry = null;
+    
+
+        setState(() {});
+
   }
 
   // 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
   void toggleOverlay(BuildContext context) {
-    if (overlayEntry == null) {
-      showOverlay(context);
-    } else {
+    if (overlayEntry != null) {
       removeOverlay();
+    } else {
+      showOverlay(context);
     }
   }
 
@@ -558,354 +575,398 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        NaverMap(
-            onMapReady: (controller) {
-              mapController = controller; // mapController 초기화
-              log("준비완료!");
-              log("currentPosition: $currentPosition");
-              // 현재 위치가 있으면 지도 이동
-              if (currentPosition != null) {
-                mapController!.updateCamera(NCameraUpdate.withParams(
-                    target: currentPosition, zoom: 15));
-              }
-            },
-            onMapTapped: (point, latLng) {
-              setState(() {
-                isMarkerTap = false;
-                tapRestaurant = {};
-              });
-              print(isMarkerTap);
-              updateSheetSize(); // 크기 업데이트
-            },
-            options: const NaverMapViewOptions(
-                initialCameraPosition: NCameraPosition(
-                    // 첫 로딩 포지션
-                    target: NLatLng(37.5667070936, 126.97876548263318),
-                    zoom: 15,
-                    bearing: 0,
-                    tilt: 0),
-                locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
-                ),
-            onCameraChange: (reason, animated) async {
-              setState(() {
-                isMarkerTap = false;
-                tapRestaurant = {};
-              });
-              print(isMarkerTap);
-              updateSheetSize(); // 크기 업데이트
-              print("카메라 이동");
-            },
-            onCameraIdle: () async {
-              if (mapController != null) {
-                NCameraPosition position =
-                    await mapController!.getCameraPosition();
-                await fetchRestaurantsInBounds(position);
+      body: Stack(
+        children: [
+          NaverMap(
+              onMapReady: (controller) {
+                mapController = controller; // mapController 초기화
+                log("준비완료!");
+                log("currentPosition: $currentPosition");
+                // 현재 위치가 있으면 지도 이동
+                if (currentPosition != null) {
+                  mapController!.updateCamera(NCameraUpdate.withParams(
+                      target: currentPosition, zoom: 15));
+                }
+              },
+              onMapTapped: (point, latLng) {
                 setState(() {
                   isMarkerTap = false;
                   tapRestaurant = {};
                 });
-                // setState(() {
-                //   currentPosition = position.target;
-                // });
-                print(
-                    "카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
-              } else {
-                log("mapController가 초기화되지 않았습니다.");
-              }
-            },
-            onSymbolTapped: (symbolInfo) {
-              log("symbolInfo: ${symbolInfo.caption}");
-            }),
-        // 검색바
-        Positioned(
-            top: 60,
-            left: 0,
-            right:
-                0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
-            child: Align(
-              alignment: Alignment.center,
-              child: Container(
-                // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white),
-                width: 400,
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset(
-                      // 가치, 잔치 로고
-                      'assets/images/gachi_janchi_logo.png',
-                      fit: BoxFit.contain,
-                      height: 40,
-                    ),
-                    Container(
-                      // 검색어 입력 TextField, 검색어 삭제 버튼, 검색 버튼 감싸는 Container
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(15),
+                print(isMarkerTap);
+                updateSheetSize(); // 크기 업데이트
+              },
+              options: const NaverMapViewOptions(
+                  initialCameraPosition: NCameraPosition(
+                      // 첫 로딩 포지션
+                      target: NLatLng(37.5667070936, 126.97876548263318),
+                      zoom: 15,
+                      bearing: 0,
+                      tilt: 0),
+                  locationButtonEnable: true // 내 위치 찾기 위젯이 하단에 생김
+                  ),
+              onCameraChange: (reason, animated) async {
+                setState(() {
+                  isMarkerTap = false;
+                  tapRestaurant = {};
+                });
+                print(isMarkerTap);
+                updateSheetSize(); // 크기 업데이트
+                print("카메라 이동");
+              },
+              onCameraIdle: () async {
+                if (mapController != null) {
+                  NCameraPosition position =
+                      await mapController!.getCameraPosition();
+                  await fetchRestaurantsInBounds(position);
+                  setState(() {
+                    isMarkerTap = false;
+                    tapRestaurant = {};
+                  });
+                  // setState(() {
+                  //   currentPosition = position.target;
+                  // });
+                  print(
+                      "카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
+                } else {
+                  log("mapController가 초기화되지 않았습니다.");
+                }
+              },
+              onSymbolTapped: (symbolInfo) {
+                log("symbolInfo: ${symbolInfo.caption}");
+              }),
+          // 검색바
+          Positioned(
+              top: 60,
+              left: 0,
+              right:
+                  0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
+                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white),
+                  width: 400,
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        // 가치, 잔치 로고
+                        'assets/images/gachi_janchi_logo.png',
+                        fit: BoxFit.contain,
+                        height: 40,
                       ),
-                      width: 280,
-                      height: 40,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            // 검색어 입력 부분
-                            child: TextField(
-                              controller: searchKeywordController,
-                              focusNode: searchKeywordFocus,
-                              keyboardType: TextInputType.text,
-                              decoration: const InputDecoration(
-                                  hintText: "찾고 있는 잔치집이 있나요?",
-                                  hintStyle: TextStyle(fontSize: 15),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 0, horizontal: 10),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(5)),
-                                      borderSide: BorderSide(
-                                          color:
-                                              Color.fromRGBO(121, 55, 64, 0))),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(5)),
-                                      borderSide: BorderSide(
-                                          color:
-                                              Color.fromRGBO(122, 11, 11, 0)))),
+                      Container(
+                        // 검색어 입력 TextField, 검색어 삭제 버튼, 검색 버튼 감싸는 Container
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        width: 280,
+                        height: 40,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              // 검색어 입력 부분
+                              child: TextField(
+                                controller: searchKeywordController,
+                                focusNode: searchKeywordFocus,
+                                keyboardType: TextInputType.text,
+                                decoration: const InputDecoration(
+                                    hintText: "찾고 있는 잔치집이 있나요?",
+                                    hintStyle: TextStyle(fontSize: 15),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 0, horizontal: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(5)),
+                                        borderSide: BorderSide(
+                                            color:
+                                                Color.fromRGBO(121, 55, 64, 0))),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(5)),
+                                        borderSide: BorderSide(
+                                            color:
+                                                Color.fromRGBO(122, 11, 11, 0)))),
+                              ),
                             ),
-                          ),
-                          if (searchKeywordFocus.hasFocus)
+                            if (searchKeywordFocus.hasFocus)
+                              IconButton(
+                                // 검색어 삭제 부분
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(
+                                  Icons.clear,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  searchKeywordController
+                                      .clear(); // TextField 내용 비우기
+                                },
+                              ),
                             IconButton(
-                              // 검색어 삭제 부분
+                              // 검색 버튼 부분
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
                               icon: const Icon(
-                                Icons.clear,
+                                Icons.search,
                                 size: 20,
                               ),
                               onPressed: () {
-                                searchKeywordController
-                                    .clear(); // TextField 내용 비우기
+                                removeOverlay();
+                                print("${searchKeywordController.text} 검색!!!");
+                                // searchRestaurantsByKeword();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            SearchRestaurantScreen(data: {
+                                              "keyword":
+                                                  searchKeywordController.text
+                                            })));
                               },
-                            ),
-                          IconButton(
-                            // 검색 버튼 부분
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(
-                              Icons.search,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              print("${searchKeywordController.text} 검색!!!");
-                              // searchRestaurantsByKeword();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          SearchRestaurantScreen(data: {
-                                            "keyword":
-                                                searchKeywordController.text
-                                          })));
-                            },
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      // QR코드 버튼 부분
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        Icons.qr_code_scanner,
+                      IconButton(
+                        // QR코드 버튼 부분
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          Icons.qr_code_scanner,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          removeOverlay();
+                          print("QR코드 스캐너 버튼 클릭!!!!!!");
+                          qrScanData();
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              )),
+          Positioned(
+            bottom: 25,
+            right: 10, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
+            child: CompositedTransformTarget(
+              link: layerLink,
+              child: InkWell(
+                key: buttonKey,
+                onTap: () {
+                  print("aaa");
+                  toggleOverlay(context);
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      width: buttonWidth,
+                      height: 55,
+                      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white
+                        ),
+                      child: Icon(
+                        Icons.shopping_cart,
                         size: 30,
                       ),
-                      onPressed: () {
-                        print("QR코드 스캐너 버튼 클릭!!!!!!");
-                        qrScanData();
-                      },
-                    )
-                  ],
+                    ),
+                    selectIngredients.isNotEmpty
+                    ? Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: const Color.fromRGBO(122, 11, 11, 1)
+                          ),
+                          child: Center(
+                            child: Text(
+                              selectIngredients.isNotEmpty
+                                ? selectIngredients.length.toString()
+                                : "",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                        )
+                      )
+                    : const SizedBox()
+                  ]
                 ),
               ),
-            )),
-        Positioned(
-          bottom: 25,
-          right: 10, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
-          child: CompositedTransformTarget(
-            link: layerLink,
-            child: InkWell(
-              onTap: () {
-                print("aaa");
-                toggleOverlay(context);
-              },
-              child: Stack(
-                children: [
-                  Container(
-                    width: buttonWidth,
-                    height: 55,
-                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.white
-                      ),
-                    child: Icon(
-                      Icons.shopping_cart,
-                      size: 30,
-                    ),
-                  ),
-                  selectIngredients.isNotEmpty
-                  ? Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: const Color.fromRGBO(122, 11, 11, 1)
-                        ),
-                        child: Center(
-                          child: Text(
-                            selectIngredients.isNotEmpty
-                              ? selectIngredients.length.toString()
-                              : "",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold
+            )
+          ),
+          isMarkerTap
+              ? DraggableScrollableSheet(
+                  initialChildSize: sheetChildSize, // 동적으로 크기 조정
+                  minChildSize: sheetChildSize,
+                  maxChildSize: sheetChildSize, // 최대 크기 제한
+                  controller: sheetController,
+                  builder: (BuildContext context, scrollController) {
+                    return Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15),
+                          )),
+                      child: CustomScrollView(
+                        controller: scrollController,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Center(
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                height: 4,
+                                width: 80,
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    )
-                  : const SizedBox()
-                ]
+                          SliverList.builder(
+                              itemCount: 1,
+                              itemBuilder: (context, index) {
+                                final restaurant = tapRestaurant;
+      
+                                return RestaurantListTile(
+                                  restaurant: restaurant,
+                                  // onPressed: () {
+                                  //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                                  // },
+                                  // onBookmarkPressed: () {
+                                  //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                                  // },
+                                );
+                              })
+                        ],
+                      ),
+                    );
+                  })
+              : DraggableScrollableSheet(
+                  initialChildSize: sheetChildSize,
+                  maxChildSize: 0.85,
+                  minChildSize: 0.018,
+                  controller: sheetController,
+                  builder: (BuildContext context, scrollController) {
+                    return Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15),
+                          )),
+                      child: CustomScrollView(
+                        controller: scrollController,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Center(
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                height: 4,
+                                width: 80,
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                              ),
+                            ),
+                          ),
+                          SliverList.builder(
+                              itemCount: selectIngredients.isNotEmpty
+                              ? filterRestaurants.length
+                              : restaurants.length,
+                              itemBuilder: (context, index) {
+                                final restaurant = selectIngredients.isNotEmpty
+                                ? filterRestaurants[index]
+                                : restaurants[index];
+      
+                                return RestaurantListTile(
+                                  restaurant: restaurant,
+                                  // onPressed: () {
+                                  //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                                  // },
+                                  // onBookmarkPressed: () {
+                                  //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
+                                  // },
+                                );
+                              })
+                        ],
+                      ),
+                    );
+                  }),
+          if (overlayEntry != null || searchKeywordFocus.hasFocus)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTapDown: (details) {
+                  final RenderBox? buttonBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
+
+                  if (buttonBox != null) {
+                    final buttonOffset = buttonBox.localToGlobal(Offset.zero);
+                    final buttonSize = buttonBox.size;
+                    final buttonRect = buttonOffset & buttonSize;
+
+                    // 팝업 버튼 위치 클릭 시 닫기 무시
+                    if (!buttonRect.contains(details.globalPosition)) {
+                      removeOverlay();
+                      if (searchKeywordFocus.hasFocus) {
+                        searchKeywordFocus.unfocus();
+                      }
+                    }
+                  } else {
+                    // 버튼 RenderBox가 null일 때
+                    removeOverlay();
+                    if (searchKeywordFocus.hasFocus) searchKeywordFocus.unfocus();
+                  }
+
+                },
+                onPanDown: (details) {
+                  final RenderBox? buttonBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
+
+                  if (buttonBox != null) {
+                    final buttonOffset = buttonBox.localToGlobal(Offset.zero);
+                    final buttonSize = buttonBox.size;
+                    final buttonRect = buttonOffset & buttonSize;
+
+                    // 팝업 버튼 위치 클릭 시 닫기 무시
+                    if (!buttonRect.contains(details.globalPosition)) {
+                      removeOverlay();
+                      if (searchKeywordFocus.hasFocus) {
+                        searchKeywordFocus.unfocus();
+                      }
+                    }
+                  } else {
+                    // 버튼 RenderBox가 null일 때
+                    removeOverlay();
+                    if (searchKeywordFocus.hasFocus) searchKeywordFocus.unfocus();
+                  }
+
+                },
               ),
             ),
-          )
-        ),
-        // if (tapRestaurant.isNotEmpty)
-        //   Positioned(
-        //     bottom: 100,
-        //     child: Container(
-        //       decoration: const BoxDecoration(
-        //         color: Colors.white,
-        //       ),
-        //       width: MediaQuery.of(context).size.width,
-        //       child: RestaurantListTile(restaurant: tapRestaurant)
-        //     )
-        //   ),
-        isMarkerTap
-            ? DraggableScrollableSheet(
-                initialChildSize: sheetChildSize, // 동적으로 크기 조정
-                minChildSize: sheetChildSize,
-                maxChildSize: sheetChildSize, // 최대 크기 제한
-                controller: sheetController,
-                builder: (BuildContext context, scrollController) {
-                  return Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                        )),
-                    child: CustomScrollView(
-                      controller: scrollController,
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Center(
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                              height: 4,
-                              width: 80,
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                            ),
-                          ),
-                        ),
-                        SliverList.builder(
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              final restaurant = tapRestaurant;
-
-                              return RestaurantListTile(
-                                restaurant: restaurant,
-                                // onPressed: () {
-                                //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                                // },
-                                // onBookmarkPressed: () {
-                                //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                                // },
-                              );
-                            })
-                      ],
-                    ),
-                  );
-                })
-            : DraggableScrollableSheet(
-                initialChildSize: sheetChildSize,
-                maxChildSize: 0.85,
-                minChildSize: 0.018,
-                controller: sheetController,
-                builder: (BuildContext context, scrollController) {
-                  return Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                        )),
-                    child: CustomScrollView(
-                      controller: scrollController,
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Center(
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                              height: 4,
-                              width: 80,
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                            ),
-                          ),
-                        ),
-                        SliverList.builder(
-                            itemCount: selectIngredients.isNotEmpty
-                            ? filterRestaurants.length
-                            : restaurants.length,
-                            itemBuilder: (context, index) {
-                              final restaurant = selectIngredients.isNotEmpty
-                              ? filterRestaurants[index]
-                              : restaurants[index];
-
-                              return RestaurantListTile(
-                                restaurant: restaurant,
-                                // onPressed: () {
-                                //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                                // },
-                                // onBookmarkPressed: () {
-                                //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                                // },
-                              );
-                            })
-                      ],
-                    ),
-                  );
-                })
-      ]),
+        ]
+      ),
     );
   }
 }

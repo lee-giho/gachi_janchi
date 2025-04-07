@@ -162,37 +162,37 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
                   print("초기화 버튼 비활성화!!!!");
                 }
               },
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: const Color.fromRGBO(122, 11, 11, 1)),
-                  borderRadius: BorderRadius.circular(12),
-                  color: selectIngredients.isNotEmpty
-                    ? const Color.fromRGBO(122, 11, 11, 1)
-                    : Colors.white
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.refresh,
-                      color: selectIngredients.isNotEmpty
-                        ? Colors.white
-                        : Colors.black
+              child: selectIngredients.isNotEmpty
+              ? Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 1,
+                      color: const Color.fromRGBO(122, 11, 11, 1)
                     ),
-                    Text(
-                      "초기화",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: selectIngredients.isNotEmpty
-                          ? Colors.white
-                          : Colors.black
+                    borderRadius: BorderRadius.circular(12),
+                    color: const Color.fromRGBO(122, 11, 11, 1)
+
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.refresh,
+                        color: Colors.white
                       ),
-                    )
-                  ],
-                ),
-              ),
+                      Text(
+                        "초기화",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              : SizedBox()
             )
           ]
         ),

@@ -106,8 +106,12 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
         builder: (context) => const QrCodeScanner(),
         settings: RouteSettings(name: 'qr_scan')))
       .then((value) {
-        print('QR value: ${value}');
-        getRestaurant(value);
+        if (value != null && value is String) {
+          print('QR value: $value');
+          getRestaurant(value);
+        } else {
+          print('QR 스캔 결과 없음 또는 잘못된 형식');
+        }
       }
     );
 

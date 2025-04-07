@@ -270,10 +270,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // 리스트만 저장
         if (data.containsKey("restaurants")) {
-          updateMarkers(data["restaurants"]);
           setState(() {
             restaurants = data["restaurants"];
           });
+          if (selectIngredients.isNotEmpty) { // 재료 필터가 적용됐을 때 filterRestaurants 보여주기
+            print("filterRestaurants.length: $filterRestaurants.length");
+            updateMarkers(filterRestaurants);
+          } else {
+            updateMarkers(restaurants);
+          }
+          
         } else {
           print("오류: 'restaurants' 키가 없음");
         }

@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/screens/search_restaurant_screen.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
+import 'package:gachi_janchi/widgets/IngredientFilterPopUp.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -40,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
   DraggableScrollableController sheetController =
       DraggableScrollableController();
 
+  OverlayEntry? overlayEntry; // 오버레이 창을 위한 변수
+  final LayerLink layerLink = LayerLink(); // 위젯의 위치를 추적하는 변수
+  double buttonWidth = 55;
+  double overlayWidth = 300;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
     searchKeywordController.dispose();
     searchKeywordFocus.dispose();
     sheetController.dispose();
+
+    removeOverlay();
   }
 
   // 위치 권한 요청
@@ -104,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
       .then((value) {
         print('QR value: ${value}');
         getRestaurant(value);
+        widget.changeTap?.call(3);
       }
     );
 
@@ -342,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
         String ingredient = restaurant["ingredientName"];
         print("assets/images/ingredient/$ingredient.png");
 
-        // ✅ 현재 지도 영역 내에 있는지 확인
+        // 현재 지도 영역 내에 있는지 확인
         if (latitude >= latMin &&
             latitude <= latMax &&
             longitude >= lonMin &&
@@ -456,6 +465,45 @@ class _HomeScreenState extends State<HomeScreen> {
           duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
     print("sheetChildSize: ${sheetChildSize}");
+  }
+
+  // 오버레이 창을 표시하는 함수
+  void showOverlay(BuildContext context) {
+    if (overlayEntry != null) return; // 이미 열려있으면 중복 생성 방지
+
+    OverlayState overlayState = Overlay.of(context);
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: overlayWidth,
+        child: CompositedTransformFollower(
+          link: layerLink,
+          offset: Offset(-overlayWidth + buttonWidth, -300), // 위치 조정
+          child: Material(
+            elevation: 5,
+            borderRadius: BorderRadius.circular(15),
+            color: Colors.white,
+            child: IngredientFilterPopUp()
+          ),
+        )
+      )
+    );
+
+    overlayState.insert(overlayEntry!);
+  }
+
+  // 오버레이 창 닫는 함수
+  void removeOverlay() {
+    overlayEntry?.remove();
+    overlayEntry = null;
+  }
+
+  // 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
+  void toggleOverlay(BuildContext context) {
+    if (overlayEntry == null) {
+      showOverlay(context);
+    } else {
+      removeOverlay();
+    }
   }
 
   @override
@@ -636,6 +684,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )),
+        Positioned(
+          bottom: 25,
+          right: 10, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
+          child: CompositedTransformTarget(
+            link: layerLink,
+            child: InkWell(
+              onTap: () {
+                print("aaa");
+                toggleOverlay(context);
+              },
+              child: Container(
+                width: buttonWidth,
+                height: 55,
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white
+                  ),
+                child: Icon(
+                  Icons.shopping_cart,
+                  size: 30,
+                ),
+              ),
+            ),
+          )
+        ),
         // if (tapRestaurant.isNotEmpty)
         //   Positioned(
         //     bottom: 100,

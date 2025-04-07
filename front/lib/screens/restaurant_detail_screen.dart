@@ -18,8 +18,8 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
 class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
 
   Map<String, dynamic> restaurant = {};
-  OverlayEntry? overlayEntry; // ✅ 오버레이 창을 위한 변수
-  final LayerLink layerLink = LayerLink(); // ✅ 위젯의 위치를 추적하는 변수
+  OverlayEntry? overlayEntry; // 오버레이 창을 위한 변수
+  final LayerLink layerLink = LayerLink(); // 위젯의 위치를 추적하는 변수
 
   int _currentIndex = 0;
   List<Widget> screens = [];
@@ -133,7 +133,7 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
     return (now.isAfter(openTime) && now.isBefore(closeTime)) ? "영업중" : "영업종료";
   }
 
-  // ✅ 오버레이 창을 표시하는 함수
+  // 오버레이 창을 표시하는 함수
   void showOverlay(BuildContext context) {
     if (overlayEntry != null) return; // 이미 열려있으면 중복 생성 방지
 
@@ -184,13 +184,13 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
     overlayState.insert(overlayEntry!);
   }
 
-  // ✅ 오버레이 창 닫는 함수
+  // 오버레이 창 닫는 함수
   void removeOverlay() {
     overlayEntry?.remove();
     overlayEntry = null;
   }
 
-  // ✅ 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
+  // 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
   void toggleOverlay(BuildContext context) {
     if (overlayEntry == null) {
       showOverlay(context);

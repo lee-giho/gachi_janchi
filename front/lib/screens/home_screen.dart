@@ -850,9 +850,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         SliverList.builder(
-                            itemCount: restaurants.length,
+                            itemCount: selectIngredients.isNotEmpty
+                            ? filterRestaurants.length
+                            : restaurants.length,
                             itemBuilder: (context, index) {
-                              final restaurant = restaurants[index];
+                              final restaurant = selectIngredients.isNotEmpty
+                              ? filterRestaurants[index]
+                              : restaurants[index];
 
                               return RestaurantListTile(
                                 restaurant: restaurant,

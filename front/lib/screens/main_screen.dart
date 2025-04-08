@@ -26,10 +26,12 @@ class _MainScreenState extends State<MainScreen> {
 
     final List<Widget> screens = [
       HomeScreen(
-        changeTap: changeTab
+        changeTab: changeTab
       ),
       RankingCollectionScreen(),
-      FavoriteScreen(),
+      FavoriteScreen(
+        changeTab: changeTab
+      ),
       VisitScreen(),
       MyPageMainScreen()
     ];

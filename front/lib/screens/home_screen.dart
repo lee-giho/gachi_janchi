@@ -5,6 +5,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/screens/search_restaurant_screen.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/widgets/IngredientFilterPopUp.dart';
+import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -13,10 +14,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
-  final void Function(int)? changeTap;
+  final void Function(int)? changeTab;
   const HomeScreen({
     super.key,
-    this.changeTap
+    required this.changeTab
   });
 
   @override
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
         currentPosition = NLatLng(position.latitude, position.longitude);
       });
 
-      // 🔥 현재 위치로 지도 이동
+      // 현재 위치로 지도 이동
       if (mapController != null) {
         mapController!.updateCamera(
           NCameraUpdate.withParams(
@@ -103,140 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print("현재 위치를 가져오는 데 실패했습니다: $e");
     }
   }
-
-  void qrScanData() async {
-    // QrCodeScanner 화면으로 이동
-    // QR코드 스캔한 결과를 value로 받아서 사용
-
-    // 실제 핸드폰으로 qr코드를 찍을 수 있을 때 사용
-    Navigator.of(context)
-      .push(MaterialPageRoute(
-        builder: (context) => const QrCodeScanner(),
-        settings: RouteSettings(name: 'qr_scan')))
-      .then((value) {
-        print('QR value: ${value}');
-        getRestaurant(value);
-        widget.changeTap?.call(3);
-      }
-    );
-
-    // 임시로 음식점 아이디를 통해 정보를 가져오는 것
-    // getRestaurant("67c9e0bb79b5e9cfd182e151");
-  }
-
-  // 음식점 아이디로 재료 요청하는 함수
-  Future<void> getRestaurant(String restaurantId) async {
-
-    String? accessToken = await SecureStorage.getAccessToken();
-
-    // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/ingredientId?restaurantId=$restaurantId");
-    final headers = {
-      'Authorization': 'Bearer ${accessToken}',
-      'Content-Type': 'application/json'
-    };
-
-    try {
-      final response = await http.get(
-        apiAddress,
-        headers: headers
-      );
-
-      if (response.statusCode == 200) {
-        print("방문 음식점에 대한 재료 아이디 요청 완료");
-        
-        final decodedData = utf8.decode(response.bodyBytes);
-        final data = json.decode(decodedData);
-        final ingredientId = data["ingredientId"];
-        print("ingredientId: $ingredientId");
-
-        addVisitedRestaurant(restaurantId, ingredientId);
-
-      } else {
-        print("방문 음식점에 대한 재료 아이디를 불러올 수 없습니다.");
-      }
-    } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
-    }
-  }
-
-  // 방문한 음식점 저장하는 함수
-  Future<void> addVisitedRestaurant(String restaurantId, int ingredientId) async {
-    String? accessToken = await SecureStorage.getAccessToken();
-
-    // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/visited-restaurant");
-    final headers = {
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json'
-    };
-
-    try {
-      print("방문한 음식점 저장 요청 보내기 시작");
-      final response = await http.post(
-        apiAddress,
-        headers: headers,
-        body: json.encode({
-          "restaurantId": restaurantId,
-          "ingredientId": ingredientId
-        })
-      );
-
-      if (response.statusCode == 200) {
-        print("방문 음식점 저장 요청 완료");
-        
-        final decodedData = utf8.decode(response.bodyBytes);
-        final data = json.decode(decodedData);
-
-        print("result: $data");
-
-
-      } else {
-        print("방문 음식점 저장 요청 실패");
-      }
-    } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
-    }
-  }
-
-  // // 음식점 리스트 요청하는 함수
-  // Future<void> getRestaurantList() async {
-  //   String? accessToken = await SecureStorage.getAccessToken();
-
-  //   // .env에서 서버 URL 가져오기
-  //   final apiAddress =
-  //       Uri.parse("${dotenv.get("API_ADDRESS")}/api/restaurant/dong?dong=상록구");
-  //   final headers = {
-  //     'Authorization': 'Bearer ${accessToken}',
-  //     'Content-Type': 'application/json'
-  //   };
-
-  //   try {
-  //     final response = await http.get(apiAddress, headers: headers);
-
-  //     if (response.statusCode == 200) {
-  //       print("음식점 리스트 요청 완료");
-
-  //       // 🔹 UTF-8로 디코딩
-  //       final decodedData = utf8.decode(response.bodyBytes);
-  //       final data = json.decode(decodedData);
-
-  //       print("RestaurantList: ${data}");
-  //     } else {
-  //       print("음식점 리스트를 불러올 수 없습니다.");
-  //     }
-  //   } catch (e) {
-  //     // 예외 처리
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
-  //   }
-  // }
 
   Future<void> fetchRestaurantsInBounds(NCameraPosition position) async {
     // 현재 지도 화면의 경계 가져오기
@@ -723,32 +590,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 print("${searchKeywordController.text} 검색!!!");
                                 // searchRestaurantsByKeword();
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SearchRestaurantScreen(data: {
-                                              "keyword":
-                                                  searchKeywordController.text
-                                            })));
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                      SearchRestaurantScreen(
+                                        data: {
+                                          "keyword": searchKeywordController.text,
+                                        },
+                                        changeTap: widget.changeTab
+                                      )
+                                  )
+                                );
                               },
                             )
                           ],
                         ),
                       ),
-                      IconButton(
-                        // QR코드 버튼 부분
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.qr_code_scanner,
-                          size: 30,
-                        ),
-                        onPressed: () {
-                          removeOverlay();
-                          setState(() {});
-                          print("QR코드 스캐너 버튼 클릭!!!!!!");
-                          qrScanData();
-                        },
+                      QRCodeButton(
+                        changeTap: widget.changeTab
                       )
                     ],
                   ),

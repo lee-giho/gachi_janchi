@@ -4,12 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 
 class FavoriteScreen extends ConsumerStatefulWidget {
-  const FavoriteScreen({super.key});
+  final void Function(int)? changeTab;
+  const FavoriteScreen({
+    super.key,
+    required this.changeTab
+  });
 
   @override
   ConsumerState<FavoriteScreen> createState() => _FavoriteScreenState();
@@ -67,20 +72,6 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
       isKeywordSearch = true;
     }
   }
-
-  // void qrScanData() async{
-  //   // QrCodeScanner 화면으로 이동
-  //   // QR코드 스캔한 결과를 value로 받아서 사용
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (context) => const QrCodeScanner(),
-  //       settings: RouteSettings(name: 'qr_scan')
-  //     )
-  //   )
-  //   .then((value) {
-  //     print('QR value: ${value}');
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -162,12 +153,9 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.qr_code_scanner, size: 30),
-                        onPressed: () {
-                          print("QR코드 아이콘 클릭!!");
-                        },
-                      ),
+                      QRCodeButton(
+                        changeTap: widget.changeTab
+                      )
                     ],
                   ),
                 ),

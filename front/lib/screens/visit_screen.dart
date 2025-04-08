@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/VisitedRestaurantTile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -100,6 +101,10 @@ class _VisitScreenState extends State<VisitScreen> {
     }
   }
 
+  void refreshScreen(int index) {
+    fetchVisitedRestaurants();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -177,12 +182,9 @@ class _VisitScreenState extends State<VisitScreen> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.qr_code_scanner, size: 30),
-                        onPressed: () {
-                          print("QR코드 아이콘 클릭!!");
-                        },
-                      ),
+                      QRCodeButton(
+                        changeTap: refreshScreen
+                      )
                     ],
                   ),
                 ),

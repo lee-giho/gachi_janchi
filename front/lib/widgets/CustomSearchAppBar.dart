@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 
 class CustomSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
   final FocusNode searchFocusNode;
   final VoidCallback onSearchPressed;
   final VoidCallback onClearPressed;
-  final VoidCallback onQrPressed;
   final VoidCallback onBackPressed;
+  final void Function(int)? changeTap;
 
   const CustomSearchAppBar({
     super.key,
@@ -14,8 +15,8 @@ class CustomSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
     required this.searchFocusNode,
     required this.onSearchPressed,
     required this.onClearPressed,
-    required this.onQrPressed,
-    required this.onBackPressed
+    required this.onBackPressed,
+    required this.changeTap
   });
 
   @override
@@ -74,10 +75,9 @@ class CustomSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.qr_code_scanner, size: 30),
-              onPressed: onQrPressed,
-            ),
+            QRCodeButton(
+              changeTap: changeTap
+            )
           ],
         ),
       ),

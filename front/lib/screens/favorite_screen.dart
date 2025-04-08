@@ -89,130 +89,135 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Container( // 전체 화면
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: Column(
-            children: [
-              const Align( // 페이지 타이틀
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "즐겨찾기",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold
-                  ),
-                )
-              ),
-              Container( // 검색바
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                // decoration: const BoxDecoration(
-                //   color: Colors.white,
-                //   border: Border(bottom: BorderSide(color: Colors.black26)),
-                // ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset( // 가치, 잔치 로고
-                      'assets/images/gachi_janchi_logo.png',
-                      fit: BoxFit.contain,
-                      height: 40,
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: searchKeywordController,
-                                focusNode: searchKeywordFocus,
-                                keyboardType: TextInputType.text,
-                                decoration: const InputDecoration(
-                                  hintText: "찾고 있는 잔치집이 있나요?",
-                                  hintStyle: TextStyle(fontSize: 15),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                            if (searchKeywordFocus.hasFocus)
-                              IconButton(
-                                icon: const Icon(Icons.clear, size: 20),
-                                onPressed: () {
-                                  searchKeywordController.clear();
-                                },
-                              ),
-                            IconButton(
-                              icon: const Icon(Icons.search, size: 20),
-                              onPressed: () {
-                                print("${searchKeywordController.text} 검색!!!");
-                                // 검색 함수 실행
-                                searchFavoriteRestaurantsByKeword();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.qr_code_scanner, size: 30),
-                      onPressed: () {
-                        print("QR코드 아이콘 클릭!!");
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              if (isKeywordSearch) // 검색했을 경우만 나오는 초기화 버튼
-                ElevatedButton( // 검색 초기화 버튼
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: const Color.fromRGBO(122, 11, 11, 1),
-                    side: const BorderSide(
-                      width: 0.5,
-                      color: Colors.black
-                    )
-                  ),
-                  onPressed: () {
-                    print("초기화 버튼 클릭!!!");
-                    searchKeywordController.clear();
-                    setState(() {
-                      isKeywordSearch = false;
-                    });
-                  },
-                  child: const Text(
-                    "초기화",
+        child: GestureDetector(
+          onTap: () {
+            searchKeywordFocus.unfocus();
+          },
+          child: Container( // 전체 화면
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Column(
+              children: [
+                const Align( // 페이지 타이틀
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    "즐겨찾기",
                     style: TextStyle(
-                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold
                     ),
                   )
                 ),
-              Expanded(
-                child: CustomScrollView(
-                  slivers: [
-                    SliverList.builder(
-                      itemCount: isKeywordSearch 
-                        ? searchFavoriteRestaurants.length
-                        : favoriteRestaurants.length,
-                      itemBuilder: (context, index) {
-                        final restaurant = isKeywordSearch 
-                          ? searchFavoriteRestaurants[index]
-                          : favoriteRestaurants[index];
-                        return RestaurantListTile(
-                          restaurant: restaurant,
-                          onPressed: () {
-                            print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                          },
-                        );
-                      }
+                Container( // 검색바
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  // decoration: const BoxDecoration(
+                  //   color: Colors.white,
+                  //   border: Border(bottom: BorderSide(color: Colors.black26)),
+                  // ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset( // 가치, 잔치 로고
+                        'assets/images/gachi_janchi_logo.png',
+                        fit: BoxFit.contain,
+                        height: 40,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: searchKeywordController,
+                                  focusNode: searchKeywordFocus,
+                                  keyboardType: TextInputType.text,
+                                  decoration: const InputDecoration(
+                                    hintText: "찾고 있는 잔치집이 있나요?",
+                                    hintStyle: TextStyle(fontSize: 15),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                              if (searchKeywordFocus.hasFocus)
+                                IconButton(
+                                  icon: const Icon(Icons.clear, size: 20),
+                                  onPressed: () {
+                                    searchKeywordController.clear();
+                                  },
+                                ),
+                              IconButton(
+                                icon: const Icon(Icons.search, size: 20),
+                                onPressed: () {
+                                  print("${searchKeywordController.text} 검색!!!");
+                                  // 검색 함수 실행
+                                  searchFavoriteRestaurantsByKeword();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.qr_code_scanner, size: 30),
+                        onPressed: () {
+                          print("QR코드 아이콘 클릭!!");
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                if (isKeywordSearch) // 검색했을 경우만 나오는 초기화 버튼
+                  ElevatedButton( // 검색 초기화 버튼
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                      side: const BorderSide(
+                        width: 0.5,
+                        color: Colors.black
+                      )
+                    ),
+                    onPressed: () {
+                      print("초기화 버튼 클릭!!!");
+                      searchKeywordController.clear();
+                      setState(() {
+                        isKeywordSearch = false;
+                      });
+                    },
+                    child: const Text(
+                      "초기화",
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
                     )
-                  ],
+                  ),
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverList.builder(
+                        itemCount: isKeywordSearch 
+                          ? searchFavoriteRestaurants.length
+                          : favoriteRestaurants.length,
+                        itemBuilder: (context, index) {
+                          final restaurant = isKeywordSearch 
+                            ? searchFavoriteRestaurants[index]
+                            : favoriteRestaurants[index];
+                          return RestaurantListTile(
+                            restaurant: restaurant,
+                            onPressed: () {
+                              print("클릭한 음식점: ${restaurant["restaurantName"]}");
+                            },
+                          );
+                        }
+                      )
+                    ],
+                  )
                 )
-              )
-            ],
+              ],
+            ),
           ),
         ),
       )

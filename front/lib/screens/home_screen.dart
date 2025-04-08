@@ -487,7 +487,10 @@ class _HomeScreenState extends State<HomeScreen> {
           // 오버레이 바깥쪽 터치 감지해서 닫기
           Positioned.fill(
             child: GestureDetector(
-              onTap: removeOverlay,
+              onTap: () {
+                removeOverlay();
+                setState(() {});
+              },
               behavior: HitTestBehavior.translucent,
             ),
           ),
@@ -512,7 +515,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     Overlay.of(context).insert(overlayEntry!);
-    setState(() {});
   }
 
 
@@ -520,10 +522,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void removeOverlay() {
     overlayEntry?.remove();
     overlayEntry = null;
-    
-
-        setState(() {});
-
   }
 
   // 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
@@ -533,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       showOverlay(context);
     }
+    setState(() {});
   }
 
   void selectIngredient(String name) {
@@ -720,6 +719,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 removeOverlay();
+                                setState(() {});
                                 print("${searchKeywordController.text} 검색!!!");
                                 // searchRestaurantsByKeword();
                                 Navigator.push(
@@ -745,6 +745,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         onPressed: () {
                           removeOverlay();
+                          setState(() {});
                           print("QR코드 스캐너 버튼 클릭!!!!!!");
                           qrScanData();
                         },
@@ -940,6 +941,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (searchKeywordFocus.hasFocus) searchKeywordFocus.unfocus();
                   }
 
+                  setState(() {});
                 },
                 onPanDown: (details) {
                   final RenderBox? buttonBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
@@ -962,6 +964,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (searchKeywordFocus.hasFocus) searchKeywordFocus.unfocus();
                   }
 
+                  setState(() {});
                 },
               ),
             ),

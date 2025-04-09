@@ -96,7 +96,9 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         foregroundColor: Colors.white,
-                        backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                        backgroundColor: widget.visitedRestaurant["reviewWrite"]
+                        ? Colors.white
+                        : const Color.fromRGBO(122, 11, 11, 1),
                         side: const BorderSide(
                           width: 0.5,
                           color: Colors.black
@@ -127,7 +129,8 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
                           "리뷰 작성완료",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16
+                            fontSize: 16,
+                            color: Color.fromRGBO(122, 11, 11, 1),
                           ),
                         ) 
                       : const Text(

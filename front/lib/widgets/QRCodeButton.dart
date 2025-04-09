@@ -69,6 +69,7 @@ class _QRCodeButtonState extends State<QRCodeButton> {
         print("ingredientId: $ingredientId");
 
         await addVisitedRestaurant(restaurantId, ingredientId);
+        await addIngredient(ingredientId);
 
       } else {
         print("방문 음식점에 대한 재료 아이디를 불러올 수 없습니다.");
@@ -114,6 +115,40 @@ class _QRCodeButtonState extends State<QRCodeButton> {
 
       } else {
         print("방문 음식점 저장 요청 실패");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
+  // 재료 추가
+  Future<void> addIngredient(int ingredientId) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    if (accessToken == null) return;
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/ingredients/add");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      final response = await http.post(
+        apiAddress,
+        headers: headers,
+        body: json.encode({
+          "ingredientId": ingredientId
+        })
+      );
+
+      if (response.statusCode == 200) {
+        print("재료 '$ingredientId' 추가됨");
+      } else {
+        print("재료 '$ingredientId' 추가 실패");
       }
     } catch (e) {
       // 예외 처리

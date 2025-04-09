@@ -47,17 +47,17 @@ class _CollectedIngredientsScreenState
         List<Map<String, dynamic>> raw =
             List<Map<String, dynamic>>.from(res.data);
 
-        // ✅ 이름순 정렬
+        // 이름순 정렬
         raw.sort(
             (a, b) => (a["name"] as String).compareTo(b["name"] as String));
 
         setState(() {
           allIngredients = raw;
         });
-        print("✅ 전체 재료 목록 불러옴");
+        print("전체 재료 목록 불러옴");
       }
     } catch (e) {
-      print("❌ 전체 재료 목록 실패: $e");
+      print("전체 재료 목록 실패: $e");
     }
   }
 
@@ -84,41 +84,41 @@ class _CollectedIngredientsScreenState
             for (var item in data) item["ingredientName"]: item["quantity"]
           };
         });
-        print("✅ 유저 보유 재료 불러옴");
+        print("유저 보유 재료 불러옴");
       }
     } catch (e) {
-      print("❌ 유저 재료 목록 실패: $e");
+      print("유저 재료 목록 실패: $e");
     }
   }
 
   /// 재료 추가
-  Future<void> _addIngredient(String ingredientName) async {
-    String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+  // Future<void> _addIngredient(String ingredientName) async {
+  //   String? token = await SecureStorage.getAccessToken();
+  //   if (token == null) return;
 
-    try {
-      final res = await _dio.post(
-        "${dotenv.get("API_ADDRESS")}/api/ingredients/add",
-        data: {"ingredientName": ingredientName},
-        options: Options(
-          headers: {
-            "Authorization": "Bearer $token",
-            "Content-Type": "application/json"
-          },
-        ),
-      );
+  //   try {
+  //     final res = await _dio.post(
+  //       "${dotenv.get("API_ADDRESS")}/api/ingredients/add",
+  //       data: {"ingredientName": ingredientName},
+  //       options: Options(
+  //         headers: {
+  //           "Authorization": "Bearer $token",
+  //           "Content-Type": "application/json"
+  //         },
+  //       ),
+  //     );
 
-      if (res.statusCode == 200) {
-        setState(() {
-          userIngredients.update(ingredientName, (v) => v + 1,
-              ifAbsent: () => 1);
-        });
-        print("✅ 재료 '$ingredientName' 추가됨");
-      }
-    } catch (e) {
-      print("❌ 재료 추가 실패: $e");
-    }
-  }
+  //     if (res.statusCode == 200) {
+  //       setState(() {
+  //         userIngredients.update(ingredientName, (v) => v + 1,
+  //             ifAbsent: () => 1);
+  //       });
+  //       print("재료 '$ingredientName' 추가됨");
+  //     }
+  //   } catch (e) {
+  //     print("❌ 재료 추가 실패: $e");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +143,12 @@ class _CollectedIngredientsScreenState
           itemBuilder: (context, index) {
             final ingredient = allIngredients[index];
             String name = ingredient["name"];
-            String imagePath = 'assets/images/ingredient/$name.png'; // ✅ 여기 수정
+            String imagePath = 'assets/images/ingredient/$name.png'; // 여기 수정
             int quantity = userIngredients[name] ?? 0;
             bool isCollected = quantity > 0;
 
             return GestureDetector(
-              onTap: () => _addIngredient(name),
+              // onTap: () => _addIngredient(name),
               child: Column(
                 children: [
                   Stack(

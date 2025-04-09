@@ -43,11 +43,7 @@ public class UserIngredientService {
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         // 재료 조회 (없으면 자동 추가)
-        Ingredient ingredient = ingredientRepository.findByName(request.getIngredientName())
-                .orElseGet(() -> {
-                    Ingredient newIngredient = new Ingredient(request.getIngredientName());
-                    return ingredientRepository.save(newIngredient); // ✅ 기본 이미지 제거됨
-                });
+        Ingredient ingredient = ingredientRepository.findById(request.getIngredientId()).orElseThrow(() -> new IllegalArgumentException("재료를 찾을 수 없습니다. - " + request.getIngredientId()));
 
         // 유저가 이미 보유한 재료인지 확인
         UserIngredient userIngredient = userIngredientRepository
@@ -59,7 +55,7 @@ public class UserIngredientService {
         userIngredientRepository.save(userIngredient);
         userService.gainExp(userId, 20);
 
-        return new AddIngredientResponse(request.getIngredientName() + " 재료가 추가되었습니다.");
+        return new AddIngredientResponse(request.getIngredientId() + " 재료가 추가되었습니다.");
     }
 
 

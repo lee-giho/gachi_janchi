@@ -18,6 +18,8 @@ import com.gachi_janchi.repository.RestaurantRepository;
 import com.gachi_janchi.repository.ReviewRepository;
 import com.gachi_janchi.repository.VisitedRestaurantRepository;
 import com.gachi_janchi.util.JwtProvider;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -64,13 +66,18 @@ public class VisitedRestaurantService {
     }
   }
 
-  public VisitedRestaurantList getVisitedRestaurants(String token) {
+  public VisitedRestaurantList getVisitedRestaurants(String token, String sortType) {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
     String userId = jwtProvider.getUserId(accessToken);
 
     // 방문한 음식점 리스트 가져오기
-    List<VisitedRestaurant> visitedRestaurants = visitedRestaurantRepository.findByUserId(userId);
+    List<VisitedRestaurant> visitedRestaurants = new ArrayList<>();
 
+    if (sortType.equals("latest")) {
+      visitedRestaurants = visitedRestaurantRepository.findByUserIdOrderByVisitedAtDesc(userId);
+      System.out.println("visitedRestaurants: " + visitedRestaurants);
+    }
+    System.out.println("visitedRestaurants: " + visitedRestaurants);
     List<VisitedRestaurantDto> visitedRestaurantDtos = visitedRestaurants.stream()
       .map(visitedRestaurant -> {
         Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId()).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));

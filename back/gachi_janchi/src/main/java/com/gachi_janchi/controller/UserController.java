@@ -12,10 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
@@ -190,9 +186,9 @@ public class UserController {
     
   // 방문한 음식점 리스트 반환 엔드포인트
   @GetMapping("/visited-restaurants")
-  public ResponseEntity<VisitedRestaurantList> getVisitedRestaurants(@RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<VisitedRestaurantList> getVisitedRestaurants(@RequestHeader("Authorization") String accessToken, @RequestParam("sortType") String sortType) {
     System.out.println("visited-restaurants 엔드포인트");
-    VisitedRestaurantList visitedRestaurantList = visitedRestaurantService.getVisitedRestaurants(accessToken);
+    VisitedRestaurantList visitedRestaurantList = visitedRestaurantService.getVisitedRestaurants(accessToken, sortType);
     return ResponseEntity.ok(visitedRestaurantList);
   }
   

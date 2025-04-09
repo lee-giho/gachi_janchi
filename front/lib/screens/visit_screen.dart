@@ -26,7 +26,7 @@ class _VisitScreenState extends State<VisitScreen> {
   @override
   void initState() {
     super.initState();
-    fetchVisitedRestaurants();
+    fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -37,12 +37,12 @@ class _VisitScreenState extends State<VisitScreen> {
   }
 
   // 서버에서 방문한 음식점 리스트 가져오는 함수
-  Future<void> fetchVisitedRestaurants() async {
+  Future<void> fetchVisitedRestaurants(String sortType) async {
     print("방문한 음식점 리스트 가져오기 요청");
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/visited-restaurants");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/visited-restaurants?sortType=$sortType");
     final headers = {'Authorization': 'Bearer $accessToken'};
 
     try {
@@ -102,7 +102,7 @@ class _VisitScreenState extends State<VisitScreen> {
   }
 
   void refreshScreen(int index) {
-    fetchVisitedRestaurants();
+    fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -225,7 +225,7 @@ class _VisitScreenState extends State<VisitScreen> {
                           return VisitedRestaurantTile(
                             visitedRestaurant: visitedRestaurant,
                             onReviewCompleted: () {
-                              fetchVisitedRestaurants();
+                              fetchVisitedRestaurants("latest");
                             },
                           );
                         },

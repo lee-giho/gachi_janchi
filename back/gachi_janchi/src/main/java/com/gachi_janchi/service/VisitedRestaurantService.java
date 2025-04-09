@@ -75,9 +75,8 @@ public class VisitedRestaurantService {
 
     if (sortType.equals("latest")) {
       visitedRestaurants = visitedRestaurantRepository.findByUserIdOrderByVisitedAtDesc(userId);
-      System.out.println("visitedRestaurants: " + visitedRestaurants);
     }
-    System.out.println("visitedRestaurants: " + visitedRestaurants);
+
     List<VisitedRestaurantDto> visitedRestaurantDtos = visitedRestaurants.stream()
       .map(visitedRestaurant -> {
         Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId()).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));

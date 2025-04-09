@@ -33,8 +33,8 @@ public class ReviewController {
   }
 
   @GetMapping("/restaurantId")
-  public ResponseEntity<GetReviewByRestaurantIdResponse> getReviewByRestaurantId(@RequestParam("restaurantId") String restaurantId) {
-    GetReviewByRestaurantIdResponse getReviewByRestaurantIdResponse = reviewService.getReviewByRestaurant(restaurantId);
+  public ResponseEntity<GetReviewByRestaurantIdResponse> getReviewByRestaurantId(@RequestParam("restaurantId") String restaurantId, @RequestParam("sortType") String sortType) {
+    GetReviewByRestaurantIdResponse getReviewByRestaurantIdResponse = reviewService.getReviewByRestaurant(restaurantId, sortType);
     return ResponseEntity.ok(getReviewByRestaurantIdResponse);
   }
   

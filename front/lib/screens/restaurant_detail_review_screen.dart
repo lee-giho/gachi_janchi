@@ -31,14 +31,14 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   @override
   void initState() {
     super.initState();
-    getReview(widget.data["restaurantId"]);
+    getReview(widget.data["restaurantId"], "latest");
   }
   
-  Future<void> getReview(String restaurantId) async {
+  Future<void> getReview(String restaurantId, String sortType) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=${restaurantId}");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=${restaurantId}&sortType=${sortType}");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'

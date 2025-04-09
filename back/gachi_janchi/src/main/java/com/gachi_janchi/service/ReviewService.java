@@ -125,9 +125,14 @@ public class ReviewService {
   }
 
   // 음식점 ID로 리뷰 가져오기
-  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId) {
+  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType) {
     // 음식점에 대한 리뷰 다 가져오기
-    List<Review> reviewList = reviewRepository.findAllByRestaurantId(restaurantId);
+    List<Review> reviewList = new ArrayList<>();
+
+    if (sortType.equals("latest")) {
+      reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+    }
+
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
       .map(review -> {
         List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());

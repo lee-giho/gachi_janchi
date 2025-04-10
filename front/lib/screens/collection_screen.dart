@@ -16,10 +16,11 @@ class CollectionScreen extends StatefulWidget {
 class _CollectionScreenState extends State<CollectionScreen>
     with TickerProviderStateMixin {
   final Dio _dio = Dio();
-  String nickname = "로딩 중...";
+  String nickname = "";
   int ranking = 0;
-  String title = "초보 맛객";
+  String title = "";
   int exp = 0;
+  String profileImage = "";
 
   Map<String, int> userIngredients = {};
   List<String> completedCollections = [];
@@ -66,10 +67,14 @@ class _CollectionScreenState extends State<CollectionScreen>
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
       if (res.statusCode == 200) {
+        print("data: ${res.data}");
         setState(() {
           nickname = res.data["nickname"];
-          title = res.data["title"] ?? "초보 맛객";
+          title = res.data["title"] ?? "";
           exp = res.data["exp"];
+          if (res.data["profileImage"] != null && res.data["profileImage"].isNotEmpty){
+            profileImage = res.data["profileImage"];
+          }
         });
       }
     } catch (e) {
@@ -216,204 +221,242 @@ class _CollectionScreenState extends State<CollectionScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("👤 $nickname"),
-            Text("🏆 ${ranking}위"),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: collections.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.65,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-              ),
-              itemBuilder: (context, index) {
-                final collection = collections[index];
-                final name = collection["name"] ?? "default";
-                final description = collection["description"] ?? "";
-                final List ingredients = collection["ingredients"];
-
-                final isCompleted = completedCollections.contains(name);
-                final canComplete = ingredients.every(
-                    (i) => (userIngredients[i["name"]] ?? 0) >= i["quantity"]);
-                final isUnlocked = canComplete && !isCompleted;
-                final isLocked = !isUnlocked && !isCompleted;
-
-                return GestureDetector(
-                  onTap: () {
-                    if (isUnlocked) _showCompleteDialog(name);
-                  },
-                  child: Stack(
-                    children: [
-                      Card(
-                        elevation: 6,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: isCompleted
-                                ? Colors.orange
-                                : Colors.grey.shade300,
-                            width: isCompleted ? 2 : 1,
-                          ),
-                        ),
-                        color: isLocked || isUnlocked
-                            ? Colors.grey[440]
-                            : Colors.white,
-                        child: SizedBox(
-                          height: 600,
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12)),
-                                child: Image.asset(
-                                  toAssetPath(name),
-                                  height: 120,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) =>
-                                      const Icon(Icons.broken_image),
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(Translation.translateCollection(name),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Text(
-                                  description,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              if (!isCompleted)
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  alignment: WrapAlignment.center,
-                                  children: ingredients.map((i) {
-                                    final ing = i["name"];
-                                    final qty = i["quantity"];
-                                    final owned = userIngredients[ing] ?? 0;
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Image.asset(
-                                          toIngredientAssetPath(ing),
-                                          width: 40,
-                                          height: 40,
-                                          errorBuilder: (_, __, ___) =>
-                                              const Icon(Icons.error),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text("x$qty",
-                                            style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500)),
-                                        Text("$owned / $qty",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: owned >= qty
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              fontWeight: FontWeight.bold,
-                                            )),
-                                      ],
-                                    );
-                                  }).toList(),
-                                ),
-                              if (isCompleted)
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 8),
-                                  child: Text("✅ 완성됨",
-                                      style: TextStyle(
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                            ],
-                          ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                profileImage.isNotEmpty
+                  ? CircleAvatar(
+                      radius: 25,
+                      backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${profileImage}")
+                    )
+                  : Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1),
+                        borderRadius: BorderRadius.circular(25), // 반지름도 같게
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(3.0), // 내부 padding 적용
+                        child: Icon(
+                          Icons.person,
+                          size: 44, // 아이콘 크기는 padding 고려해서 살짝 줄이기
+                          color: Colors.grey,
                         ),
                       ),
-                      if (isLocked || isUnlocked)
-                        Positioned.fill(
-                          child: AnimatedBuilder(
-                            animation: _lockAnimation,
-                            builder: (context, child) {
-                              final offset = _lockOffset.value;
-                              return Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.35),
-                                  borderRadius: BorderRadius.circular(12),
+                    ),
+                Text(
+                  "$nickname",
+                  style: const TextStyle(
+                    fontSize: 20
+                  ),
+                ),
+                Text(
+                  "🏆 ${ranking}위",
+                  style: const TextStyle(
+                    fontSize: 20
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.deepOrange,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: collections.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                    ),
+                    itemBuilder: (context, index) {
+                      final collection = collections[index];
+                      final name = collection["name"] ?? "default";
+                      final description = collection["description"] ?? "";
+                      final List ingredients = collection["ingredients"];
+            
+                      final isCompleted = completedCollections.contains(name);
+                      final canComplete = ingredients.every(
+                          (i) => (userIngredients[i["name"]] ?? 0) >= i["quantity"]);
+                      final isUnlocked = canComplete && !isCompleted;
+                      final isLocked = !isUnlocked && !isCompleted;
+            
+                      return GestureDetector(
+                        onTap: () {
+                          if (isUnlocked) _showCompleteDialog(name);
+                        },
+                        child: Stack(
+                          children: [
+                            Card(
+                              elevation: 6,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: isCompleted
+                                      ? Colors.orange
+                                      : Colors.grey.shade300,
+                                  width: isCompleted ? 2 : 1,
                                 ),
-                                alignment: Alignment.center,
+                              ),
+                              color: isLocked || isUnlocked
+                                  ? Colors.grey[440]
+                                  : Colors.white,
+                              child: SizedBox(
+                                height: 600,
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Transform.translate(
-                                      offset: Offset(0, offset),
-                                      child: Icon(
-                                        isUnlocked
-                                            ? Icons.lock_open
-                                            : Icons.lock,
-                                        color: Colors.white,
-                                        size: 36,
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                          top: Radius.circular(12)),
+                                      child: Image.asset(
+                                        toAssetPath(name),
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(Icons.broken_image),
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      isUnlocked ? "해제 가능 🔓" : "잠김 🔒",
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
+                                    const SizedBox(height: 5),
+                                    Text(Translation.translateCollection(name),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16)),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text(
+                                        description,
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
+                                    const SizedBox(height: 8),
+                                    if (!isCompleted)
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        alignment: WrapAlignment.center,
+                                        children: ingredients.map((i) {
+                                          final ing = i["name"];
+                                          final qty = i["quantity"];
+                                          final owned = userIngredients[ing] ?? 0;
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Image.asset(
+                                                toIngredientAssetPath(ing),
+                                                width: 40,
+                                                height: 40,
+                                                errorBuilder: (_, __, ___) =>
+                                                    const Icon(Icons.error),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text("x$qty",
+                                                  style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w500)),
+                                              Text("$owned / $qty",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: owned >= qty
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                    fontWeight: FontWeight.bold,
+                                                  )),
+                                            ],
+                                          );
+                                        }).toList(),
+                                      ),
+                                    if (isCompleted)
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: Text("✅ 완성됨",
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold)),
+                                      ),
                                   ],
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                            if (isLocked || isUnlocked)
+                              Positioned.fill(
+                                child: AnimatedBuilder(
+                                  animation: _lockAnimation,
+                                  builder: (context, child) {
+                                    final offset = _lockOffset.value;
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.35),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Transform.translate(
+                                            offset: Offset(0, offset),
+                                            child: Icon(
+                                              isUnlocked
+                                                  ? Icons.lock_open
+                                                  : Icons.lock,
+                                              color: Colors.white,
+                                              size: 36,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            isUnlocked ? "해제 가능 🔓" : "잠김 🔒",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
-                );
-              },
-            )
-          ],
-        ),
+                      );
+                    },
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

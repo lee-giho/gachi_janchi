@@ -24,7 +24,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
   String title = "칭호 선택";
   int level = 1;
   double progress = 0.0;
-  String? profileImagePath;
+  String? profileImage;
 
   @override
   void initState() {
@@ -45,7 +45,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          profileImagePath = null;
+          profileImage = null;
         });
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,8 +85,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
           title = data["title"] ?? "칭호 선택";
           level = calculatedLevel;
           progress = calculatedProgress;
-          profileImagePath = data["profileImagePath"] != null
-              ? data["profileImagePath"]
+          profileImage = data["profileImage"] != null
+              ? data["profileImage"]
               : null;
         });
       }
@@ -200,14 +200,14 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
   }
 
   void _showImagePreview() {
-    if (profileImagePath == null) return;
+    if (profileImage == null) return;
     showDialog(
       context: context,
       builder: (_) => GestureDetector(
         onTap: () => Navigator.pop(context),
         child: Dialog(
           child: Image(
-            image: NetworkImage(profileImagePath!),
+            image: NetworkImage(profileImage!),
           ),
         ),
       ),
@@ -256,7 +256,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                       onLongPress: _showImagePreview,
                       child: ProfileWidget(
                         key: UniqueKey(),
-                        imagePath: profileImagePath,
+                        imagePath: profileImage,
                       ),
                     ),
                     const SizedBox(width: 15),

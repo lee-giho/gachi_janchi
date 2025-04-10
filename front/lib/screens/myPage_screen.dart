@@ -24,7 +24,7 @@ class _MypageScreenState extends State<MypageScreen> {
   String name = "로딩 중...";
   String email = "로딩 중...";
   String loginType = "";
-  String? profileImagePath;
+  String? profileImage;
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -59,8 +59,8 @@ class _MypageScreenState extends State<MypageScreen> {
               ? _getUserIdFromToken(accessToken)
               : data["email"] ?? "정보 없음";
 
-          profileImagePath = data["profileImagePath"] != null
-              ? data["profileImagePath"]
+          profileImage = data["profileImage"] != null
+              ? data["profileImage"]
               : null;
         });
       }
@@ -97,7 +97,7 @@ class _MypageScreenState extends State<MypageScreen> {
           GestureDetector(
             onTap: _showProfileOptions,
             onLongPress: _showImagePreview,
-            child: ProfileWidget(imagePath: profileImagePath),
+            child: ProfileWidget(imagePath: profileImage),
           ),
           const SizedBox(height: 20),
           _buildInfoBox(),
@@ -315,12 +315,12 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 
   void _showImagePreview() {
-    if (profileImagePath == null) return;
+    if (profileImage == null) return;
     showDialog(
       context: context,
       builder: (_) => GestureDetector(
         onTap: () => Navigator.pop(context),
-        child: Dialog(child: Image(image: NetworkImage(profileImagePath!))),
+        child: Dialog(child: Image(image: NetworkImage(profileImage!))),
       ),
     );
   }
@@ -346,7 +346,7 @@ class _MypageScreenState extends State<MypageScreen> {
       if (response.statusCode == 200) {
         final returnedPath = response.data.toString();
         setState(() {
-          profileImagePath = returnedPath.startsWith("http")
+          profileImage = returnedPath.startsWith("http")
               ? returnedPath
               : "${dotenv.get("API_ADDRESS")}$returnedPath";
         });
@@ -373,7 +373,7 @@ class _MypageScreenState extends State<MypageScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          profileImagePath = null;
+          profileImage = null;
         });
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("기본 이미지로 변경되었습니다.")));

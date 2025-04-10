@@ -108,6 +108,18 @@ class _VisitScreenState extends State<VisitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            "방문내역",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: GestureDetector(
           onTap: () {
@@ -117,16 +129,6 @@ class _VisitScreenState extends State<VisitScreen> {
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Column(
               children: [
-                const Align( // 페이지 타이틀
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    "방문내역",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold
-                    ),
-                  )
-                ),
                 Container( // 검색바
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                   // decoration: const BoxDecoration(

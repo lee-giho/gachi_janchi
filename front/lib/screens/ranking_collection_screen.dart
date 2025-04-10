@@ -14,7 +14,7 @@ class RankingCollectionScreen extends StatelessWidget {
           title: const Align( // 페이지 타이틀
                   alignment: Alignment.topLeft,
                   child: Text(
-                    "방문내역",
+                    "랭킹 & 컬렉션",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold

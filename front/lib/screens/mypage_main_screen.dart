@@ -217,7 +217,18 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("마이페이지")),
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            "마이페이지",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold
+            ),
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

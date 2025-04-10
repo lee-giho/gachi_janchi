@@ -18,7 +18,7 @@ class _RankingScreenState extends State<RankingScreen> {
     "ranking": 0,
     "exp": 0,
     "level": 1,
-    "profileImagePath": null,
+    "profileImage": null,
     "title": "",
   };
 
@@ -55,14 +55,7 @@ class _RankingScreenState extends State<RankingScreen> {
       if (res.statusCode == 200) {
         final data = List<Map<String, dynamic>>.from(res.data);
         setState(() {
-          rankings = data.map((user) {
-            if (user['profileImagePath'] != null &&
-                !user['profileImagePath'].toString().startsWith("http")) {
-              user['profileImagePath'] =
-                  "$imageBaseUrl${user['profileImagePath']}";
-            }
-            return user;
-          }).toList();
+          rankings = data;
         });
       }
     } catch (e) {
@@ -83,18 +76,18 @@ class _RankingScreenState extends State<RankingScreen> {
         final data = Map<String, dynamic>.from(res.data);
         String nickname = data['nickname'];
         int exp = data['exp'];
-        String? profileImagePath = data['profileImagePath'];
+        String? profileImage = data['profileImage'];
 
-        if (profileImagePath != null && !profileImagePath.startsWith("http")) {
-          profileImagePath = "$imageBaseUrl$profileImagePath";
-        }
+        print("ranking userInfo: $data");
 
         setState(() {
           myInfo['nickname'] = nickname;
           myInfo['exp'] = exp;
           myInfo['level'] = (exp ~/ 100) + 1;
-          myInfo['profileImagePath'] = profileImagePath;
           myInfo['title'] = data['title'] ?? '';
+          if (profileImage != null && profileImage.isNotEmpty) {
+            myInfo['profileImage'] = profileImage;
+          }
         });
       }
     } catch (e) {
@@ -157,17 +150,28 @@ class _RankingScreenState extends State<RankingScreen> {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircleAvatar(
-                  radius: avatarRadius,
-                  backgroundColor: Colors.white,
-                  backgroundImage: user['profileImagePath'] != null
-                      ? NetworkImage(user['profileImagePath'])
-                      : null,
-                  child: user['profileImagePath'] == null
-                      ? Icon(Icons.person,
-                          size: avatarRadius, color: Colors.grey.shade400)
-                      : null,
-                ),
+                user["profileImage"] != null
+                  ? CircleAvatar(
+                      radius: 25,
+                      backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${user["profileImage"]}")
+                    )
+                  : Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1),
+                        borderRadius: BorderRadius.circular(25), // 반지름도 같게
+                        color: Colors.white
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(3.0), // 내부 padding 적용
+                        child: Icon(
+                          Icons.person,
+                          size: 44, // 아이콘 크기는 padding 고려해서 살짝 줄이기
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
                 const SizedBox(height: 6),
                 Text(user['nickname'] ?? '',
                     style: const TextStyle(
@@ -211,19 +215,37 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Widget _buildRankingTile(Map<String, dynamic> user, int index) {
     int level = (user['exp'] ~/ 100) + 1;
+    print("user: $user");
     return ListTile(
       leading: Text("${index + 1}",
-          style: const TextStyle(fontWeight: FontWeight.bold)),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold
+          )
+        ),
       title: Row(
         children: [
-          CircleAvatar(
-            backgroundImage: user['profileImagePath'] != null
-                ? NetworkImage(user['profileImagePath'])
-                : null,
-            child: user['profileImagePath'] == null
-                ? const Icon(Icons.person)
-                : null,
-          ),
+          user["profileImage"] != null
+            ? CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${myInfo["profileImage"]}")
+              )
+            : Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1),
+                  borderRadius: BorderRadius.circular(25), // 반지름도 같게
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(3.0), // 내부 padding 적용
+                  child: Icon(
+                    Icons.person,
+                    size: 44, // 아이콘 크기는 padding 고려해서 살짝 줄이기
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -273,32 +295,64 @@ class _RankingScreenState extends State<RankingScreen> {
     final podiumHeights = [140.0, 110.0, 90.0];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("👤 ${myInfo["nickname"]}"),
-            Text("🏆 ${myInfo["ranking"]}위"),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                myInfo["title"] ?? "",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              myInfo["profileImage"] != null
+                ? CircleAvatar(
+                    radius: 25,
+                    backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${myInfo["profileImage"]}")
+                  )
+                : Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1),
+                      borderRadius: BorderRadius.circular(25), // 반지름도 같게
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(3.0), // 내부 padding 적용
+                      child: Icon(
+                        Icons.person,
+                        size: 44, // 아이콘 크기는 padding 고려해서 살짝 줄이기
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+              Text(
+                "${myInfo["nickname"]}",
+                style: const TextStyle(
+                  fontSize: 20
+                ),
+              ),
+              Text(
+                "🏆 ${myInfo["ranking"]}위",
+                style: const TextStyle(
+                  fontSize: 20
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  myInfo["title"] ?? "",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+                    ),
+          ),
           const SizedBox(height: 20),
           if (top3.isNotEmpty)
             Padding(

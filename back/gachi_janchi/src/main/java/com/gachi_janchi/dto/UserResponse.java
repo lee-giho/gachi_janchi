@@ -11,7 +11,7 @@ public class UserResponse {
     private String name;
     private String email;
     private String type; // local 또는 social
-    private String profileImagePath;
+    private String profileImage;
     private int exp;
 
 

@@ -106,27 +106,28 @@ class _ReviewtileState extends State<ReviewTile> {
             ],
           ),
           SizedBox(height: 10),
-          Container(
-            height: 100,
-            child: ListView.builder(
-                  scrollDirection: Axis.horizontal, // 가로 스크롤
-                  itemCount: reviewImages.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          "${dotenv.env["API_ADDRESS"]}/images/review/${reviewImages[index]["imageName"]}",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
+          if (reviewImages.isNotEmpty)
+            Container(
+              height: 100,
+              child: ListView.builder(
+                    scrollDirection: Axis.horizontal, // 가로 스크롤
+                    itemCount: reviewImages.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            "${dotenv.env["API_ADDRESS"]}/images/review/${reviewImages[index]["imageName"]}",
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
                         )
-                      )
-                    );
-                  }
-                ),
-          ),
+                      );
+                    }
+                  ),
+            ),
           SizedBox(height: 10),
           ExpandableText(
             text: review["content"],

@@ -169,8 +169,8 @@ public class UserController {
   // UserController.java
   @GetMapping("/ranking")
   public ResponseEntity<List<RankingUserResponse>> getRanking(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
+          @RequestParam(name = "page", defaultValue = "0") int page,
+          @RequestParam(name = "size", defaultValue = "10") int size) {
     System.out.println("📥 /api/user/ranking 호출됨 - page: " + page + ", size: " + size);
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(userService.getRanking(pageable));

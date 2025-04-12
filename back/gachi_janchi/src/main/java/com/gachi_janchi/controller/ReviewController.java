@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gachi_janchi.dto.AddReviewRequest;
 import com.gachi_janchi.dto.AddReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
+import com.gachi_janchi.dto.GetReviewByUserIdResponse;
 import com.gachi_janchi.service.ReviewService;
 
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,6 +37,12 @@ public class ReviewController {
   public ResponseEntity<GetReviewByRestaurantIdResponse> getReviewByRestaurantId(@RequestParam("restaurantId") String restaurantId, @RequestParam("sortType") String sortType) {
     GetReviewByRestaurantIdResponse getReviewByRestaurantIdResponse = reviewService.getReviewByRestaurant(restaurantId, sortType);
     return ResponseEntity.ok(getReviewByRestaurantIdResponse);
+  }
+
+  @GetMapping("/userId")
+  public ResponseEntity<GetReviewByUserIdResponse> getReviewByUserId(@RequestHeader("Authorization") String token, @RequestParam("sortType") String sortType) {
+    GetReviewByUserIdResponse getReviewByUserIdResponse = reviewService.getReviewByUserId(token, sortType);
+    return ResponseEntity.ok(getReviewByUserIdResponse);
   }
   
 }

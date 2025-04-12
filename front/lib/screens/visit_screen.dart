@@ -55,7 +55,7 @@ class _VisitScreenState extends State<VisitScreen> {
       if(response.statusCode == 200) {
         print("방문한 음식점 리스트 불러오기 요청 성공");
 
-        // 🔹 UTF-8로 디코딩
+        // UTF-8로 디코딩
         final decodedData = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedData);
 

@@ -11,4 +11,7 @@ public interface ReviewRepository extends JpaRepository<Review, String>{
 
   // 음식점 아이디로 리뷰 찾기 - 최신순
   List<Review> findAllByRestaurantIdOrderByCreatedAtDesc(String restaurantId);
+
+  // 사용자 아이디로 리뷰 찾기 - 최신순
+  List<Review> findAllByUserIdOrderByCreatedAtDesc(String userId);
 }

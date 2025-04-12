@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.gachi_janchi.dto.AddReviewRequest;
 import com.gachi_janchi.dto.AddReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
+import com.gachi_janchi.dto.GetReviewByUserIdResponse;
 import com.gachi_janchi.dto.ReviewWithImageAndMenu;
 import com.gachi_janchi.dto.UserInfoWithProfileImageAndTitle;
 import com.gachi_janchi.entity.Review;
@@ -149,5 +150,36 @@ public class ReviewService {
       .collect(Collectors.toList());
 
     return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
+  }
+
+  // 사용자 Id로 리뷰 가져오기
+  public GetReviewByUserIdResponse getReviewByUserId(String token, String sortType) {
+    // 음식점에 대한 리뷰 다 가져오기
+    List<Review> reviewList = new ArrayList<>();
+
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+
+    String userId = jwtProvider.getUserId(accessToken);
+
+    if (sortType.equals("latest")) {
+      reviewList = reviewRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
+      .map(review -> {
+        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
+        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
+        User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+        String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
+        return new ReviewWithImageAndMenu(new UserInfoWithProfileImageAndTitle(
+          user.getId(), titleName, user.getProfileImage()),
+          review,
+          reviewImages,
+          reviewMenus
+        );
+      })
+      .collect(Collectors.toList());
+
+    return new GetReviewByUserIdResponse(reviewWithImageAndMenus);
   }
 }

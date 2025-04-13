@@ -11,8 +11,6 @@ import 'discount_coupons_screen.dart';
 import 'notices_screen.dart';
 import 'settings_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MyPageMainScreen extends StatefulWidget {
   const MyPageMainScreen({super.key});
@@ -216,42 +214,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
     );
   }
 
-  List<dynamic> reviews = [];
-
-  Future<void> fetchReviews(String sortType) async {
-    print("방문한 음식점 리스트 가져오기 요청");
-    String? accessToken = await SecureStorage.getAccessToken();
-
-    // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/userId?sortType=$sortType");
-    final headers = {'Authorization': 'Bearer $accessToken'};
-
-    try {
-      print("리뷰 요청 시작");
-      final response = await http.get(
-        apiAddress,
-        headers: headers
-      );
-
-      if(response.statusCode == 200) {
-        print("작성한 리뷰 리스트 불러오기 요청 성공");
-
-        // UTF-8로 디코딩
-        final decodedData = utf8.decode(response.bodyBytes);
-        final data = json.decode(decodedData);
-
-        print("jsonResponse: $data");
-      } else {
-        print("작성한 리뷰 리스트 불러오기 요청 실패");
-      }
-    } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -369,7 +331,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: GestureDetector(
         onTap: () {
-          fetchReviews("latest");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => screen),

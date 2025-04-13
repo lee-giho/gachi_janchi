@@ -77,6 +77,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               return ReviewTile(
                 reviewInfo: review,
                 menuButton: true,
+                fetchReview: () {
+                  fetchReviews("latest");
+                },
               );
             }
           )

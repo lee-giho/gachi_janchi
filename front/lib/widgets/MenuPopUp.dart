@@ -1,14 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MenuPopUp extends StatelessWidget {
   final String reviewId;
+  final VoidCallback fetchReview;
   const MenuPopUp({
     super.key,
-    required this.reviewId
+    required this.reviewId,
+    required this.fetchReview
   });
 
   @override
   Widget build(BuildContext context) {
+
+    Future<void> deleteReview() async {
+      String? accessToken = await SecureStorage.getAccessToken();
+
+      // .env에서 서버 URL 가져오기
+      final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/reviewId");
+      final headers = {
+        'Authorization': 'Bearer ${accessToken}',
+        'Content-Type': 'application/json'
+      };
+
+      try {
+        final response = await http.delete(
+          apiAddress,
+          headers: headers,
+          body: json.encode({
+            'reviewId': reviewId
+          })
+        );
+
+        if (response.statusCode == 200) {
+          // 리뷰 삭제 성공
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("리뷰 삭제 완료"))
+          );
+          fetchReview();
+        } else {
+          // 리뷰 삭제 실패
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("리뷰 삭제 실패"))
+          );
+        }
+      } catch (e) {
+        // 예외 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+    }
+
     return Container(
       width: 150,
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -40,6 +86,7 @@ class MenuPopUp extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               print("삭제하기");
+              deleteReview();
             },
             icon: const Icon(Icons.delete, color: Colors.red),
             label: const Text(

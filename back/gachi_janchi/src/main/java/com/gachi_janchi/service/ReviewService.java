@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.gachi_janchi.dto.AddReviewRequest;
 import com.gachi_janchi.dto.AddReviewResponse;
+import com.gachi_janchi.dto.DeleteReviewRequest;
+import com.gachi_janchi.dto.DeleteReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
 import com.gachi_janchi.dto.GetReviewByUserIdResponse;
 import com.gachi_janchi.dto.ReviewWithImageAndMenu;
@@ -181,5 +183,39 @@ public class ReviewService {
       .collect(Collectors.toList());
 
     return new GetReviewByUserIdResponse(reviewWithImageAndMenus);
+  }
+
+  // 리뷰 ID로 삭제하기
+  @Transactional
+  public DeleteReviewResponse deleteReviewByReviewId(DeleteReviewRequest deleteReviewRequest) {
+    String reviewId = deleteReviewRequest.getReviewId();
+
+    // 리뷰 존재 여부 확인
+    Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다. - " + reviewId ));
+
+    // 리뷰 이미지 조회 및 파일 삭제
+    List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(reviewId);
+    for (ReviewImage reviewImage : reviewImages) {
+      String imagePath = reviewImageRelativePath + reviewImage.getImageName();
+      File imageFile = new File(imagePath);
+      if (imageFile.exists()) {
+        boolean deleted = imageFile.delete();
+        if (!deleted) {
+          System.out.println("이미지 삭제 실패 - " + imagePath);
+        }
+      }
+    }
+
+    // 리뷰 메뉴 DB 삭제
+    List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(reviewId);
+    reviewMenuRepository.deleteAll(reviewMenus);
+
+    // 리뷰 이미지 DB 삭제
+    reviewImageRepository.deleteAll(reviewImages);
+
+    // 리뷰 DB 삭제
+    reviewRepository.delete(review);
+
+    return new DeleteReviewResponse("Delete Review Successful");
   }
 }

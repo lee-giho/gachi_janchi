@@ -6,10 +6,12 @@ import 'package:gachi_janchi/widgets/MenuPopUp.dart';
 class ReviewTile extends StatefulWidget {
   final bool menuButton;
   final Map<String, dynamic> reviewInfo;
+  final VoidCallback? fetchReview;
   const ReviewTile({
     super.key,
     required this.reviewInfo,
-    required this.menuButton
+    required this.menuButton,
+    this.fetchReview
   });
 
   @override
@@ -70,6 +72,10 @@ class _ReviewtileState extends State<ReviewTile> {
                 color: Colors.white,
                 child: MenuPopUp(
                   reviewId: reviewId,
+                  fetchReview: () {
+                    removeOverlay();
+                    widget.fetchReview?.call();
+                  },
                 ), // 메뉴 팝업 UI
               ),
             ),

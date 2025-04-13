@@ -75,7 +75,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             itemBuilder: (context, index) {
               final review = reviews[index];
               return ReviewTile(
-                reviewInfo: review
+                reviewInfo: review,
+                menuButton: true,
               );
             }
           )

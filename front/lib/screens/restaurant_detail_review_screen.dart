@@ -204,7 +204,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
           itemBuilder: (context, index) {
             final review = reviews[index];
             return ReviewTile(
-              reviewInfo: review
+              reviewInfo: review,
+              menuButton: false,
             );
           }
         )

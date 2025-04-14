@@ -76,6 +76,7 @@ class _ReviewtileState extends State<ReviewTile> {
                     removeOverlay();
                     widget.fetchReview?.call();
                   },
+                  removeOverlay: removeOverlay,
                   reviewInfo: widget.reviewInfo,
                 ), // 메뉴 팝업 UI
               ),

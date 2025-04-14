@@ -8,11 +8,13 @@ import 'dart:convert';
 class MenuPopUp extends StatelessWidget {
   final String reviewId;
   final VoidCallback fetchReview;
+  final VoidCallback removeOverlay;
   final Map<String, dynamic>? reviewInfo;
   const MenuPopUp({
     super.key,
     required this.reviewId,
     required this.fetchReview,
+    required this.removeOverlay,
     required this.reviewInfo
   });
 
@@ -78,6 +80,7 @@ class MenuPopUp extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               print("수정하기");
+              removeOverlay();
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -97,6 +100,7 @@ class MenuPopUp extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               print("삭제하기");
+              removeOverlay();
               deleteReview();
             },
             icon: const Icon(Icons.delete, color: Colors.red),

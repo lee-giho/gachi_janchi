@@ -433,7 +433,8 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                 }
                               ),
                             ],
-                          )
+                          ),
+                          const SizedBox(height: 20)
                         ],
                       ),
                     ),

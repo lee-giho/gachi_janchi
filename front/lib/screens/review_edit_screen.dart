@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
@@ -45,12 +46,19 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
   final int maxImages = 5; // 사진 최대 업로그 개수 설정
   FocusNode changeContentFocus = FocusNode(); // 리뷰 내용 FocusNode
 
-  bool isSubmitEnabled = false; // 리뷰 수정 버튼 활성화 조건
+  // bool isSubmitEnabled = false; // 리뷰 수정 버튼 활성화 조건
 
   @override
   void initState() {
     super.initState();
     initReviewData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    changeContentController.removeListener(isReviewModified);
+    changeContentController.dispose();
   }
 
   Future<void> initReviewData() async {
@@ -67,6 +75,13 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
 
       originalRating = widget.reviewInfo!["review"]["rating"];
       changeRating = originalRating;
+    });
+
+    // 리뷰 내용 변경 리스너 등록
+    changeContentController.addListener(() {
+      final modified = isReviewModified();
+      print("리뷰 내용 수정 상태: $modified");
+      setState(() {});
     });
 
     print("restaurantMenus: $restaurantMenus");
@@ -126,7 +141,11 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
     print("images length: ${images?.length}");
 
     if (images != null && images.isNotEmpty) {
-      if (images.length > maxImages || changeImages.length >= maxImages || originalImageNames.length + changeImages.length >= maxImages) {
+      if (images.length > maxImages || // 선택한 이미지가 6개 이상일 경우
+          changeImages.length >= maxImages || // 추가로 선택한 이미지가 5개 이상일 경우
+          originalImageNames.length + changeImages.length >= maxImages || // 기존 이미지와 추가로 선택한 이미지의 합이 5 이상일 경우
+          originalImageNames.length + images.length > maxImages || // 기존 이미지와 선택한 이미지의 합이 6 이상일 경우
+          changeImages.length + images.length > maxImages) { // 추가로 선택한 이미지와 선택한 이미지의 합이 6 이상일 경우
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("최대 $maxImages개의 이미지만 선택할 수 있습니다."))
         );
@@ -144,6 +163,8 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
         }
       } 
     }
+
+    isReviewModified();
   }
 
   // 파일의 md5 해시값 계산
@@ -157,8 +178,45 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
     setState(() {
       changeRating = rating;
       formKey.currentState?.validate();
-      isSubmitEnabled = formKey.currentState?.validate() == true && changeRating > 0;
     });
+    isReviewModified();
+  }
+
+  bool isReviewModified() {
+    // 별점 변경
+    if (originalRating != changeRating) return true;
+
+    // 리뷰 내용 변경
+    if (originalContent != changeContentController.text) return true;
+
+    // 메뉴 변경
+    if (!isSameList(originalMenus, changeMenus)) return true;
+
+    // 이미지 변경
+    if (changeImages.isNotEmpty) return true; // 새 이미지 추가
+    if (originalImageNames.length != widget.reviewInfo!["reviewImages"].length || changeImages.isNotEmpty) return true;
+    return false;
+  }
+
+  // 리스트 내용 비교 함수 (순서 X)
+  bool isSameList(List<String> a, List<String> b) {
+    final aSorted = [...a]..sort();
+    final bSorted = [...b]..sort();
+    return listEquals(aSorted, bSorted);
+  }
+
+  Widget deleteIcon() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.5),
+        shape: BoxShape.circle
+      ),
+      child: const Icon(
+        Icons.close,
+        color: Colors.white,
+        size: 20,
+      ),
+    );
   }
 
   @override
@@ -245,71 +303,162 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
-                                      child: originalImageNames.isEmpty
-                                        ? const Center(
-                                            child: Text("선택된 이미지가 없습니다."),
-                                          )
-                                        : ListView.builder(
-                                          scrollDirection: Axis.horizontal, // 가로 스크롤
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          itemCount: originalImageNames.length,
-                                          itemBuilder: (context, index) {
-                                            return Stack(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(right: 10),
-                                                  child: ClipRRect(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    child: Image.network(
-                                                      "${dotenv.env["API_ADDRESS"]}/images/review/${originalImageNames[index]}",
-                                                      width: 100,
-                                                      height: 100,
-                                                      fit: BoxFit.cover,
+                                      child: originalImageNames.isEmpty 
+                                        ? changeImages.isEmpty
+                                          ? const Center( // originalImages와 changeImages가 둘 다 없을 때
+                                              child: Text("선택된 이미지가 없습니다."),
+                                            )
+                                          : ListView.builder( // changeImages만 있을 때
+                                              scrollDirection: Axis.horizontal, // 가로 스크롤
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              itemCount: changeImages.length,
+                                              itemBuilder: (context, index) {
+                                                // 새로 추가된 이미지
+                                                return Stack(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(right: 10),
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: Image.file(
+                                                          File(changeImages[index].path),
+                                                          width: 100,
+                                                          height: 100,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      )
+                                                    ),
+                                                    Positioned(
+                                                      top: 0,
+                                                      right: 10,
+                                                      child: GestureDetector(
+                                                        onTap: () async {
+                                                          final imageHash = await calculateImageHash(changeImages[index]);
+                                                          setState(() {
+                                                            changeImageHashes.remove(imageHash);
+                                                            changeImages.removeAt(index);
+                                                          });
+                                                          isReviewModified();
+                                                        },
+                                                        child: deleteIcon()
+                                                      )
                                                     )
-                                                  )
-                                                ),
-                                                Positioned(
-                                                  top: 0,
-                                                  right: 10,
-                                                  child: GestureDetector(
-                                                    onTap: () async {
-                                                      if (originalImageNames.isNotEmpty) {
-                                                        if (index <= originalImageNames.length) {
+                                                  ]
+                                                );  
+                                              }
+                                            )
+                                        : changeImages.isEmpty
+                                          ? ListView.builder( // originalImage만 있을 때
+                                              scrollDirection: Axis.horizontal, // 가로 스크롤
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              itemCount: originalImageNames.length,
+                                              itemBuilder: (context, index) {
+                                                // 기존 이미지
+                                                return Stack(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(right: 10),
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: Image.network(
+                                                          "${dotenv.env["API_ADDRESS"]}/images/review/${originalImageNames[index]}",
+                                                          width: 100,
+                                                          height: 100,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      )
+                                                    ),
+                                                    Positioned(
+                                                      top: 0,
+                                                      right: 10,
+                                                      child: GestureDetector(
+                                                        onTap: () {
                                                           setState(() {
                                                             originalImageNames.removeAt(index);
                                                           });
-                                                        } else {
-                                                          final imageHash = await calculateImageHash(changeImages[index-originalImageNames.length]);
+                                                          isReviewModified();
+                                                        },
+                                                        child: deleteIcon()
+                                                      )
+                                                    )
+                                                  ]
+                                                );
+                                              }
+                                            )
+                                          : ListView.builder( // originalImages와 changeImages 둘 다 있을 때
+                                            scrollDirection: Axis.horizontal, // 가로 스크롤
+                                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                                            itemCount: originalImageNames.length + changeImages.length,
+                                            itemBuilder: (context, index) {
+                                              if (index < originalImageNames.length) {
+                                                // 기존 이미지
+                                                return Stack(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(right: 10),
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: Image.network(
+                                                          "${dotenv.env["API_ADDRESS"]}/images/review/${originalImageNames[index]}",
+                                                          width: 100,
+                                                          height: 100,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      )
+                                                    ),
+                                                    Positioned(
+                                                      top: 0,
+                                                      right: 10,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            originalImageNames.removeAt(index);
+                                                          });
+                                                          isReviewModified();
+                                                        },
+                                                        child: deleteIcon()
+                                                      )
+                                                    )
+                                                  ]
+                                                );
+                                              } else {
+                                                // 새로 추가된 이미지
+                                                final changedIndex = index - originalImageNames.length;
+                                                return Stack(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(right: 10),
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: Image.file(
+                                                          File(changeImages[changedIndex].path),
+                                                          width: 100,
+                                                          height: 100,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      )
+                                                    ),
+                                                    Positioned(
+                                                      top: 0,
+                                                      right: 10,
+                                                      child: GestureDetector(
+                                                        onTap: () async {
+                                                          final imageHash = await calculateImageHash(changeImages[changedIndex]);
                                                           setState(() {
                                                             changeImageHashes.remove(imageHash);
-                                                            changeImages.removeAt(index-originalImageNames.length);
+                                                            changeImages.removeAt(changedIndex);
                                                           });
-                                                        }
-                                                      } else {
-                                                        final imageHash = await calculateImageHash(changeImages[index]);
-                                                        setState(() {
-                                                          changeImageHashes.remove(imageHash);
-                                                          changeImages.removeAt(index);
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.black.withOpacity(0.5),
-                                                        shape: BoxShape.circle
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                  )
-                                                )
-                                              ]
-                                            );
-                                          }
-                                        ),
+                                                          isReviewModified();
+                                                        },
+                                                        child: deleteIcon()
+                                                      )
+                                                    )
+                                                  ]
+                                                );
+                                              }
+                                              
+                                            }
+                                          ),
                                     ),
                                   ],
                                 )
@@ -359,6 +508,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                     changeMenus = (values.cast<String>());
                                   });
                                   print("선택된 메뉴: $changeMenus");
+                                  isReviewModified();
                                 },
                                 chipDisplay: MultiSelectChipDisplay(
                                   onTap: (value) {
@@ -441,12 +591,9 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: isSubmitEnabled && formKey.currentState!.validate()
+                  onPressed: isReviewModified() && (formKey.currentState?.validate() ?? false)
                     ? () {
-                        print("리뷰 등록 버튼 클릭!!!");
-                        print("리뷰 내용: ${changeContentController.text}");
-                        print("별점: $changeRating");
-                        // submitReview();
+                        print("리뷰 수정 버튼 클릭!!!");
                       }
                     : null,
                   style: ElevatedButton.styleFrom(
@@ -458,7 +605,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                     )
                   ),
                   child: const Text(
-                    "리뷰 등록",
+                    "리뷰 수정",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold

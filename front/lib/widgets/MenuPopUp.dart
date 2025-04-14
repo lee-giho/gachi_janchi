@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/screens/review_edit_screen.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,10 +8,12 @@ import 'dart:convert';
 class MenuPopUp extends StatelessWidget {
   final String reviewId;
   final VoidCallback fetchReview;
+  final Map<String, dynamic>? reviewInfo;
   const MenuPopUp({
     super.key,
     required this.reviewId,
-    required this.fetchReview
+    required this.fetchReview,
+    required this.reviewInfo
   });
 
   @override
@@ -75,6 +78,14 @@ class MenuPopUp extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               print("수정하기");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReviewEditScreen(
+                    reviewInfo: reviewInfo,
+                  )
+                )
+              );
             },
             icon: const Icon(Icons.edit, color: Colors.black),
             label: const Text(

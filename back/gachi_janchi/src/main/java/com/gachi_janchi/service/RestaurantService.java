@@ -1,6 +1,7 @@
 package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
+import com.gachi_janchi.dto.GetRestaurantMenuResponse;
 import com.gachi_janchi.dto.RestaurantWithIngredientDto;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
@@ -80,5 +81,11 @@ public class RestaurantService {
               return RestaurantWithIngredientDto.from(restaurant, ingredient);
             })
             .collect(Collectors.toList());
+  }
+
+  // 음식점 아이디로 메뉴 반환해주는 함수
+  public GetRestaurantMenuResponse getRestaurantMenuByRestaurantId(String restaurantId) {
+    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+    return new GetRestaurantMenuResponse(restaurant.getMenu());
   }
 }

@@ -2,6 +2,7 @@ package com.gachi_janchi.controller;
 
 import com.gachi_janchi.dto.GetFavoriteCountResponse;
 import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
+import com.gachi_janchi.dto.GetRestaurantMenuResponse;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
 import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
@@ -68,4 +69,11 @@ public class RestaurantController {
     return ResponseEntity.ok(getFavoriteCount);
   }
   
+  // 음식점 메뉴 반환 엔드포인트
+  @GetMapping("/menu")
+  public ResponseEntity<GetRestaurantMenuResponse> getRestaurantMenu(@RequestParam("restaurantId") String restaurantId) {
+    GetRestaurantMenuResponse getRestaurantMenuResponse = restaurantService.getRestaurantMenuByRestaurantId(restaurantId);
+    return ResponseEntity.ok(getRestaurantMenuResponse);
+  }
+
 }

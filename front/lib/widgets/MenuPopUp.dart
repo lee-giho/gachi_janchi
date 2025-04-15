@@ -78,10 +78,10 @@ class MenuPopUp extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextButton.icon(
-            onPressed: () {
+            onPressed: () async {
               print("수정하기");
               removeOverlay();
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ReviewEditScreen(
@@ -89,6 +89,9 @@ class MenuPopUp extends StatelessWidget {
                   )
                 )
               );
+              if (result == true) {
+                fetchReview();
+              }
             },
             icon: const Icon(Icons.edit, color: Colors.black),
             label: const Text(

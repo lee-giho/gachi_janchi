@@ -11,9 +11,12 @@ import com.gachi_janchi.dto.DeleteReviewRequest;
 import com.gachi_janchi.dto.DeleteReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
 import com.gachi_janchi.dto.GetReviewByUserIdResponse;
+import com.gachi_janchi.dto.UpdateReviewRequest;
+import com.gachi_janchi.dto.UpdateReviewResponse;
 import com.gachi_janchi.service.ReviewService;
 
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -52,6 +55,12 @@ public class ReviewController {
   public ResponseEntity<DeleteReviewResponse> deleteReviewByReviewId(@RequestBody DeleteReviewRequest deleteReviewRequest) {
     DeleteReviewResponse deleteReviewResponse = reviewService.deleteReviewByReviewId(deleteReviewRequest);
     return ResponseEntity.ok(deleteReviewResponse);
+  }
+
+  @PatchMapping()
+  public ResponseEntity<UpdateReviewResponse> updateReview(@ModelAttribute UpdateReviewRequest updateReviewRequest) {
+    UpdateReviewResponse updateReviewResponse = reviewService.updateReview(updateReviewRequest);
+    return ResponseEntity.ok(updateReviewResponse);
   }
   
 }

@@ -2,6 +2,7 @@ package com.gachi_janchi.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,8 @@ import com.gachi_janchi.dto.DeleteReviewResponse;
 import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
 import com.gachi_janchi.dto.GetReviewByUserIdResponse;
 import com.gachi_janchi.dto.ReviewWithImageAndMenu;
+import com.gachi_janchi.dto.UpdateReviewRequest;
+import com.gachi_janchi.dto.UpdateReviewResponse;
 import com.gachi_janchi.dto.UserInfoWithProfileImageAndTitle;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
@@ -30,6 +33,10 @@ import com.gachi_janchi.repository.ReviewMenuRepository;
 import com.gachi_janchi.repository.ReviewRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class ReviewService {
@@ -217,5 +224,180 @@ public class ReviewService {
     reviewRepository.delete(review);
 
     return new DeleteReviewResponse("Delete Review Successful");
+  }
+
+  // 리뷰 업데이트
+  @Transactional
+  public UpdateReviewResponse updateReview(UpdateReviewRequest updateReviewRequest) {
+
+    Review review = reviewRepository.findById(updateReviewRequest.getReviewId()).orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+
+    // 이미지 저장 경로
+    List<File> savedFiles = new ArrayList<>();
+    List<String> savedFileNames = new ArrayList<>();
+
+    List<File> removedFiles = new ArrayList<>();
+    List<File> backFiles = new ArrayList<>();
+    List<String> removeImageNames = new ArrayList<>();
+
+    try {
+      // 추가된 이미지 파일 저장
+      if (updateReviewRequest.getChangeImages() != null) {
+        for (MultipartFile image : updateReviewRequest.getChangeImages()) {
+          String imageFileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+          String fullPath = reviewImageRelativePath + imageFileName;
+
+          File dest = new File(fullPath);
+          dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성
+          image.transferTo(dest); // 이미지 저장
+          
+          savedFiles.add(dest);
+          savedFileNames.add(imageFileName); // DB 저장용 이름
+        }
+      }
+
+      // 기존 이미지 파일 삭제
+      if (updateReviewRequest.getRemoveOriginalImageNames() != null) {
+        // 리뷰 이미지 조회 및 파일 삭제
+        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(updateReviewRequest.getReviewId());
+
+        // 저장되어 있는 사진 이름
+        List<String> savedImageNames = reviewImages.stream()
+          .map(ReviewImage::getImageName)
+          .collect(Collectors.toList());
+        
+        removeImageNames = new ArrayList<>(updateReviewRequest.getRemoveOriginalImageNames());
+        
+        if (savedImageNames.containsAll(removeImageNames)) { // 요청 받은 removeOriginalImageNames가 DB에 존재하면
+          for (String removeImageName : removeImageNames) {
+            String imagePath = reviewImageRelativePath + removeImageName;
+            String imageBackUpPath = reviewImageRelativePath + "backUp/" + removeImageName;
+  
+  
+            File imageFile = new File(imagePath);
+            File backUpFile = new File(imageBackUpPath);
+  
+            backUpFile.getParentFile().mkdirs(); // backup 폴더 없으면 생성
+            Files.copy(imageFile.toPath(), backUpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+  
+            if (imageFile.exists()) {
+              boolean deleted = imageFile.delete();
+              if (!deleted) {
+                System.out.println("이미지 삭제 실패 - " + imagePath);
+              }
+              removedFiles.add(imageFile);
+              backFiles.add(backUpFile);
+            }
+          }
+        }
+      }
+
+      // 메뉴 변경 (삭제 후 재등록)
+      if (updateReviewRequest.getChangeMenus() != null) {
+        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(updateReviewRequest.getReviewId());
+
+        // 저장되어 있는 메뉴 이름
+        List<String> savedMenuNames = reviewMenus.stream()
+          .map(ReviewMenu::getMenuName)
+          .collect(Collectors.toList());
+
+        // 삭제할 메뉴 이름
+        List<String> deleteMenuNames = new ArrayList<>(savedMenuNames);
+        deleteMenuNames.removeAll(updateReviewRequest.getChangeMenus());
+        
+        // 저장할 메뉴 이름
+        List<String> saveMenuNames = new ArrayList<>(updateReviewRequest.getChangeMenus());
+        saveMenuNames.removeAll(savedMenuNames);
+        saveMenuNames.remove("remove all");
+
+        // 메뉴 삭제
+        if (!deleteMenuNames.isEmpty()) {
+          for (String menuName : deleteMenuNames) {
+            reviewMenuRepository.deleteByReviewIdAndMenuName(updateReviewRequest.getReviewId(), menuName);
+          }
+        }
+        
+        // 메뉴 저장
+        if (!saveMenuNames.isEmpty()){
+          for (String menuName : saveMenuNames) {
+            ReviewMenu reviewMenu = new ReviewMenu(
+              UUID.randomUUID().toString(),
+              updateReviewRequest.getReviewId(),
+              menuName
+            );
+            reviewMenuRepository.save(reviewMenu);
+          }
+        }
+      }
+
+      // 내용 수정
+      if (updateReviewRequest.getChangeContent() != null) {
+        review.setContent(updateReviewRequest.getChangeContent());
+      }
+
+      // 별점 수정
+      if (updateReviewRequest.getChangeRating() != 0) {
+        review.setRating(updateReviewRequest.getChangeRating());
+      }
+
+
+      // 기존 이미지 DB 삭제
+      if (!removeImageNames.isEmpty()) {
+        for (String imageName : removeImageNames) {
+          reviewImageRepository.deleteByReviewIdAndImageName(updateReviewRequest.getReviewId(), imageName);
+        }
+      }
+
+      // 추가된 이미지 DB 저장
+      if (!savedFileNames.isEmpty()) {
+        for (String imageName : savedFileNames) {
+          ReviewImage reviewImage = new ReviewImage(
+            UUID.randomUUID().toString(),
+            updateReviewRequest.getReviewId(),
+            imageName
+          );
+          reviewImageRepository.save(reviewImage);
+        }
+      }
+
+      reviewRepository.save(review);
+
+      if (!removedFiles.isEmpty()) {
+        for (int i = 0; i < backFiles.size(); i++) {
+          File backup = backFiles.get(i);
+
+          backup.delete(); // 저장 후 백업 파일 삭제
+        }
+      }
+
+      return new UpdateReviewResponse("리뷰가 정상적으로 수정되었습니다.");
+
+    } catch(Exception e) {
+      // 예외 발생 시, 저장했던 파일들 삭제
+      if (!savedFiles.isEmpty()) {
+        for (File file : savedFiles) {
+          if (file.exists()) {
+            file.delete();
+          }
+        }
+      }
+
+      if (!removedFiles.isEmpty()) {
+        for (int i = 0; i < backFiles.size(); i++) {
+          File deleted = removedFiles.get(i);
+          File backup = backFiles.get(i);
+
+          try {
+              Files.copy(backup.toPath(), deleted.toPath(), StandardCopyOption.REPLACE_EXISTING);
+              // backup.delete(); // 백업 파일은 복원 후 삭제
+          } catch (IOException ioException) {
+              System.out.println("백업 이미지 복원 실패 - " + deleted.getName());
+              ioException.printStackTrace();
+          }
+        }
+      }
+      
+      throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+    }
   }
 }

@@ -35,6 +35,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
   int originalRating = 0;
 
   // 수정한 리뷰 데이터
+  List<String> removeOriginalImageNames = [];
   List<XFile> changeImages = [];
   Set<String> changeImageHashes = {}; // 동일한 사진 방지용 Set
   List<String> changeMenus = [];
@@ -48,6 +49,11 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
 
   // bool isSubmitEnabled = false; // 리뷰 수정 버튼 활성화 조건
 
+  bool isImageChanged = false;
+  bool isMenuChanged = false;
+  bool isContentChanged = false;
+  bool isRatingChanged = false;
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +63,9 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
   @override
   void dispose() {
     super.dispose();
-    changeContentController.removeListener(isReviewModified);
+    changeContentController.removeListener(() {
+      isReviewModified("content");
+    });
     changeContentController.dispose();
   }
 
@@ -79,9 +87,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
 
     // 리뷰 내용 변경 리스너 등록
     changeContentController.addListener(() {
-      final modified = isReviewModified();
-      print("리뷰 내용 수정 상태: $modified");
-      setState(() {});
+      isReviewModified("content");
     });
 
     print("restaurantMenus: $restaurantMenus");
@@ -164,7 +170,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
       } 
     }
 
-    isReviewModified();
+    isReviewModified("image");
   }
 
   // 파일의 md5 해시값 계산
@@ -179,23 +185,47 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
       changeRating = rating;
       formKey.currentState?.validate();
     });
-    isReviewModified();
+    isReviewModified("rating");
   }
 
-  bool isReviewModified() {
-    // 별점 변경
-    if (originalRating != changeRating) return true;
-
-    // 리뷰 내용 변경
-    if (originalContent != changeContentController.text) return true;
-
-    // 메뉴 변경
-    if (!isSameList(originalMenus, changeMenus)) return true;
-
-    // 이미지 변경
-    if (changeImages.isNotEmpty) return true; // 새 이미지 추가
-    if (originalImageNames.length != widget.reviewInfo!["reviewImages"].length || changeImages.isNotEmpty) return true;
-    return false;
+  void isReviewModified(String type) {
+    setState(() {
+      if (type == "image") {
+        // 이미지 변경
+        if (removeOriginalImageNames.isNotEmpty || changeImages.isNotEmpty) {
+          isImageChanged = true;
+        } else {
+          isImageChanged = false;
+        }
+      } else if (type == "menu") {
+        // 메뉴 변경
+        if (!isSameList(originalMenus, changeMenus)) {
+          isMenuChanged = true;
+        } else {
+          isMenuChanged = false;
+        }
+      } else if (type == "content") {
+        // 리뷰 내용 변경
+        if (originalContent != changeContentController.text) {
+          isContentChanged = true;
+        } else {
+          isContentChanged = false;
+        }
+      } else if (type == "rating") {
+        // 별점 변경
+        if (originalRating != changeRating) {
+          isRatingChanged = true;
+        } else {
+          isRatingChanged = false;
+        }
+      }
+    });
+    print("===================================");
+    print("isImageChanged: $isImageChanged");
+    print("isMenuChanged: $isMenuChanged");
+    print("isContentChanged: $isContentChanged");
+    print("isRatingChanged: $isRatingChanged");
+    print("===================================");
   }
 
   // 리스트 내용 비교 함수 (순서 X)
@@ -219,9 +249,85 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
     );
   }
 
+  Future<void> submitReviewUpdate() async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    final reviewId = widget.reviewInfo!["review"]["id"];
+
+    // 필드별 변경 여부
+
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review");
+
+    final request = http.MultipartRequest('PATCH', apiAddress);
+
+    // Header
+    request.headers['Authorization'] = 'Bearer ${accessToken}';
+
+    request.fields['reviewId'] = reviewId;
+    print("originalImageNames.length: ${originalImageNames.length}");
+    print("widget.reviewInfo: ${widget.reviewInfo!["reviewImages"].length}");
+    if (isImageChanged) {
+      if (removeOriginalImageNames.isNotEmpty) {
+        print("removeOriginalImageNames");
+        for (int i = 0; i < removeOriginalImageNames.length; i++) {
+          request.fields['removeOriginalImageNames[$i]'] = removeOriginalImageNames[i];
+        }
+      } 
+      if (changeImages.isNotEmpty) {
+        print("changeImages");
+        for (var image in changeImages) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'changeImages', image.path
+          ));
+        }
+      }
+    } 
+    if (isMenuChanged) {
+      print("isMenuChanged");
+      if (changeMenus.isEmpty) {
+        request.fields['changeMenus'] = "remove all";
+      } else {
+        for (int i = 0; i < changeMenus.length; i++) {
+          request.fields['changeMenus[$i]'] = changeMenus[i];
+        }
+      }
+    }
+    if (isContentChanged) {
+      print("isContentChanged");
+      request.fields['changeContent'] = changeContentController.text;
+    }
+    if (isRatingChanged) {
+      print("isRatingChanged");
+      request.fields['changeRating'] = changeRating.toString();
+    }
+
+    print(request.fields);
+    print(request.files);
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        print("리뷰 수정 성공!!!");
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("리뷰를 수정했습니다."))
+        );
+      } else {
+        print("리뷰 수정 실패!!!");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Align(
@@ -338,7 +444,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                                             changeImageHashes.remove(imageHash);
                                                             changeImages.removeAt(index);
                                                           });
-                                                          isReviewModified();
+                                                          isReviewModified("image");
                                                         },
                                                         child: deleteIcon()
                                                       )
@@ -374,9 +480,10 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                                       child: GestureDetector(
                                                         onTap: () {
                                                           setState(() {
+                                                            removeOriginalImageNames.add(originalImageNames[index]);
                                                             originalImageNames.removeAt(index);
                                                           });
-                                                          isReviewModified();
+                                                          isReviewModified("image");
                                                         },
                                                         child: deleteIcon()
                                                       )
@@ -412,9 +519,10 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                                       child: GestureDetector(
                                                         onTap: () {
                                                           setState(() {
+                                                            removeOriginalImageNames.add(originalImageNames[index]);
                                                             originalImageNames.removeAt(index);
                                                           });
-                                                          isReviewModified();
+                                                          isReviewModified("image");
                                                         },
                                                         child: deleteIcon()
                                                       )
@@ -448,7 +556,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                                             changeImageHashes.remove(imageHash);
                                                             changeImages.removeAt(changedIndex);
                                                           });
-                                                          isReviewModified();
+                                                          isReviewModified("image");
                                                         },
                                                         child: deleteIcon()
                                                       )
@@ -508,7 +616,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                     changeMenus = (values.cast<String>());
                                   });
                                   print("선택된 메뉴: $changeMenus");
-                                  isReviewModified();
+                                  isReviewModified("menu");
                                 },
                                 chipDisplay: MultiSelectChipDisplay(
                                   onTap: (value) {
@@ -591,9 +699,10 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: isReviewModified() && (formKey.currentState?.validate() ?? false)
+                  onPressed: (isImageChanged || isMenuChanged || isContentChanged || isRatingChanged) && (formKey.currentState?.validate() ?? false)
                     ? () {
                         print("리뷰 수정 버튼 클릭!!!");
+                        submitReviewUpdate();
                       }
                     : null,
                   style: ElevatedButton.styleFrom(

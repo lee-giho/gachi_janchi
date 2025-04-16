@@ -94,6 +94,7 @@ class MenuPopUp extends StatelessWidget {
               );
               if (result == true) {
                 fetchReview();
+                fetchUserInfo();
               }
             },
             icon: const Icon(Icons.edit, color: Colors.black),

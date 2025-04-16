@@ -58,8 +58,8 @@ public class ReviewController {
   }
 
   @PatchMapping()
-  public ResponseEntity<UpdateReviewResponse> updateReview(@ModelAttribute UpdateReviewRequest updateReviewRequest) {
-    UpdateReviewResponse updateReviewResponse = reviewService.updateReview(updateReviewRequest);
+  public ResponseEntity<UpdateReviewResponse> updateReview(@RequestHeader("Authorization") String token, @ModelAttribute UpdateReviewRequest updateReviewRequest) {
+    UpdateReviewResponse updateReviewResponse = reviewService.updateReview(token, updateReviewRequest);
     return ResponseEntity.ok(updateReviewResponse);
   }
   

@@ -126,7 +126,11 @@ public class ReviewService {
       }
 
       // 리뷰 작성 경험치 획득
-      userService.gainExp(userId, 35);
+      if (type.equals("image")) { // 이미지가 포함된 리뷰일 경우
+        userService.gainExp(userId, 40);
+      } else { // 이미지가 포함되지 않은 리뷰일 경우
+        userService.gainExp(userId, 30);
+      }
 
       return new AddReviewResponse("리뷰가 정상적으로 저장되었습니다.");
     } catch (Exception e) {
@@ -239,17 +243,26 @@ public class ReviewService {
     // 리뷰 DB 삭제
     reviewRepository.delete(review);
 
-    // 리뷰 작성 경험치 제거
-    userService.gainExp(userId, -35);
+    // 리뷰 작성 경험치 차감
+    if (review.getType().equals("image")) { // 이미지가 포함된 리뷰일 경우
+      userService.gainExp(userId, -40);
+    } else { // 이미지가 포함되지 않은 리뷰일 경우
+      userService.gainExp(userId, -30);
+    }
 
     return new DeleteReviewResponse("Delete Review Successful");
   }
 
   // 리뷰 업데이트
   @Transactional
-  public UpdateReviewResponse updateReview(UpdateReviewRequest updateReviewRequest) {
+  public UpdateReviewResponse updateReview(String token, UpdateReviewRequest updateReviewRequest) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+    String userId = jwtProvider.getUserId(accessToken);
 
     Review review = reviewRepository.findById(updateReviewRequest.getReviewId()).orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+
+    String originalType = review.getType();
+    String changeType = "";
 
     // 이미지 저장 경로
     List<File> savedFiles = new ArrayList<>();
@@ -359,7 +372,6 @@ public class ReviewService {
         review.setRating(updateReviewRequest.getChangeRating());
       }
 
-
       // 기존 이미지 DB 삭제
       if (!removeImageNames.isEmpty()) {
         for (String imageName : removeImageNames) {
@@ -379,12 +391,30 @@ public class ReviewService {
         }
       }
 
-      if (reviewImageRepository.existsByReviewId(updateReviewRequest.getReviewId())) { // 이미지가 존재할 때
-        review.setType("image");
-      } else { // 이미지가 존재하지 않을 때
-        review.setType("text");
+      if (reviewImageRepository.existsByReviewId(updateReviewRequest.getReviewId())) { // 이미지 삭제/추가 처리 후 계속 이미지가 존재할 때 - image 타입 유지
+        changeType = "image";
+      } else { // 이미지가 존재하지 않을 때 - text 타입으로 변경
+        changeType = "text";
       }
 
+      if (originalType.equals("image")) { // 기존 타입이 image일 경우
+        if (changeType.equals("image")) { // 타입이 image -> image로 유지된 경우
+          System.out.println("기존 타입 유지: " + originalType + " -> " + changeType);
+        } else { // 타입이 image -> text로 변경된 경우
+          System.out.println("타입 변경: " + originalType + " -> " + changeType);
+          review.setType(changeType);
+          userService.gainExp(userId, -10); // 이미지 리뷰와 텍스트 리뷰 경험치 차이만큼 차감
+        }
+      } else { // 기존 타입이 text일 경우
+        if (changeType.equals("image")) { // 타입이 text -> image로 변경된 경우
+          System.out.println("타입 변경: " + originalType + " -> " + changeType);
+          review.setType(changeType);
+          userService.gainExp(userId, 10); // 이미지 리뷰와 텍스트 리뷰 경험치 차이만큼 획득
+        } else { // 타입이 text -> text로 유지된 경우
+          System.out.println("기존 타입 유지: " + originalType + " -> " + changeType);
+        }
+      }
+      
       reviewRepository.save(review);
 
       if (!removedFiles.isEmpty()) {

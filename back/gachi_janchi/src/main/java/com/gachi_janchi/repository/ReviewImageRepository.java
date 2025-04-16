@@ -12,4 +12,6 @@ public interface ReviewImageRepository extends JpaRepository<ReviewImage, String
 
   // 리뷰 id와 menuName으로 삭제하기
   void deleteByReviewIdAndImageName(String reviewId, String imageName);
+
+  Boolean existsByReviewId(String reviewId);
 }

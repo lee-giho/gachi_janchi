@@ -38,17 +38,21 @@ public class Review {
   @Column(name = "content", nullable = false)
   private String content;
 
+  @Column(name = "type", nullable = false)
+  private String type;
+
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
   private LocalDateTime createdAt;
 
   // createdAt을 자동 생성하는 생성자 추가
-  public Review(String id, String userId, String visitedId, String restaurantId, int rating, String content) {
+  public Review(String id, String userId, String visitedId, String restaurantId, int rating, String content, String type) {
     this.id = id;
     this.userId = userId;
     this.visitedId = visitedId;
     this.restaurantId = restaurantId;
     this.rating = rating;
     this.content = content;
+    this.type = type;
     this.createdAt = LocalDateTime.now();
   }
   

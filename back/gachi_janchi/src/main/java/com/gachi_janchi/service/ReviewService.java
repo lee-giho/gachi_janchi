@@ -34,9 +34,7 @@ import com.gachi_janchi.repository.ReviewRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 
 @Service
 public class ReviewService {
@@ -70,6 +68,8 @@ public class ReviewService {
     String userId = jwtProvider.getUserId(accessToken);
     String reviewId = UUID.randomUUID().toString();
     
+    String type = "text";
+
     // 이미지 저장 경로
     List<File> savedFiles = new ArrayList<>();
     List<String> savedFileNames = new ArrayList<>();
@@ -88,6 +88,7 @@ public class ReviewService {
           savedFiles.add(dest);
           savedFileNames.add(imageFileName); // DB 저장용 이름
         }
+        type = "image";
       }
 
       // 리뷰 저장
@@ -97,7 +98,8 @@ public class ReviewService {
         addReviewRequest.getVisitedId(),
         addReviewRequest.getRestaurantId(),
         addReviewRequest.getRating(),
-        addReviewRequest.getContent()
+        addReviewRequest.getContent(),
+        type
       );
       reviewRepository.save(review);
 
@@ -155,8 +157,10 @@ public class ReviewService {
         List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
         User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
         String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
-        return new ReviewWithImageAndMenu(new UserInfoWithProfileImageAndTitle(
-          user.getId(), titleName, user.getProfileImage()),
+        return new ReviewWithImageAndMenu(
+          new UserInfoWithProfileImageAndTitle(
+            user.getId(), titleName, user.getProfileImage()
+          ),
           review,
           reviewImages,
           reviewMenus
@@ -186,8 +190,10 @@ public class ReviewService {
         List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
         User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
         String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
-        return new ReviewWithImageAndMenu(new UserInfoWithProfileImageAndTitle(
-          user.getId(), titleName, user.getProfileImage()),
+        return new ReviewWithImageAndMenu(
+          new UserInfoWithProfileImageAndTitle(
+            user.getId(), titleName, user.getProfileImage()
+          ),
           review,
           reviewImages,
           reviewMenus
@@ -371,6 +377,12 @@ public class ReviewService {
           );
           reviewImageRepository.save(reviewImage);
         }
+      }
+
+      if (reviewImageRepository.existsByReviewId(updateReviewRequest.getReviewId())) { // 이미지가 존재할 때
+        review.setType("image");
+      } else { // 이미지가 존재하지 않을 때
+        review.setType("text");
       }
 
       reviewRepository.save(review);

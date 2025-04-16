@@ -6,7 +6,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ReviewsScreen extends StatefulWidget {
-  const ReviewsScreen({super.key});
+  final VoidCallback fetchUserInfo;
+  const ReviewsScreen({
+    super.key,
+    required this.fetchUserInfo
+  });
 
   @override
   State<ReviewsScreen> createState() => _ReviewsScreenState();
@@ -80,6 +84,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 fetchReview: () {
                   fetchReviews("latest");
                 },
+                fetchUserInfo: widget.fetchUserInfo,
               );
             }
           )

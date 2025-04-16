@@ -52,8 +52,8 @@ public class ReviewController {
   }
 
   @DeleteMapping("/reviewId")
-  public ResponseEntity<DeleteReviewResponse> deleteReviewByReviewId(@RequestBody DeleteReviewRequest deleteReviewRequest) {
-    DeleteReviewResponse deleteReviewResponse = reviewService.deleteReviewByReviewId(deleteReviewRequest);
+  public ResponseEntity<DeleteReviewResponse> deleteReviewByReviewId(@RequestHeader("Authorization") String token, @RequestBody DeleteReviewRequest deleteReviewRequest) {
+    DeleteReviewResponse deleteReviewResponse = reviewService.deleteReviewByReviewId(token, deleteReviewRequest);
     return ResponseEntity.ok(deleteReviewResponse);
   }
 

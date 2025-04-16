@@ -7,11 +7,13 @@ class ReviewTile extends StatefulWidget {
   final bool menuButton;
   final Map<String, dynamic> reviewInfo;
   final VoidCallback? fetchReview;
+  final VoidCallback? fetchUserInfo;
   const ReviewTile({
     super.key,
     required this.reviewInfo,
     required this.menuButton,
-    this.fetchReview
+    this.fetchReview,
+    this.fetchUserInfo
   });
 
   @override
@@ -77,6 +79,7 @@ class _ReviewtileState extends State<ReviewTile> {
                     widget.fetchReview?.call();
                   },
                   removeOverlay: removeOverlay,
+                  fetchUserInfo: widget.fetchUserInfo!,
                   reviewInfo: widget.reviewInfo,
                 ), // 메뉴 팝업 UI
               ),

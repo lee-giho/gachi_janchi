@@ -56,6 +56,9 @@ public class ReviewService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private UserService userService;
+
   @Value("${REVIEW_IMAGE_PATH}")
   private String reviewImageRelativePath;
 
@@ -119,6 +122,9 @@ public class ReviewService {
         );
         reviewImageRepository.save(reviewImage);
       }
+
+      // 리뷰 작성 경험치 획득
+      userService.gainExp(userId, 35);
 
       return new AddReviewResponse("리뷰가 정상적으로 저장되었습니다.");
     } catch (Exception e) {
@@ -194,7 +200,11 @@ public class ReviewService {
 
   // 리뷰 ID로 삭제하기
   @Transactional
-  public DeleteReviewResponse deleteReviewByReviewId(DeleteReviewRequest deleteReviewRequest) {
+  public DeleteReviewResponse deleteReviewByReviewId(String token, DeleteReviewRequest deleteReviewRequest) {
+    String accessToken = jwtProvider.getTokenWithoutBearer(token);
+
+    String userId = jwtProvider.getUserId(accessToken);
+
     String reviewId = deleteReviewRequest.getReviewId();
 
     // 리뷰 존재 여부 확인
@@ -222,6 +232,9 @@ public class ReviewService {
 
     // 리뷰 DB 삭제
     reviewRepository.delete(review);
+
+    // 리뷰 작성 경험치 제거
+    userService.gainExp(userId, -35);
 
     return new DeleteReviewResponse("Delete Review Successful");
   }

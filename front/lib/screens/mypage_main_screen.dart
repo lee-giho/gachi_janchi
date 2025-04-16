@@ -316,7 +316,13 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
             _buildMenuItem(
                 Icons.shopping_basket, "모은재료", CollectedIngredientsScreen()),
             _buildMenuItem(Icons.receipt, "방문내역", VisitHistoryScreen()),
-            _buildMenuItem(Icons.comment, "리뷰", ReviewsScreen()),
+            _buildMenuItem(
+              Icons.comment, 
+              "리뷰", 
+              ReviewsScreen(
+                fetchUserInfo: _fetchUserInfo,
+              )
+            ),
             _buildMenuItem(Icons.campaign, "공지사항", NoticesScreen()),
             _buildMenuItem(Icons.settings, "설정", SettingsScreen()),
           ],

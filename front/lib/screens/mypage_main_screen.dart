@@ -315,7 +315,7 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
             const SizedBox(height: 25),
             _buildMenuItem(
                 Icons.shopping_basket, "모은재료", CollectedIngredientsScreen()),
-            _buildMenuItem(Icons.receipt, "방문내역", VisitHistoryScreen()),
+            // _buildMenuItem(Icons.receipt, "방문내역", VisitHistoryScreen()),
             _buildMenuItem(
               Icons.comment, 
               "리뷰", 

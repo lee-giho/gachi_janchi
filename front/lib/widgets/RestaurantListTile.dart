@@ -134,11 +134,14 @@ class RestaurantListTile extends ConsumerWidget {
                         ),
                   
                         // 리뷰 -> 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.star, size: 16, color: Colors.amberAccent),
-                            SizedBox(width: 5),
-                            Text("4.8 (500)", style: TextStyle(fontSize: 16)),
+                            const Icon(Icons.star, size: 16, color: Colors.amberAccent),
+                            const SizedBox(width: 5),
+                            if (restaurant["reviewCountAndAvg"]["reviewCount"] != null && restaurant["reviewCountAndAvg"]["reviewAvg"] != null)
+                              Text("${restaurant["reviewCountAndAvg"]["reviewAvg"].toStringAsFixed(1)} (${restaurant["reviewCountAndAvg"]["reviewCount"].toString()})", style: const TextStyle(fontSize: 16))
+                            else
+                              const Text("0.0 (0)", style: TextStyle(fontSize: 16))
                           ],
                         ),
                   

@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class GetFavoriteRestaurantsResponse {
   //  List<String> favoriteRestaurants;
-  private List<RestaurantWithIngredientDto> restaurants;
+  private List<RestaurantWithIngredientAndReviewCountDto> restaurants;
 }

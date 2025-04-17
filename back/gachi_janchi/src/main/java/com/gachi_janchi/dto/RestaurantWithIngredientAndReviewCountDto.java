@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RestaurantWithIngredientDto {
+public class RestaurantWithIngredientAndReviewCountDto {
   private String id;
   private String restaurantName;
   private String imageUrl;
@@ -22,9 +22,10 @@ public class RestaurantWithIngredientDto {
   private Map<String, String> businessHours;
   private List<Menu> menu;
   private String ingredientName;
+  private ReviewCountAndAvg reviewCountAndAvg;
 
-  public static RestaurantWithIngredientDto from(Restaurant restaurant, Ingredient ingredient) {
-    return new RestaurantWithIngredientDto(
+  public static RestaurantWithIngredientAndReviewCountDto from(Restaurant restaurant, Ingredient ingredient, ReviewCountAndAvg reviewCountAndAvg) {
+    return new RestaurantWithIngredientAndReviewCountDto(
             restaurant.getId(),
             restaurant.getRestaurantName(),
             restaurant.getImageUrl(),
@@ -34,7 +35,8 @@ public class RestaurantWithIngredientDto {
             restaurant.getPhoneNumber(),
             restaurant.getBusinessHours(),
             restaurant.getMenu(),
-            ingredient != null ? ingredient.getName() : "재료 없음"
+            ingredient != null ? ingredient.getName() : "재료 없음",
+            reviewCountAndAvg
     );
   }
 }

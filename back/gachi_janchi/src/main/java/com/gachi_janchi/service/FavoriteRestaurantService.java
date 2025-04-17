@@ -7,6 +7,7 @@ import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.repository.FavoriteRestaurantRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
+import com.gachi_janchi.repository.ReviewRepository;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class FavoriteRestaurantService {
   private final JwtProvider jwtProvider;
   private final UserRepository userRepository;
   private final IngredientService ingredientService;
+  private final ReviewRepository reviewRepository;
 
   @Transactional
   public AddFavoriteRestaurantResponse addFavoriteRestaurant(AddFavoriteRestaurantRequest addFavoriteRestaurantRequest, String token) {
@@ -66,10 +68,15 @@ public class FavoriteRestaurantService {
     // 즐겨찾기 음식점 아이디로 List<Restaurant> 만들기
     List<Restaurant> favoriteRestaurants = restaurantRepository.findAllById(favoriteRestaurantIds);
 
-    List<RestaurantWithIngredientDto> restaurantWithIngredientDtos = favoriteRestaurants.stream()
+    List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientDtos = favoriteRestaurants.stream()
             .map(restaurant -> {
+              ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
+                reviewRepository.countByRestaurantId(restaurant.getId()),
+                reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
+              );
+
               Ingredient ingredient = ingredientService.findIngredientByRestaurantId(restaurant.getId());
-              return RestaurantWithIngredientDto.from(restaurant, ingredient);
+              return RestaurantWithIngredientAndReviewCountDto.from(restaurant, ingredient, reviewCountAndAvg);
             })
             .collect(Collectors.toList());
 

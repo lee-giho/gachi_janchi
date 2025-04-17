@@ -11,6 +11,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class RestaurantsByBoundsResponse {
-  private List<RestaurantWithIngredientDto> restaurants;
+  private List<RestaurantWithIngredientAndReviewCountDto> restaurants;
 
 }

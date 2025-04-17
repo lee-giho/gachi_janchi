@@ -287,22 +287,24 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
                                     );
                                   }).toList(),
                                 ),
-                                const Row( // 리뷰 - 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
+                                Row( // 리뷰 - 추후 리뷰 작성 기능이 생기면 실제 값으로 수정해야함
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.star,
                                       color: Colors.yellow,
                                     ),
                                     Text(
-                                      "4.8",
-                                      style: TextStyle(
-                                        fontSize: 16
-                                      ),
+                                      restaurant["reviewCountAndAvg"]["reviewAvg"] != null
+                                      ? "${restaurant["reviewCountAndAvg"]["reviewAvg"].toStringAsFixed(1)}"
+                                      : "0.0",
+                                      style: const TextStyle(fontSize: 16)
                                     ),
-                                    SizedBox(width: 2,),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      "(500)"
+                                      restaurant["reviewCountAndAvg"]["reviewCount"] != null
+                                        ? "(${restaurant["reviewCountAndAvg"]["reviewCount"].toString()})"
+                                        : "0.0",
                                     )
                                   ],
                                 ),

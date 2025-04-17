@@ -29,11 +29,11 @@ public class RestaurantController {
   private FavoriteRestaurantService favoriteRestaurantService;
 
   // dong을 기준으로 Restaurant 리스트 가져오기
-  @GetMapping("/dong")
-  public ResponseEntity<RestaurantsByDongResponse> getRestaurantsByDong(@RequestParam("dong") String dong) {
-    RestaurantsByDongResponse restaurantsByDongResponse = restaurantService.findRestaurantsByDong(dong);
-    return ResponseEntity.ok(restaurantsByDongResponse);
-  }
+  // @GetMapping("/dong")
+  // public ResponseEntity<RestaurantsByDongResponse> getRestaurantsByDong(@RequestParam("dong") String dong) {
+  //   RestaurantsByDongResponse restaurantsByDongResponse = restaurantService.findRestaurantsByDong(dong);
+  //   return ResponseEntity.ok(restaurantsByDongResponse);
+  // }
 
   // bounds를 기준으로 Restaurant 리스트 가져오기
   @GetMapping("/bounds")

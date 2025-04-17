@@ -513,9 +513,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   // 홈화면 상단에 떠있는 검색바 전체를 감싸는 Container
                   padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                   decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white),
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.7),
+                        blurRadius: 5.0,
+                        spreadRadius: 0.0,
+                        offset: const Offset(5, 5)
+                      )
+                    ]
+                  ),
+                      
                   width: 400,
                   height: 50,
                   child: Row(
@@ -633,7 +643,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(15),
-                          color: Colors.white
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.7),
+                              blurRadius: 5.0,
+                              spreadRadius: 0.0,
+                              offset: const Offset(5, 5)
+                            )
+                          ]
                         ),
                       child: Icon(
                         Icons.shopping_cart,

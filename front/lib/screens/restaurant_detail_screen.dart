@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_home_screen.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_menu_screen.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_review_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
+import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/widgets/TabBarDelegate.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RestaurantDetailScreen extends ConsumerStatefulWidget {
-  final Map<String, dynamic> data;
+  final String restaurantId;
 
-  const RestaurantDetailScreen({super.key, required this.data});
+  const RestaurantDetailScreen({super.key, required this.restaurantId});
 
   @override
   ConsumerState<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
 }
 
 class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen> {
+
+  bool isLoading = true;
 
   Map<String, dynamic> restaurant = {};
   OverlayEntry? overlayEntry; // 오버레이 창을 위한 변수
@@ -24,42 +30,69 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
   int _currentIndex = 0;
   List<Widget> screens = [];
 
-  // 음식점 아이디로 정보 가져오는 함수
-  Future<void> getRestaurantInfoByRestaurantId() async {
+  Future<void> getRestaurantInfo(String restaurantId) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+    
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse(
+        "${dotenv.get("API_ADDRESS")}/api/restaurant/restaurantId?restaurantId=$restaurantId");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
 
+    try {
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        print("음식점 리스트 요청 완료11111111");
+
+        // UTF-8로 디코딩
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+
+        print("API 응답 데이터: $data");
+
+        setState(() {
+          restaurant = data["restaurant"];
+          isLoading = false;
+          screens = [
+            RestaurantDetailHomeScreen(
+              data: {
+                "location": restaurant["location"],
+                "address": restaurant["address"],
+                "phoneNumber": restaurant["phoneNumber"]
+              },
+            ),
+            RestaurantDetailMenuScreen(
+              data: {
+                "menu": restaurant["menu"]
+              },
+            ),
+            RestaurantDetailReviewScreen(
+              data: {
+                "restaurantId": restaurant["id"]
+              }
+            )
+          ];
+        });
+      } else {
+        print("음식점 리스트 요청 실패");
+      }
+    } catch (e) {
+      // 예외 처리
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+    }
   }
 
   @override
   void initState() {
-    if (widget.data['restaurant'] != null || widget.data['restaurant'].isNotEmpty) {
-      setState(() {
-        restaurant = widget.data['restaurant'];
-
-        print("restaurant: $restaurant");
-        print("restaurantLocation: ${restaurant["location"]}");
-
-        screens = [
-          RestaurantDetailHomeScreen(
-            data: {
-              "location": restaurant["location"],
-              "address": restaurant["address"],
-              "phoneNumber": restaurant["phoneNumber"]
-            },
-          ),
-          RestaurantDetailMenuScreen(
-            data: {
-              "menu": restaurant["menu"]
-            },
-          ),
-          RestaurantDetailReviewScreen(
-            data: {
-              "restaurantId": restaurant["id"]
-            }
-          )
-        ];
-      });
-    }
     super.initState();
+    getRestaurantInfo(widget.restaurantId);
   }
 
   // 음식점 사진 dialog로 보여주는 함수
@@ -210,6 +243,14 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
 
     // 즐겨찾기 리스트에서 현재 restaurant의 ID를 포함하는지 확인
     final isFavorite = ref.watch(favoriteProvider).any((fav) => fav["id"] == restaurant["id"]);
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

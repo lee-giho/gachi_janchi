@@ -2,6 +2,8 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
 import com.gachi_janchi.dto.GetRestaurantMenuResponse;
+import com.gachi_janchi.dto.RestaurantDetailInfo;
+import com.gachi_janchi.dto.RestaurantDetailScreenResponse;
 import com.gachi_janchi.dto.RestaurantWithIngredientAndReviewCountDto;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
 import com.gachi_janchi.dto.RestaurantsByDongResponse;
@@ -56,6 +58,20 @@ public class RestaurantService {
     List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientDtos = makeRestaurantWithIngredientDtos(restaurants);
 
     return new RestaurantsByKeywordResponse(restaurantWithIngredientDtos);
+  }
+
+  // 음식점 id로 Restaurant 찾기
+  public RestaurantDetailScreenResponse findRestaurantByRestaurantId(String restaurantId) {
+    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+    ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
+      reviewRepository.countByRestaurantId(restaurant.getId()),
+      reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
+    );
+
+    RestaurantDetailInfo restaurantDetailInfo = RestaurantDetailInfo.from(restaurant, reviewCountAndAvg);
+
+    return new RestaurantDetailScreenResponse(restaurantDetailInfo);
+
   }
 
   // Restaurant 삭세 / 동시에 restaurantIngredient에서도 삭제

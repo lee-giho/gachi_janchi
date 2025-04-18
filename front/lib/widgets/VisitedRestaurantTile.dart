@@ -29,9 +29,7 @@ class _VisitedrestauranttileState extends State<VisitedRestaurantTile> {
           context,
           MaterialPageRoute(
             builder: (context) => RestaurantDetailScreen(
-              data: {
-                "restaurant": restaurant
-              }
+              restaurantId: restaurant["id"],
             )
           )
         );

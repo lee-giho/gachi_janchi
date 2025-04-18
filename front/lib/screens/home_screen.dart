@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (response.statusCode == 200) {
           print("음식점 리스트 요청 완료");
 
-          // 🔹 UTF-8로 디코딩
+          // UTF-8로 디코딩
           final decodedData = utf8.decode(response.bodyBytes);
           final data = json.decode(decodedData);
 

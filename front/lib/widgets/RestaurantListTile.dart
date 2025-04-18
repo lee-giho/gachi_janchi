@@ -74,9 +74,7 @@ class RestaurantListTile extends ConsumerWidget {
           context,
           MaterialPageRoute(
             builder: (context) => RestaurantDetailScreen(
-              data: {
-                "restaurant": restaurant
-              }
+              restaurantId: restaurant["id"],
             )
           )
         );

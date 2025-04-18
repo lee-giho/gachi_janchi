@@ -19,6 +19,7 @@ class RestaurantDetailReviewScreen extends StatefulWidget {
 class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScreen> {
 
   List<dynamic> reviews = [];
+  List<dynamic> showReviews = [];
   List<int> ratings = [];
   Map<int, int> ratingCounts = {
     1: 0,
@@ -27,6 +28,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
     4: 0,
     5: 0
   };
+  bool isOnlyImage = false;
 
   @override
   void initState() {
@@ -61,6 +63,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
 
         setState(() {
           reviews = data["reviews"];
+          showReviews = reviews;
           
           // 값 초기화
           ratings = [];
@@ -91,6 +94,23 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
       int sum = ratings.reduce((a, b) => a + b);
       double avg = sum / ratings.length;
       return avg.toStringAsFixed(1); // 소수점 1자리
+    }
+  }
+
+  // 사진 리뷰 필터링 함수
+  Future<void> showReviewTypeToggle() async {
+    if (isOnlyImage) {
+      setState(() {
+        showReviews = reviews.where((review) {
+          bool isImageReview = review["review"]["type"] == "image";
+
+          return isImageReview;
+        }).toList();
+      });
+    } else {
+      setState(() {
+        showReviews = reviews;
+      });
     }
   }
 
@@ -149,60 +169,119 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: Container( // 리뷰 현황
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-            decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  width: 1,
-                  color: Colors.grey
-                )
-              )
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column( // 평균 별점
-                    children: [
-                      Row( // 평균
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container( // 리뷰 현황
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1,
+                      color: Colors.grey
+                    )
+                  )
+                ),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column( // 평균 별점
                         children: [
-                          const Icon(
-                            Icons.star,
-                            color: Colors.yellow,
-                            size: 40,
+                          Row( // 평균
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.yellow,
+                                size: 40,
+                              ),
+                              Text( // 평균값
+                                calculateAvgStarRating(ratings),
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              )
+                            ],
                           ),
-                          Text( // 평균값
-                            calculateAvgStarRating(ratings),
+                          SizedBox(height: 5),
+                          Text( // 총 리뷰 수
+                            "${ratings.length.toString()}개의 평점",
                             style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold
+                              color: Colors.grey[800]
                             ),
                           )
                         ],
                       ),
-                      SizedBox(height: 5),
-                      Text( // 총 리뷰 수
-                        "${ratings.length.toString()}개의 평점",
-                        style: TextStyle(
-                          color: Colors.grey[800]
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: buildRatingDistribution()
+                    ),
+                  ],
+                ),
+              ),
+              Container( // 필터링 버튼 부분 - 사진 리뷰만 보기
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1,
+                      color: Colors.grey
+                    )
+                  )
+                ),
+                child: Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          isOnlyImage = !isOnlyImage;
+                        });
+                        showReviewTypeToggle();
+                        print("사진 리뷰만 보기 버튼 클릭!!!!");
+                        print("isOnlyImage: $isOnlyImage");
+                      },
+                      style: TextButton.styleFrom(
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 1
                         ),
-                      )
-                    ],
-                  ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)
+                        ),
+                        backgroundColor: isOnlyImage
+                          ? const Color.fromRGBO(122, 11, 11, 1)
+                          : Colors.white,
+                        // backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                        overlayColor: const Color.fromARGB(116, 122, 11, 11),
+                      ),
+                      icon: Icon(
+                        Icons.image,
+                        color: isOnlyImage
+                        ? Colors.white
+                        : Colors.black
+                      ),
+                      label: Text(
+                        "사진 리뷰만 보기",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isOnlyImage
+                            ? Colors.white
+                            : Colors.black
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: buildRatingDistribution()
-                ),
-              ],
-            ),
+              )
+            ],
           ),
         ),
         SliverList.builder(
-          itemCount: reviews.length,
+          itemCount: showReviews.length,
           itemBuilder: (context, index) {
-            final review = reviews[index];
+            final review = showReviews[index];
             return ReviewTile(
               reviewInfo: review,
               menuButton: false,

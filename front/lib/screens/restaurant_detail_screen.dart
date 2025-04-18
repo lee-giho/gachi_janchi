@@ -24,6 +24,11 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
   int _currentIndex = 0;
   List<Widget> screens = [];
 
+  // 음식점 아이디로 정보 가져오는 함수
+  Future<void> getRestaurantInfoByRestaurantId() async {
+
+  }
+
   @override
   void initState() {
     if (widget.data['restaurant'] != null || widget.data['restaurant'].isNotEmpty) {

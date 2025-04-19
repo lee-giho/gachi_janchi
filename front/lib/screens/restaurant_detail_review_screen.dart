@@ -30,10 +30,15 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   };
   bool isOnlyImage = false;
 
+  final TextEditingController reviewTypeController = TextEditingController();
+  List<String> reviewSortTypeList = ["최신순", "오래된 순", "높은 별점 순", "낮은 별점 순"];
+  String selectedReviewSortType = "최신순";
+
   @override
   void initState() {
     super.initState();
     getReview(widget.data["restaurantId"], "latest");
+    reviewTypeController.text = selectedReviewSortType;
   }
   
   Future<void> getReview(String restaurantId, String sortType) async {
@@ -232,6 +237,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                   )
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton.icon(
                       onPressed: () {
@@ -272,6 +278,37 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                         ),
                       ),
                     ),
+                    DropdownMenu<String>(
+                      controller:reviewTypeController,
+                      initialSelection: selectedReviewSortType,
+                      label: const Text(
+                        "정렬 방식",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 83, 83, 83)
+                        ),
+                      ),
+                      onSelected: (String? value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedReviewSortType = value;
+                          });
+                        }
+                      },
+                      inputDecorationTheme: const InputDecorationTheme(
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8.0,
+                          horizontal: 12
+                        ),
+                        isDense: true
+                      ),
+                      dropdownMenuEntries: reviewSortTypeList.map((type) => DropdownMenuEntry<String>(
+                        value: type,
+                        label: type
+                      )).toList()
+                    )
                   ],
                 ),
               )

@@ -151,8 +151,14 @@ public class ReviewService {
     // 음식점에 대한 리뷰 다 가져오기
     List<Review> reviewList = new ArrayList<>();
 
-    if (sortType.equals("latest")) {
+    if (sortType.equals("latest")) { // 최신순
       reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+    } else if (sortType.equals("earliest")) { // 오래된 순
+      reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
+    } else if (sortType.equals("highRating")) { // 높은 별점 순
+      reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
+    } else if (sortType.equals("lowRating")) { // 낮은 별점 순
+      reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
     }
 
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()

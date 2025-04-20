@@ -32,6 +32,12 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
 
   final TextEditingController reviewTypeController = TextEditingController();
   List<String> reviewSortTypeList = ["최신순", "오래된 순", "높은 별점 순", "낮은 별점 순"];
+  Map<String, String> sortTypeMap = {
+    "최신순": "latest",
+    "오래된 순": "earliest",
+    "높은 별점 순": "highRating",
+    "낮은 별점 순": "lowRating"
+  };
   String selectedReviewSortType = "최신순";
 
   @override
@@ -82,6 +88,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
             }
           }
         });
+        showReviewTypeToggle();
       } else {
         print("리뷰 리스트 요청 실패");
       }
@@ -292,6 +299,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           setState(() {
                             selectedReviewSortType = value;
                           });
+                          getReview(widget.data["restaurantId"], sortTypeMap["$value"]!);
                         }
                       },
                       inputDecorationTheme: const InputDecorationTheme(

@@ -1,3 +1,7 @@
+import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gachi_janchi/utils/favorite_provider.dart';
+
 import 'VerifyPasswordScreen.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -11,14 +15,14 @@ import 'edit_name_screen.dart';
 import '../widgets/ProfileWidget.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class MypageScreen extends StatefulWidget {
+class MypageScreen extends ConsumerStatefulWidget {
   const MypageScreen({super.key});
 
   @override
-  State<MypageScreen> createState() => _MypageScreenState();
+  ConsumerState<MypageScreen> createState() => _MypageScreenState();
 }
 
-class _MypageScreenState extends State<MypageScreen> {
+class _MypageScreenState extends ConsumerState<MypageScreen> {
   String nickname = "로딩 중...";
   String selectedTitle = "칭호 없음";
   String name = "로딩 중...";
@@ -183,7 +187,18 @@ class _MypageScreenState extends State<MypageScreen> {
   }
 
   Future<void> _logout() async {
+    // 즐겨찾기 목록 초기화
+    ref.read(favoriteProvider.notifier).resetFavoriteRestaurants();
+
+    // SecureStorage에서 토큰 삭제
     await SecureStorage.deleteTokens();
+
+    // 자동 로그인 상태 해제
+    await SecureStorage.saveIsAutoLogin(false);
+
+    // 로그인 타입 초기화
+    await SecureStorage.saveLoginType("");
+
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }

@@ -199,8 +199,11 @@ class _MypageScreenState extends ConsumerState<MypageScreen> {
     // 로그인 타입 초기화
     await SecureStorage.saveLoginType("");
 
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false // 스택에 남는 페이지 없이 전체 초기화
+    );
   }
 
   Future<void> _deleteAccount() async {

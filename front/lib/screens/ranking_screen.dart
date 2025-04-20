@@ -215,7 +215,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Widget _buildRankingTile(Map<String, dynamic> user, int index) {
     int level = (user['exp'] ~/ 100) + 1;
-    print("user: $user");
+    print("user qweqweqwe: $user");
     return ListTile(
       leading: Text("${index + 1}",
           style: const TextStyle(
@@ -251,8 +251,33 @@ class _RankingScreenState extends State<RankingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(user['nickname'] ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    Text(
+                      user['nickname'] ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold
+                      )
+                    ),
+                    const SizedBox(width: 10),
+                    if (user["title"] != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.deepOrange,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          user["title"] ?? "",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(5),
@@ -323,31 +348,37 @@ class _RankingScreenState extends State<RankingScreen> {
                       ),
                     ),
                   ),
-              Text(
-                "${myInfo["nickname"]}",
-                style: const TextStyle(
-                  fontSize: 20
-                ),
+              Row(
+                children: [
+                  Text(
+                    "${myInfo["nickname"]}",
+                    style: const TextStyle(
+                      fontSize: 20
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  if (myInfo["title"].isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.deepOrange,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        myInfo["title"] ?? "",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               Text(
                 "🏆 ${myInfo["ranking"]}위",
                 style: const TextStyle(
                   fontSize: 20
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.deepOrange,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  myInfo["title"] ?? "",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
                 ),
               ),
             ],

@@ -249,31 +249,37 @@ class _CollectionScreenState extends State<CollectionScreen>
                         ),
                       ),
                     ),
-                Text(
-                  "$nickname",
-                  style: const TextStyle(
-                    fontSize: 20
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "$nickname",
+                      style: const TextStyle(
+                        fontSize: 20
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    if (title.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.deepOrange,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 Text(
                   "🏆 ${ranking}위",
                   style: const TextStyle(
                     fontSize: 20
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.deepOrange,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
                   ),
                 ),
               ],

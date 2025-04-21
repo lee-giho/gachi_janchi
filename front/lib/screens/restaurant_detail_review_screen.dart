@@ -43,15 +43,15 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   @override
   void initState() {
     super.initState();
-    getReview(widget.data["restaurantId"], "latest");
+    getReview(widget.data["restaurantId"], "latest", isOnlyImage);
     reviewTypeController.text = selectedReviewSortType;
   }
   
-  Future<void> getReview(String restaurantId, String sortType) async {
+  Future<void> getReview(String restaurantId, String sortType, bool onlyImage) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=${restaurantId}&sortType=${sortType}");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=$restaurantId&sortType=$sortType&onlyImage=$onlyImage");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
             }
           }
         });
-        showReviewTypeToggle();
+        // showReviewTypeToggle();
       } else {
         print("리뷰 리스트 요청 실패");
       }
@@ -110,21 +110,21 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   }
 
   // 사진 리뷰 필터링 함수
-  Future<void> showReviewTypeToggle() async {
-    if (isOnlyImage) {
-      setState(() {
-        showReviews = reviews.where((review) {
-          bool isImageReview = review["review"]["type"] == "image";
+  // Future<void> showReviewTypeToggle() async {
+  //   if (isOnlyImage) {
+  //     setState(() {
+  //       showReviews = reviews.where((review) {
+  //         bool isImageReview = review["review"]["type"] == "image";
 
-          return isImageReview;
-        }).toList();
-      });
-    } else {
-      setState(() {
-        showReviews = reviews;
-      });
-    }
-  }
+  //         return isImageReview;
+  //       }).toList();
+  //     });
+  //   } else {
+  //     setState(() {
+  //       showReviews = reviews;
+  //     });
+  //   }
+  // }
 
   Widget buildRatingDistribution() {
     int total = ratings.length;
@@ -251,7 +251,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                         setState(() {
                           isOnlyImage = !isOnlyImage;
                         });
-                        showReviewTypeToggle();
+                        // showReviewTypeToggle();
+                        getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage);
                         print("사진 리뷰만 보기 버튼 클릭!!!!");
                         print("isOnlyImage: $isOnlyImage");
                       },
@@ -299,7 +300,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           setState(() {
                             selectedReviewSortType = value;
                           });
-                          getReview(widget.data["restaurantId"], sortTypeMap["$value"]!);
+                          getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage);
                         }
                       },
                       inputDecorationTheme: const InputDecorationTheme(

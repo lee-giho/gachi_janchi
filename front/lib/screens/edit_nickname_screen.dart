@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../utils/checkValidate.dart';
-import 'mypage_screen.dart'; // ✅ 마이페이지로 돌아가기 위해 추가
+import 'mypage_screen.dart'; // 마이페이지로 돌아가기 위해 추가
 
 class EditnicknameScreen extends StatefulWidget {
   final String currentValue;
@@ -18,14 +19,14 @@ class EditnicknameScreen extends StatefulWidget {
 class _EditnicknameScreenState extends State<EditnicknameScreen> {
   late TextEditingController controller;
   bool _isLoading = false;
-  bool _isNickNameValid = false; // ✅ 닉네임 중복 확인 여부
-  bool _isDuplicateChecked = false; // ✅ 중복 확인을 했는지 여부
+  bool _isNickNameValid = false; // 닉네임 중복 확인 여부
+  bool _isDuplicateChecked = false; // 중복 확인을 했는지 여부
 
   @override
   void initState() {
     super.initState();
     controller =
-        TextEditingController(text: widget.currentValue); // ✅ 기존 닉네임 설정
+        TextEditingController(text: widget.currentValue); // 기존 닉네임 설정
   }
 
   @override
@@ -34,15 +35,15 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
     super.dispose();
   }
 
-  /// ✅ 닉네임 중복 확인 요청
-  Future<void> checkNickNameDuplication() async {
+  // 닉네임 중복 확인 요청
+  Future<bool> checkNickNameDuplication({bool isFinalRequest = false}) async {
     print("닉네임 중복 확인 요청 시작");
 
     String nickName = controller.text.trim();
     if (nickName.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("닉네임을 입력해주세요.")));
-      return;
+      return false;
     }
 
     final apiAddress = Uri.parse(
@@ -50,7 +51,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
 
     final headers = {
       'Authorization':
-          'Bearer ${await SecureStorage.getAccessToken()}', // ✅ JWT 토큰 추가
+          'Bearer ${await SecureStorage.getAccessToken()}', // JWT 토큰 추가
       'Content-Type': 'application/json'
     };
 
@@ -68,42 +69,41 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
         bool isDuplicated = data["duplication"] ?? true;
 
         if (isDuplicated) {
-          print("❌ 중복된 닉네임");
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
-
+          print("중복된 닉네임");
           setState(() {
             _isNickNameValid = false;
             _isDuplicateChecked = true;
           });
+          return true;
         } else {
-          print("✅ 사용 가능한 닉네임");
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
-
+          print("사용 가능한 닉네임");
           setState(() {
             _isNickNameValid = true;
             _isDuplicateChecked = true;
           });
+          return true;
         }
       } else {
-        print("❌ 닉네임 중복 확인 실패: ${response.statusCode}");
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인 실패")));
+        print("닉네임 중복 확인 실패: ${response.statusCode}");
+        return false;
       }
     } catch (e) {
-      print("❌ 네트워크 오류 발생: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  /// ✅ 서버에 닉네임 저장 요청
-  Future<void> saveNickName() async {
+  // 서버에 닉네임 저장 요청
+  Future<bool> saveNickName({bool isFinalRequest = false}) async {
     if (!_isNickNameValid || !_isDuplicateChecked) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인을 해주세요.")));
-      return;
+      return false;
     }
 
     print("닉네임 저장 요청 시작");
@@ -114,7 +114,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
     if (accessToken == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
-      return;
+      return false;
     }
 
     final apiAddress =
@@ -137,15 +137,20 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
       print("🔹 서버 응답 데이터: ${response.body}");
 
       if (response.statusCode == 200) {
-        print("✅ 닉네임 저장 성공");
-        Navigator.pop(context, nickName);
+        print("닉네임 저장 성공");
+        return true;
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("닉네임 저장에 실패했습니다.")));
+        print("닉네임 저장 실패");
+        return false;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     } finally {
       setState(() {
         _isLoading = false;
@@ -161,7 +166,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // 🔹 뒤로가기 (변경 없이 취소)
+            Navigator.pop(context); // 뒤로가기 (변경 없이 취소)
           },
         ),
       ),
@@ -177,7 +182,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
             ),
             const SizedBox(height: 10),
 
-            // ✅ 닉네임 입력 필드 + 중복 확인 버튼 추가
+            // 닉네임 입력 필드 + 중복 확인 버튼 추가
             Row(
               children: [
                 Expanded(
@@ -204,7 +209,28 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: checkNickNameDuplication,
+                  onPressed: () async{
+                    final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => checkNickNameDuplication(isFinalRequest: isFinalRequest), context);
+                    if (result) {
+                      if (_isNickNameValid) {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
+                      } else {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context)
+                        .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "닉네임 중복 확인 실패"
+                            )
+                          )
+                        );
+                    }
+                  },
+                  // checkNickNameDuplication,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(100, 50),
                     backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
@@ -222,13 +248,36 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
 
             const SizedBox(height: 30),
 
-            // ✅ 변경 완료 버튼 (닉네임 중복 확인 후 활성화)
+            // 변경 완료 버튼 (닉네임 중복 확인 후 활성화)
             Center(
               child: ElevatedButton(
                 onPressed:
                     (_isLoading || !_isNickNameValid || !_isDuplicateChecked)
                         ? null
-                        : saveNickName,
+                        : () async {
+                            bool result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => saveNickName(isFinalRequest: isFinalRequest), context);
+                            if (result) {
+                              ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "닉네임이 변경되었습니다."
+                                    )
+                                  )
+                                );
+                              Navigator.pop(context, controller.text.trim());
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "닉네임 변경을 실패했습니다."
+                                    )
+                                  )
+                                );
+                            }
+                          },
+                        // saveNickName,
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 12),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,14 +27,18 @@ class _CollectedIngredientsScreenState
   }
 
   Future<void> _loadData() async {
-    await _fetchAllIngredients();
-    await _fetchUserIngredients();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllIngredients(isFinalRequest: isFinalRequest), context);
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
+    // await _fetchAllIngredients();
+    // await _fetchUserIngredients();
   }
 
   /// 전체 재료 목록 불러오기 (이름순 정렬 추가됨)
-  Future<void> _fetchAllIngredients() async {
+  Future<bool> _fetchAllIngredients({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false; 
+    }
 
     try {
       final res = await _dio.get(
@@ -55,16 +60,28 @@ class _CollectedIngredientsScreenState
           allIngredients = raw;
         });
         print("전체 재료 목록 불러옴");
+        return true;
+      } else {
+        print("전체 재료 목록 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("전체 재료 목록 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
   /// 유저 보유 재료 불러오기
-  Future<void> _fetchUserIngredients() async {
+  Future<bool> _fetchUserIngredients({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
 
     try {
       final res = await _dio.get(
@@ -85,9 +102,19 @@ class _CollectedIngredientsScreenState
           };
         });
         print("유저 보유 재료 불러옴");
+        return true;
+      } else {
+        print("유저 보유 재료 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("유저 재료 목록 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
@@ -30,7 +31,7 @@ class _EditnameScreenState extends State<EditnameScreen> {
   }
 
   /// 서버에 이름 저장 요청 (`http` 사용)
-  Future<void> saveName() async {
+  Future<bool> saveName({bool isFinalRequest = false}) async {
     print("이름 저장 요청 시작");
 
     String name = controller.text.trim();
@@ -38,8 +39,14 @@ class _EditnameScreenState extends State<EditnameScreen> {
 
     if (accessToken == null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
-      return;
+        .showSnackBar(
+          const SnackBar(
+            content: Text(
+              "로그인이 필요합니다."
+            )
+        )
+      );
+      return false;
     }
 
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/name");
@@ -64,16 +71,19 @@ class _EditnameScreenState extends State<EditnameScreen> {
 
       if (response.statusCode == 200) {
         print("이름 저장 성공");
-        Navigator.pop(context, name);
+        return true;
       } else {
         print("이름 저장 실패");
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("이름 저장에 실패했습니다. 입력 정보를 다시 확인해주세요.")));
+        return false;
       }
     } catch (e) {
-      print("네트워크 오류 발생: $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     } finally {
       setState(() {
         _isLoading = false;
@@ -120,7 +130,22 @@ class _EditnameScreenState extends State<EditnameScreen> {
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: _isLoading ? null : saveName,
+                onPressed: _isLoading 
+                  ? null
+                  : () async {
+                      bool result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => saveName(isFinalRequest: isFinalRequest), context);
+                      if (result) {
+                        Navigator.pop(context, controller.text.trim());
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "이름 저장에 실패했습니다. 입력 정보를 다시 확인해주세요."
+                            )
+                          )
+                        );
+                      }
+                    },
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 12),

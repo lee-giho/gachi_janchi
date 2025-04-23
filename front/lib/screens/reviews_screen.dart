@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/ReviewTile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -23,10 +24,11 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchReviews("latest");
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchReviews("latest", isFinalRequest: isFinalRequest), context);
+    // fetchReviews("latest");
   }
 
-  Future<void> fetchReviews(String sortType) async {
+  Future<bool> fetchReviews(String sortType, {bool isFinalRequest = false}) async {
     print("방문한 음식점 리스트 가져오기 요청");
     String? accessToken = await SecureStorage.getAccessToken();
 
@@ -50,21 +52,25 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
         print("jsonResponse: $data");
 
-        if (data.containsKey("reviews")) {
-          setState(() {
-            reviews = data["reviews"];
-          });
-        } else {
-          print("오류: 'reviews' 키가 없음");
-        }
+        setState(() {
+          reviews = data["reviews"];
+        });
+
+        print("작성한 리뷰 리스트 불러오기 성공");
+        return true;
       } else {
-        print("작성한 리뷰 리스트 불러오기 요청 실패");
+        print("작성한 리뷰 리스트 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 
@@ -82,7 +88,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 reviewInfo: review,
                 menuButton: true,
                 fetchReview: () {
-                  fetchReviews("latest");
+                  ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchReviews("latest", isFinalRequest: isFinalRequest), context);
+                  // fetchReviews("latest");
                 },
                 fetchUserInfo: widget.fetchUserInfo,
               );

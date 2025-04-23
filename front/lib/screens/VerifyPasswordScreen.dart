@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import '../utils/secure_storage.dart';
-import 'edit_password_screen.dart'; // ✅ 새로운 비밀번호 입력 화면
+import 'edit_password_screen.dart'; // 새로운 비밀번호 입력 화면
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class VerifyPasswordScreen extends StatefulWidget {
@@ -14,7 +15,8 @@ class VerifyPasswordScreen extends StatefulWidget {
 class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isPasswordEntered = false; // ✅ 입력 상태 확인
+  bool _isPasswordEntered = false; // 입력 상태 확인
+  bool _isPasswordValid = false; // 맞는 비밀번호를 입력했는지
 
   @override
   void dispose() {
@@ -22,20 +24,20 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
     super.dispose();
   }
 
-  /// ✅ 현재 비밀번호 검증 요청
-  Future<void> verifyCurrentPassword() async {
+  // 현재 비밀번호 검증 요청
+  Future<bool> verifyCurrentPassword({bool isFinalRequest = false}) async {
     String password = passwordController.text.trim();
     if (password.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("비밀번호를 입력해주세요.")));
-      return;
+      return false;
     }
 
     String? accessToken = await SecureStorage.getAccessToken();
     if (accessToken == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
-      return;
+      return false;
     }
 
     final apiAddress =
@@ -60,32 +62,42 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
         var responseData = response.data;
 
         if (responseData is bool) {
-          // ✅ 서버 응답이 true/false인지 확인
+          // 서버 응답이 true/false인지 확인
           if (responseData) {
-            print("✅ 비밀번호 확인 성공! 비밀번호 변경 화면으로 이동");
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const EditpasswordScreen()));
+            print("비밀번호 확인 성공! 비밀번호 변경 화면으로 이동");
+            setState(() {
+              _isPasswordValid = true;
+            });
           } else {
-            print("❌ 비밀번호가 일치하지 않습니다.");
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
+            print("비밀번호가 일치하지 않습니다.");
+            setState(() {
+              _isPasswordValid = false;
+            });
           }
+          return true;
         } else {
-          print("❌ 서버 응답 구조가 예상과 다릅니다: $responseData");
+          print("서버 응답 구조가 예상과 다릅니다: $responseData");
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("서버 오류: 응답이 올바르지 않습니다.")));
+          return false;
         }
+      } else {
+        return false;
       }
     } on DioException catch (e) {
-      print("❌ [Dio 오류] ${e.message}");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.message}")));
+      if (isFinalRequest) {
+        print("[Dio 오류] ${e.message}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.message}")));
+      }
+      return false;
     } catch (e) {
-      print("❌ [예외 발생] $e");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+      if (isFinalRequest) {
+        print("[예외 발생] $e");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+      }
+      return false;
     } finally {
       setState(() => _isLoading = false);
     }
@@ -113,8 +125,33 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
                   _isPasswordEntered = value.isNotEmpty;
                 });
               },
-              onFieldSubmitted: (_) =>
-                  verifyCurrentPassword(), // ✅ Enter 키 입력 시 실행
+              onFieldSubmitted: (_) async {
+                  final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
+                  if (result) {
+                    if (_isPasswordValid) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditpasswordScreen()
+                        )
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "비밀번호 확인 실패"
+                          )
+                        )
+                      );
+                  }
+                },
+              
+                  // verifyCurrentPassword(), // Enter 키 입력 시 실행
               decoration: const InputDecoration(
                 hintText: "현재 비밀번호 입력",
                 border: UnderlineInputBorder(),
@@ -124,8 +161,32 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
             Center(
               child: ElevatedButton(
                 onPressed: (_isLoading || !_isPasswordEntered)
-                    ? null
-                    : verifyCurrentPassword,
+                  ? null
+                  : () async {
+                    final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
+                    if (result) {
+                      if (_isPasswordValid) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditpasswordScreen()
+                          )
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context)
+                        .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "비밀번호 확인 실패"
+                            )
+                          )
+                        );
+                    }
+                  },
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 12),

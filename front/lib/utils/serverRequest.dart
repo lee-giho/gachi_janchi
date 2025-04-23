@@ -8,9 +8,9 @@ import 'dart:convert';
 
 class ServerRequest {
 
-  Future<bool> serverRequest(Future<bool> Function() asyncFuction, BuildContext context) async{
+  Future<bool> serverRequest(Future<bool> Function({bool isFinalRequest}) asyncFuction, BuildContext context) async{
     log("asyncFuction을 서버에 요청 시작 - 첫 번째");
-    final asyncFunctionResult = await asyncFuction();
+    final asyncFunctionResult = await asyncFuction(isFinalRequest: false);
     log("asyncFunctionResult: $asyncFunctionResult");
     if (!asyncFunctionResult) {
       log("서버에 요청 실패 - accessToken 재발급");
@@ -18,7 +18,7 @@ class ServerRequest {
       log("tokenResponse: $tokenResponse");
       if (tokenResponse) {
         log("asyncFuction을 서버에 요청 시작 - 두 번째");
-        final asyncFunctionAgainResult = await asyncFuction();
+        final asyncFunctionAgainResult = await asyncFuction(isFinalRequest: true);
         log("asyncFunctionAgainResult: $asyncFunctionAgainResult");
         if (!asyncFunctionAgainResult) {
           log("두 번째 요청 실패 - 토큰 만료");
@@ -43,14 +43,12 @@ class ServerRequest {
           );
         } else {
           log("두 번째 요청 성공 - 토큰 재발급 성공");  
-        }
-      
+        }      
         return asyncFunctionAgainResult;
+      } else {
+        log("accessToken 재발급 실패");
       }
-
-      log("accessToken 재발급 실패");
     }
-
     return asyncFunctionResult;
   }
 

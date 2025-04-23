@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import '../utils/secure_storage.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -21,13 +22,17 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUserInfoAndTitles();
-    _fetchAllTitleProgress();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfoAndTitles(isFinalRequest: isFinalRequest), context);
+    // _fetchUserInfoAndTitles();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllTitleProgress(isFinalRequest: isFinalRequest), context);
+    // _fetchAllTitleProgress();
   }
 
-  Future<void> _fetchUserInfoAndTitles() async {
+  Future<bool> _fetchUserInfoAndTitles({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
 
     try {
       final userRes = await _dio.get(
@@ -60,15 +65,26 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
           selectedTitleId = match != null ? match['titleId'] : null;
           selectedTitle = match != null ? match['titleName'] : null;
         });
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
-      print("\u274C 유저 정보 또는 칭호 목록 불러오기 실패: $e");
+      if (isFinalRequest) {
+        print("\u274C 유저 정보 또는 칭호 목록 불러오기 실패: $e");
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchAllTitleProgress() async {
+  Future<bool> _fetchAllTitleProgress({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
 
     try {
       final res = await _dio.get(
@@ -79,15 +95,28 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
         setState(() {
           allTitleConditions = res.data;
         });
+        print("칭호 진행도 불러오기 성공");
+        return true;
+      } else {
+        print("칭호 진행도 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("\u274C 칭호 진행도 불러오기 실패: $e");
+      if (isFinalRequest) {
+        print("\u274C 칭호 진행도 불러오기 실패: $e");
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _saveSelectedTitle(int? titleId, String titleName) async {
+  Future<bool> _saveSelectedTitle(int? titleId, String titleName, {bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
 
     try {
       final res = await _dio.post(
@@ -98,15 +127,27 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
       if (res.statusCode == 200) {
         print("\u2705 대표 칭호 저장 완료: $titleName ($titleId)");
+        return true;
+      } else {
+        print("\u274C 대표 칭호 설정 실패");
+        return false;
       }
     } catch (e) {
-      print("\u274C 대표 칭호 설정 실패: $e");
+      if (isFinalRequest) {
+        print("\u274C 대표 칭호 설정 실패: $e");
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _claimTitle(int titleId) async {
+  Future<bool> _claimTitle(int titleId, {bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
 
     try {
       final res = await _dio.post(
@@ -117,11 +158,23 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
 
       if (res.statusCode == 200) {
         print("\uD83C\uDFC5 칭호 획득 성공: $titleId");
-        _fetchUserInfoAndTitles();
-        _fetchAllTitleProgress();
+        ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfoAndTitles(isFinalRequest: isFinalRequest), context);
+        // _fetchUserInfoAndTitles();
+        ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllTitleProgress(isFinalRequest: isFinalRequest), context);
+        // _fetchAllTitleProgress();
+        return true;
+      } else {
+        print("\u274C 칭호 획득 실패");
+        return false;
       }
     } catch (e) {
-      print("\u274C 칭호 획득 실패: $e");
+      if (isFinalRequest) {
+        print("\u274C 칭호 획득 실패: $e");
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -197,6 +250,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                     selectedTitle = selected['titleName'];
                   });
 
+                  ServerRequest().serverRequest(({bool isFinalRequest = false}) => _saveSelectedTitle(value, selected['titleName'], isFinalRequest: isFinalRequest), context);
                   _saveSelectedTitle(value, selected['titleName']);
                 },
               ),
@@ -226,7 +280,10 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                       subtitle: Text("조건: ${getConditionText(title)}"),
                       trailing: (title['achievable'] == true)
                           ? TextButton(
-                              onPressed: () => _claimTitle(title['titleId']),
+                              onPressed: () {
+                                ServerRequest().serverRequest(({bool isFinalRequest = false}) => _claimTitle(title["titleId"], isFinalRequest: isFinalRequest), context);
+                              },
+                              // _claimTitle(title['titleId']),
                               child: const Text("획득하기"),
                             )
                           : null,

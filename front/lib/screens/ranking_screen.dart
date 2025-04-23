@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
@@ -38,14 +39,15 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   Future<void> _initializeData() async {
-    await _fetchMyInfoAndRanking();
-    await _fetchRanking();
+    await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchMyInfoAndRanking(isFinalRequest: isFinalRequest), context);
+    // await _fetchMyInfoAndRanking();
+    await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchRanking(isFinalRequest: isFinalRequest), context);
+    // await _fetchRanking();
     _updateMyRanking();
   }
 
-  Future<void> _fetchRanking() async {
+  Future<bool> _fetchRanking({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    String imageBaseUrl = dotenv.get("API_ADDRESS");
 
     try {
       final res = await _dio.get(
@@ -57,15 +59,26 @@ class _RankingScreenState extends State<RankingScreen> {
         setState(() {
           rankings = data;
         });
+        
+        print("랭킹 불러오기 성공");
+        return true;
+      } else {
+        print("랭킹 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("랭킹 불러오기 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchMyInfoAndRanking() async {
+  Future<bool> _fetchMyInfoAndRanking({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    String imageBaseUrl = dotenv.get("API_ADDRESS");
 
     try {
       final res = await _dio.get(
@@ -89,9 +102,21 @@ class _RankingScreenState extends State<RankingScreen> {
             myInfo['profileImage'] = profileImage;
           }
         });
+
+        print("사용자 정보 불러오기 성공");
+        return true;
+      } else {
+        print("사용자 정보 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("내 정보 불러오기 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
-import 'package:gachi_janchi/utils/qr_code_scanner.dart';
-import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
-import 'package:http/http.dart'  as http;
-import 'dart:convert';
 
 class FavoriteScreen extends ConsumerStatefulWidget {
   final void Function(int)? changeTab;

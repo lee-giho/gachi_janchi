@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/VisitedRestaurantTile.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,8 @@ class _VisitScreenState extends State<VisitScreen> {
   @override
   void initState() {
     super.initState();
-    fetchVisitedRestaurants("latest");
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
+    // fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -37,7 +39,7 @@ class _VisitScreenState extends State<VisitScreen> {
   }
 
   // 서버에서 방문한 음식점 리스트 가져오는 함수
-  Future<void> fetchVisitedRestaurants(String sortType) async {
+  Future<bool> fetchVisitedRestaurants(String sortType, {bool isFinalRequest = false}) async {
     print("방문한 음식점 리스트 가져오기 요청");
     String? accessToken = await SecureStorage.getAccessToken();
 
@@ -62,21 +64,25 @@ class _VisitScreenState extends State<VisitScreen> {
         print("jsonResponse: $data");
 
         // 리스트만 저장
-        if (data.containsKey("visitedRestaurants")) {
-          setState(() {
-            visitedRestaurants = data["visitedRestaurants"];
-          });
-        } else {
-          print("오류: 'visitedRestaurants' 키가 없음");
-        }
+        setState(() {
+          visitedRestaurants = data["visitedRestaurants"];
+        });
+
+        print("방문한 음식점 리스트 불러오기 성공");
+        return true;
       } else {
-        print("방문한 음식점 리스트 불러오기 요청 실패");
+        print("방문한 음식점 리스트 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 
@@ -102,7 +108,8 @@ class _VisitScreenState extends State<VisitScreen> {
   }
 
   void refreshScreen(int index) {
-    fetchVisitedRestaurants("latest");
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
+    // fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -227,7 +234,8 @@ class _VisitScreenState extends State<VisitScreen> {
                           return VisitedRestaurantTile(
                             visitedRestaurant: visitedRestaurant,
                             onReviewCompleted: () {
-                              fetchVisitedRestaurants("latest");
+                              ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
+                              // fetchVisitedRestaurants("latest");
                             },
                           );
                         },

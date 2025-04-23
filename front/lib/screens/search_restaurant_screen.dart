@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/CustomSearchAppBar.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 import 'package:http/http.dart'  as http;
@@ -33,7 +34,8 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
       setState(() {
         searchKeywordController.text = widget.data['keyword'];
       });
-      searchRestaurantsByKeword();
+      ServerRequest().serverRequest(({bool isFinalRequest = false}) => searchRestaurantsByKeword(isFinalRequest: isFinalRequest), context);
+      // searchRestaurantsByKeword();
     }
   }
 
@@ -48,7 +50,7 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
   String favoriteCount = "";
 
   // 음식점 검색 요청 함수
-  Future<void> searchRestaurantsByKeword() async {
+  Future<bool> searchRestaurantsByKeword({bool isFinalRequest = false})async {
     String? accessToken = await SecureStorage.getAccessToken();
     String keyword = searchKeywordController.text.trim();
     // .env에서 서버 URL 가져오기
@@ -74,30 +76,28 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
 
           print("API 응답 데이터: $data");
 
-          if (data.containsKey("restaurants")) {
-            // List<dynamic> restaurants = data["restaurants"];
-            // for (var restaurant in restaurants) {
-            //   if (restaurant.containsKey("restaurantName")) {
-            //     print("음식점 이름: ${restaurant["restaurantName"]}");
-            //   } else {
-            //     print("오류: 'restaurantName' 키가 없음");
-            //   }
-            // }
-            setState(() {
-              searchRestaurants = data["restaurants"];
-            });
-          } else {
-            print("오류: 'restaurants' 키가 없음");
-          }
+          setState(() {
+            searchRestaurants = data["restaurants"];
+          });
+
+          print("음식점 리스트 불러오기 성공");
+          return true;
         } else {
-          print("음식점 리스트를 불러올 수 없습니다.");
+          print("음식점 리스트 불러오기 실패");
+          return false;
         }
       } catch (e) {
-        // 예외 처리
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-        );
+        if (isFinalRequest) {
+          // 예외 처리
+          print("네트워크 오류: $e");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+          );
+        }
+        return false;
       }
+    } else {
+      return false;
     }
   }
 
@@ -115,7 +115,8 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
         onSearchPressed: () {
           print("${searchKeywordController.text} 검색!!!");
           // 검색 함수 실행
-          searchRestaurantsByKeword();
+          ServerRequest().serverRequest(({bool isFinalRequest = false}) => searchRestaurantsByKeword(isFinalRequest: isFinalRequest), context);
+          // searchRestaurantsByKeword();
         },
         onClearPressed: () {
           searchKeywordController.clear(); // TextField 내용 비우기

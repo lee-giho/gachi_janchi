@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crypto/crypto.dart';
@@ -70,7 +71,8 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
   }
 
   Future<void> initReviewData() async {
-    await getRestaurantMenus();
+    await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getRestaurantMenus(isFinalRequest: isFinalRequest), context);
+    // await getRestaurantMenus();
 
     setState(() {
       originalImageNames = List<String>.from(widget.reviewInfo!["reviewImages"].map((img) => img["imageName"]));
@@ -102,7 +104,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
     print("changeRating: $changeRating");
   }
 
-  Future<void> getRestaurantMenus() async {
+  Future<bool> getRestaurantMenus({bool isFinalRequest = false}) async {
     print("음식점 메뉴 불러오기 시작");
     String? accessToken = await SecureStorage.getAccessToken();
 
@@ -130,13 +132,21 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
         setState(() {
           restaurantMenus = data["menu"];
         });
+
+        print("음식점 메뉴 불러오기 성공");
+        return true;
       } else {
         print("음식점 메뉴 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context)
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -249,7 +259,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
     );
   }
 
-  Future<void> submitReviewUpdate() async {
+  Future<bool> submitReviewUpdate({bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
     final reviewId = widget.reviewInfo!["review"]["id"];
 
@@ -311,18 +321,19 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
 
       if (response.statusCode == 200) {
         print("리뷰 수정 성공!!!");
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("리뷰를 수정했습니다."))
-        );
+        return true;
       } else {
         print("리뷰 수정 실패!!!");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );  
+      }
+      return false;
     }
   }
 
@@ -700,9 +711,21 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                 ),
                 ElevatedButton(
                   onPressed: (isImageChanged || isMenuChanged || isContentChanged || isRatingChanged) && (formKey.currentState?.validate() ?? false)
-                    ? () {
+                    ? () async {
                         print("리뷰 수정 버튼 클릭!!!");
-                        submitReviewUpdate();
+                        final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => submitReviewUpdate(isFinalRequest: isFinalRequest), context);
+                        
+                        if (result) {
+                          Navigator.pop(context, true);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("리뷰를 수정했습니다."))
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("리뷰를 수정하지 못했습니다."))
+                          );
+                        }
+                        // submitReviewUpdate();
                       }
                     : null,
                   style: ElevatedButton.styleFrom(

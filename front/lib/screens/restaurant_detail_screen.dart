@@ -6,6 +6,7 @@ import 'package:gachi_janchi/screens/restaurant_detail_menu_screen.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_review_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/TabBarDelegate.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,7 +31,20 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
   int _currentIndex = 0;
   List<Widget> screens = [];
 
-  Future<void> getRestaurantInfo(String restaurantId) async {
+  @override
+  void initState() {
+    super.initState();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => getRestaurantInfo(widget.restaurantId, isFinalRequest: isFinalRequest), context);
+    // getRestaurantInfo(widget.restaurantId);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    removeOverlay();
+  }
+
+  Future<bool> getRestaurantInfo(String restaurantId, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
     
     // .env에서 서버 URL 가져오기
@@ -48,7 +62,7 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
       );
 
       if (response.statusCode == 200) {
-        print("음식점 리스트 요청 완료11111111");
+        print("음식점 정보 요청 완료11111111");
 
         // UTF-8로 디코딩
         final decodedData = utf8.decode(response.bodyBytes);
@@ -79,20 +93,22 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
             )
           ];
         });
+
+        print("음식점 정보 요청 성공");
+        return true;
       } else {
-        print("음식점 리스트 요청 실패");
+        print("음식점 정보 요청 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context)
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getRestaurantInfo(widget.restaurantId);
   }
 
   // 음식점 사진 dialog로 보여주는 함수
@@ -219,7 +235,8 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
       ),
     );
 
-    overlayState.insert(overlayEntry!);
+    Overlay.of(context).insert(overlayEntry!);
+    // overlayState.insert(overlayEntry!);
   }
 
   // 오버레이 창 닫는 함수
@@ -230,10 +247,12 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
 
   // 오버레이 토글 함수 (클릭하면 열고, 다시 클릭하면 닫음)
   void toggleOverlay(BuildContext context) {
-    if (overlayEntry == null) {
-      showOverlay(context);
-    } else {
+    if (overlayEntry != null) {
       removeOverlay();
+      print(overlayEntry);
+    } else {
+      showOverlay(context);
+      print(overlayEntry);
     }
   }
 
@@ -262,10 +281,14 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
       body: SafeArea(
         child: GestureDetector(
           onTap: () {
-            removeOverlay();
+            if (overlayEntry != null){
+              removeOverlay();
+            }
           },
-          onPanDown: (details) {
-            removeOverlay();
+          onPanDown: (_) {
+            if (overlayEntry != null){
+              removeOverlay();
+            }
           },
           child: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [

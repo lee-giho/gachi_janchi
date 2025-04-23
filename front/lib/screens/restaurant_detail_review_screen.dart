@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/ReviewTile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -43,11 +44,12 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   @override
   void initState() {
     super.initState();
-    getReview(widget.data["restaurantId"], "latest", isOnlyImage);
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], "latest", isOnlyImage, isFinalRequest: isFinalRequest), context);
+    // getReview(widget.data["restaurantId"], "latest", isOnlyImage);
     reviewTypeController.text = selectedReviewSortType;
   }
   
-  Future<void> getReview(String restaurantId, String sortType, bool onlyImage) async {
+  Future<bool> getReview(String restaurantId, String sortType, bool onlyImage, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -89,13 +91,21 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
           }
         });
         // showReviewTypeToggle();
+
+        print("리뷰 리스트 요청 성공");
+        return true;
       } else {
         print("리뷰 리스트 요청 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -252,7 +262,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           isOnlyImage = !isOnlyImage;
                         });
                         // showReviewTypeToggle();
-                        getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage);
+                        ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                        // getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage);
                         print("사진 리뷰만 보기 버튼 클릭!!!!");
                         print("isOnlyImage: $isOnlyImage");
                       },
@@ -300,7 +311,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           setState(() {
                             selectedReviewSortType = value;
                           });
-                          getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage);
+                          ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                          // getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage);
                         }
                       },
                       inputDecorationTheme: const InputDecorationTheme(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,6 +23,9 @@ class _NicknameRegistrationScreenState
   // 닉네임 FocusNode
   FocusNode nickNameFocus = FocusNode();
 
+  // 닉네임 중복 여부
+  bool isNickNameDuplication = false;
+
   // 닉네임 중복확인 여부
   bool nickNameValid = false;
 
@@ -35,7 +39,7 @@ class _NicknameRegistrationScreenState
   }
 
   // 닉네임 중복확인 요청 함수
-  Future<void> checkNickNameDuplication() async {
+  Future<bool> checkNickNameDuplication({bool isFinalRequest = false}) async {
     print("닉네임 중복확인");
 
     String nickName = nickNameController.text;
@@ -59,38 +63,26 @@ class _NicknameRegistrationScreenState
         print("닉네임 중복 확인 완료");
 
         final data = json.decode(response.body);
-        bool isDuplication = data['duplication'];
+        isNickNameDuplication = data['duplication'];
 
-        if (isDuplication) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
-
-          setState(() {
-            nickNameValid = false;
-          });
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
-
-          setState(() {
-            nickNameValid = true;
-          });
-        }
+        return true;
       } else {
         print("닉네임 중복 확인 실패");
-
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인 실패")));
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context)
+      if (isFinalRequest){
+        print("네트워크 오류");
+        // 예외 처리
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
   // 닉네임 저장 요청 함수
-  Future<void> saveNickName() async {
+  Future<bool> saveNickName({bool isFinalRequest = false}) async {
     print("닉네임 저장");
 
     String nickName = nickNameController.text;
@@ -110,21 +102,18 @@ class _NicknameRegistrationScreenState
 
       if (response.statusCode == 200) {
         print("닉네임 저장 성공");
-        // 닉네임 저장 성공 후 메인 화면으로 이동
-        Navigator.pushReplacement(
-            context,
-            // MaterialPageRoute(builder: (context) => const TestScreen())
-            MaterialPageRoute(builder: (context) => const MainScreen()));
+        return true;
       } else {
         print("닉네임 저장 실패");
-
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("닉네임 저장에 실패했습니다. 입력 정보를 다시 확인해주세요.")));
+        return false;
       }
     } catch (e) {
-      // 예외 처리
+      if (isFinalRequest) {
+        // 예외 처리
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -209,8 +198,29 @@ class _NicknameRegistrationScreenState
                                       ),
                                       const SizedBox(width: 10),
                                       ElevatedButton(
-                                          onPressed: () {
-                                            checkNickNameDuplication();
+                                          onPressed: () async {
+                                            final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => checkNickNameDuplication(isFinalRequest: isFinalRequest), context);
+                                            if (result) {
+                                              if (isNickNameDuplication) {
+                                                ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
+
+                                                setState(() {
+                                                  nickNameValid = false;
+                                                });
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
+
+                                                setState(() {
+                                                  nickNameValid = true;
+                                                });
+                                              }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(content: Text("닉네임 중복 확인 실패")));
+                                            }
+                                            // checkNickNameDuplication();
                                           },
                                           style: ElevatedButton.styleFrom(
                                               minimumSize: const Size(100, 50),
@@ -241,10 +251,21 @@ class _NicknameRegistrationScreenState
                             onPressed:
                                 (formKey.currentState?.validate() ?? false) &&
                                         nickNameValid
-                                    ? () {
+                                    ? () async {
                                         print("시작하기 버튼 클릭");
-
-                                        saveNickName();
+                                        final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => saveNickName(isFinalRequest: isFinalRequest), context);
+                                        if (result) {
+                                          // 닉네임 저장 성공 후 메인 화면으로 이동
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const MainScreen()),
+                                            (route) => false // 스택에 남는 페이지 없이 전체 초기화
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("닉네임 저장에 실패했습니다. 입력 정보를 다시 확인해주세요.")));
+                                        }
+                                        // saveNickName();
                                       }
                                     : null,
                             style: ElevatedButton.styleFrom(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../utils/checkValidate.dart'; // ✅ 유효성 검사 추가
+import '../utils/checkValidate.dart'; // 유효성 검사 추가
 
 class EditpasswordScreen extends StatefulWidget {
   const EditpasswordScreen({super.key});
@@ -27,18 +28,18 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
     super.dispose();
   }
 
-  /// ✅ 비밀번호 변경 요청 (새 비밀번호만 전송)
-  Future<void> changePassword() async {
+  // 비밀번호 변경 요청 (새 비밀번호만 전송)
+  Future<bool> changePassword({bool isFinalRequest = false}) async {
     if (!isNewPasswordValid) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("비밀번호를 확인해주세요.")));
-      return;
+      return false;
     }
 
     if (newPasswordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("새 비밀번호가 일치하지 않습니다.")));
-      return;
+      return false;
     }
 
     print("비밀번호 변경 요청 시작");
@@ -49,17 +50,17 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
     if (accessToken == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
-      return;
+      return false;
     }
 
     final apiAddress = Uri.parse(
-        "${dotenv.get("API_ADDRESS")}/api/user/password"); // ✅ 비밀번호 변경 API 주소
+        "${dotenv.get("API_ADDRESS")}/api/user/password"); // 비밀번호 변경 API 주소
     final headers = {
       'Authorization': 'Bearer $accessToken',
       'Content-Type': 'application/json'
     };
     final body = json.encode({
-      'password': newPassword, // ✅ 현재 비밀번호 없이 새 비밀번호만 전송
+      'password': newPassword, // 현재 비밀번호 없이 새 비밀번호만 전송
     });
 
     try {
@@ -70,22 +71,24 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
       final response =
           await http.patch(apiAddress, headers: headers, body: body);
 
-      print("🔹 서버 응답 코드: ${response.statusCode}");
-      print("🔹 서버 응답 데이터: ${response.body}");
+      print("서버 응답 코드: ${response.statusCode}");
+      print("서버 응답 데이터: ${response.body}");
 
       final responseData = json.decode(response.body);
       if (response.statusCode == 200 && responseData["success"] == true) {
-        print("✅ 비밀번호 변경 성공");
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("비밀번호가 성공적으로 변경되었습니다.")));
-        Navigator.pop(context); // ✅ 변경 성공 후 화면 닫기
+        print("비밀번호 변경 성공");
+        return true;
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(responseData["message"])));
+        print("비밀번호 변경 실패");
+        return false;
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
+      if (isFinalRequest) {
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     } finally {
       setState(() {
         _isLoading = false;
@@ -153,7 +156,17 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
                         !isNewPasswordValid ||
                         !isConfirmPasswordValid)
                     ? null
-                    : changePassword,
+                    : () async {
+                      final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => changePassword(isFinalRequest: isFinalRequest), context);
+                      if (result) {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text("비밀번호가 성공적으로 변경되었습니다.")));
+                        Navigator.pop(context); // 변경 성공 후 화면 닫기
+                      } else {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text("비밀번호 변경에 실패했습니다.")));
+                      }
+                    },
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 12),

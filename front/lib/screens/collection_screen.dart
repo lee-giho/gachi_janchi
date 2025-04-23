@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
@@ -41,14 +42,19 @@ class _CollectionScreenState extends State<CollectionScreen>
     );
 
     _initializeUserInfo();
-    _fetchUserIngredients();
-    _fetchCollections();
-    _fetchUserCollections();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
+    // _fetchUserIngredients();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchCollections(isFinalRequest: isFinalRequest), context);
+    // _fetchCollections();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserCollections(isFinalRequest: isFinalRequest), context);
+    // _fetchUserCollections();
   }
 
   Future<void> _initializeUserInfo() async {
-    await _fetchUserData();
-    await _fetchUserRanking();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserData(isFinalRequest: isFinalRequest), context);
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserRanking(isFinalRequest: isFinalRequest), context);
+    // await _fetchUserData();
+    // await _fetchUserRanking();
   }
 
   @override
@@ -57,10 +63,12 @@ class _CollectionScreenState extends State<CollectionScreen>
     super.dispose();
   }
 
-  Future<void> _fetchUserData() async {
+  Future<bool> _fetchUserData({bool isFinalRequest = false}) async {
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/info").toString();
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.get(
         apiAddress,
@@ -76,15 +84,28 @@ class _CollectionScreenState extends State<CollectionScreen>
             profileImage = res.data["profileImage"];
           }
         });
+        print("유저 정보 불러옴");
+        return true;
+      } else {
+        print("유저 정보 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 유저 정보 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchUserRanking() async {
+  Future<bool> _fetchUserRanking({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.get(
         "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=0&size=1000",
@@ -99,15 +120,28 @@ class _CollectionScreenState extends State<CollectionScreen>
             ranking = index + 1;
           });
         }
+        print("유저 랭킹 불러옴");
+        return true;
+      } else {
+        print("유저 랭킹 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 유저 랭킹 불러오기 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchUserIngredients() async {
+  Future<bool> _fetchUserIngredients({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.get(
         "${dotenv.get("API_ADDRESS")}/api/ingredients/user",
@@ -119,15 +153,28 @@ class _CollectionScreenState extends State<CollectionScreen>
             for (var i in res.data) i["ingredientName"]: i["quantity"]
           };
         });
+        print("사용자가 보유한 재료 가져옴");
+        return true;
+      } else {
+        print("사용자가 보유한 재료 가져오기 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 재료 가져오기 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchCollections() async {
+  Future<bool> _fetchCollections({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.get(
         "${dotenv.get("API_ADDRESS")}/api/collections",
@@ -145,15 +192,28 @@ class _CollectionScreenState extends State<CollectionScreen>
         setState(() {
           collections = raw.where((c) => c["name"] != null).toList();
         });
+        print("컬렉션 목록 불러옴");
+        return true;
+      } else {
+        print("컬렉션 목록 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 컬렉션 목록 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchUserCollections() async {
+  Future<bool> _fetchUserCollections({bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.get(
         "${dotenv.get("API_ADDRESS")}/api/collections/user",
@@ -164,15 +224,28 @@ class _CollectionScreenState extends State<CollectionScreen>
           completedCollections = List<String>.from(
               res.data.map((e) => e["collectionName"].toString()));
         });
+        print("유저 컬렉션 목록 불러옴");
+        return true;
+      } else {
+        print("유저 컬렉션 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 유저 컬렉션 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
-  Future<void> _completeCollection(String name) async {
+  Future<bool> _completeCollection(String name, {bool isFinalRequest = false}) async {
     String? token = await SecureStorage.getAccessToken();
-    if (token == null) return;
+    if (token == null) {
+      return false;
+    }
     try {
       final res = await _dio.post(
         "${dotenv.get("API_ADDRESS")}/api/collections/complete",
@@ -183,10 +256,22 @@ class _CollectionScreenState extends State<CollectionScreen>
         setState(() {
           completedCollections.add(name);
         });
-        await _fetchUserIngredients();
+        ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
+        // await _fetchUserIngredients();
+        print("컬렉션 완성 성공");
+        return true;
+      } else {
+        print("컬렉션 완성 실패");
+        return false;
       }
     } catch (e) {
-      print("❌ 컬렉션 완성 실패: $e");
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -202,7 +287,8 @@ class _CollectionScreenState extends State<CollectionScreen>
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                _completeCollection(name);
+                ServerRequest().serverRequest(({bool isFinalRequest = false}) => _completeCollection(name, isFinalRequest: isFinalRequest), context);
+                // _completeCollection(name);
               },
               child: const Text("완성하기")),
         ],

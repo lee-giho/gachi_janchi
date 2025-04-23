@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -99,7 +100,7 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
   }
 
   // 리뷰 작성 요청 함수
-  Future<void> submitReview() async {
+  Future<bool> submitReview({bool isFinalRequest = false}) async {
     print("리뷰 작성 요청");
 
     String? accessToken = await SecureStorage.getAccessToken();
@@ -141,18 +142,20 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
 
       if (response.statusCode == 200) {
         print("리뷰 작성 성공!!!");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("리뷰를 작성했습니다."))
-        );
-        Navigator.pop(context);
+        return true;
       } else {
         print("리뷰 작성 실패!!!");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 
@@ -419,11 +422,23 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
                 ),
                 ElevatedButton(
                   onPressed: isSubmitEnabled && formKey.currentState!.validate()
-                    ? () {
+                    ? () async {
                         print("리뷰 등록 버튼 클릭!!!");
                         print("리뷰 내용: ${contentController.text}");
                         print("별점: $reviewRating");
-                        submitReview();
+                        final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => submitReview(isFinalRequest: isFinalRequest), context);
+                        // submitReview();
+
+                        if (result) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("리뷰를 작성했습니다."))
+                          );
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("리뷰를 작성하지 못했습니다."))
+                          );
+                        }
                       }
                     : null,
                   style: ElevatedButton.styleFrom(

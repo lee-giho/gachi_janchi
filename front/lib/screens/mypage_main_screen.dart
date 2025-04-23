@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/secure_storage.dart';
 import 'mypage_screen.dart';
@@ -29,12 +30,15 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUserInfo();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
+    // _fetchUserInfo();
   }
 
-  Future<void> _resetToDefaultImage() async {
+  Future<bool> _resetToDefaultImage({bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
-    if (accessToken == null) return;
+    if (accessToken == null) {
+      return false;
+    }
 
     try {
       var dio = Dio();
@@ -47,25 +51,35 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
         setState(() {
           profileImage = null;
         });
-        if (!mounted) return;
+        if (!mounted) return false;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("기본 이미지로 변경되었습니다.")),
         );
+        return true;
+      } else {
+        print("기본 이미지로 변경 실패");
+        return false;
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
+      if (!mounted) return false;
+      if (isFinalRequest) {
+        print("기본 이미지 설정 실패: $e");
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("기본 이미지 설정 실패: $e")));
+      }
+      return false;
     }
   }
 
-  Future<void> _fetchUserInfo() async {
+  Future<bool> _fetchUserInfo({bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
     if (accessToken == null) {
-      if (!mounted) return;
+      if (!mounted) {
+        return false;
+      }
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("로그인이 필요합니다.")));
-      return;
+      return false;
     }
 
     try {
@@ -89,17 +103,29 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
               ? data["profileImage"]
               : null;
         });
+
+        print("사용자 정보 가져오기 성공");
+        return true;
+      } else {
+        print("사용자 정보 가져오기 실패");
+        return false;
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
+      if (!mounted) return false;
+      if (isFinalRequest) {
+        print("오류 발생: $e");
+        ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("오류 발생: $e")));
+      }
+      return false;
     }
   }
 
-  Future<void> _uploadImage(String path) async {
+  Future<bool> _uploadImage(String path, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
-    if (accessToken == null) return;
+    if (accessToken == null) {
+      return false;
+    }
 
     try {
       var dio = Dio();
@@ -116,15 +142,26 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
       );
 
       if (response.statusCode == 200) {
-        await _fetchUserInfo(); // ✅ 변경 직후 갱신 추가
-        if (!mounted) return;
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context); // 변경 직후 갱신 추가
+        // await _fetchUserInfo(); // ✅ 변경 직후 갱신 추가
+        if (!mounted) return false;
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("프로필 이미지가 변경되었습니다.")));
+
+        print("프로필 이미지 변경 성공");
+        return true;
+      } else {
+        print("프로필 이미지 변경 실패");
+        return false;
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("이미지 업로드 실패: $e")));
+      if (!mounted) return false;
+      if (isFinalRequest) {
+        print("이미지 업로드 실패: $e");
+        ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("이미지 업로드 실패: $e"))); 
+      }
+      return false;
     }
   }
 
@@ -166,7 +203,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                     final pickedFile =
                         await picker.pickImage(source: ImageSource.gallery);
                     if (pickedFile != null) {
-                      await _uploadImage(pickedFile.path);
+                      ServerRequest().serverRequest(({bool isFinalRequest = false}) => _uploadImage(pickedFile.path, isFinalRequest: isFinalRequest), context);
+                      // await _uploadImage(pickedFile.path);
                     }
                   },
                 ),
@@ -188,7 +226,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                   ),
                   onPressed: () async {
                     Navigator.pop(context);
-                    await _resetToDefaultImage();
+                    await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _resetToDefaultImage(isFinalRequest: isFinalRequest), context);
+                    // await _resetToDefaultImage();
                   },
                 ),
               ],
@@ -239,7 +278,8 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                   context,
                   MaterialPageRoute(builder: (context) => const MypageScreen()),
                 ).then((_) {
-                  _fetchUserInfo();
+                  ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
+                  // _fetchUserInfo();
                 });
               },
               child: Container(
@@ -320,7 +360,10 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
               Icons.comment, 
               "리뷰", 
               ReviewsScreen(
-                fetchUserInfo: _fetchUserInfo,
+                fetchUserInfo: () {
+                  ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
+                }
+                // _fetchUserInfo,
               )
             ),
             _buildMenuItem(Icons.campaign, "공지사항", NoticesScreen()),

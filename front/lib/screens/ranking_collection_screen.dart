@@ -49,8 +49,8 @@ class RankingCollectionScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            const RankingScreen(), // 랭킹 화면 (const 유지 가능)
-            CollectionScreen(), // 컬렉션 화면 (const 제거)
+            const RankingScreen(), // 랭킹 화면
+            CollectionScreen(), // 컬렉션 화면
           ],
         ),
       ),

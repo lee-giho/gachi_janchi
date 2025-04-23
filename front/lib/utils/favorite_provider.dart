@@ -15,7 +15,7 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   }
 
   // 서버에서 즐겨찾기 음식점 가져오기
-  Future<void> fetchFavoriteRestaurants() async {
+  Future<bool> fetchFavoriteRestaurants({bool isFinalRequest = false}) async {
     print("음식점 리스트 가져오기 요청");
     String? accessToken = await SecureStorage.getAccessToken();
 
@@ -39,23 +39,26 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         // JSON을 Map<String, dynamic>으로 변환
         final Map<String, dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
 
-        // "restaurants" 키가 존재하는지 확인 후 state 업데이트
-        if (jsonResponse.containsKey("restaurants")) {
-          final List<dynamic> restaurantList = jsonResponse["restaurants"];
+        final List<dynamic> restaurantList = jsonResponse["restaurants"];
 
-          // 상태를 <Map<String, dynamic>>으로 저장
-          state = List<Map<String, dynamic>>.from(restaurantList);
-        }
+        // 상태를 <Map<String, dynamic>>으로 저장
+        state = List<Map<String, dynamic>>.from(restaurantList);
+
+        return true;
       } else {
         print("즐겨찾기 리스트 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      print("네트워크 오류: $e");
+      if (isFinalRequest) {
+        print("네트워크 오류: $e");
+      }
+      return false;
     }
   }
 
   // 즐겨찾기 추가/삭제
-  Future<void> toggleFavoriteRestaurant(Map<String, dynamic> restaurant) async {
+  Future<bool> toggleFavoriteRestaurant(Map<String, dynamic> restaurant, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -93,11 +96,17 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         state = state.any((r) => r["id"] == restaurant["id"])
           ? state.where((r) => r["id"] != restaurant["id"]).toList() // 특정 요소 제거
           : [...state, restaurant]; // 새로운 요소 추가
+
+        return true;
       } else {
         print("음식점 즐겨찾기 추가/삭제 요청 실패");
+        return false;
       }
     } catch (e) {
-      print("네트워크 오류: $e");
+      if (isFinalRequest) {
+        print("네트워크 오류: $e");
+      }
+      return false;
     }
   }
 
@@ -108,7 +117,7 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   }
 
   // 즐겨찾기 수 요청하는 함수
-  Future<String> getFavoriteCount(String restaurantId) async {
+  Future<String> getFavoriteCount(String restaurantId, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -136,7 +145,9 @@ class FavoriteNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         return "";
       }
     } catch (e) {
-      print("네트워크 오류: $e");
+      if (isFinalRequest) {
+        print("네트워크 오류: $e");
+      }
       return "";
     }
   }

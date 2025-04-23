@@ -436,7 +436,8 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
                                     constraints: const BoxConstraints(), // 기본 크기 제한 제거
                                     onPressed: () {
                                       print("즐겨찾기 버튼 클릭!!!");
-                                      favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
+                                      ServerRequest().serverRequest(({bool isFinalRequest = false}) => favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant, isFinalRequest: isFinalRequest), context);
+                                      // favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                                     },
                                     icon: Icon(
                                       isFavorite

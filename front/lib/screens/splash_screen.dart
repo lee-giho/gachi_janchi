@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -53,7 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
         if (isValid) {
         
         // 즐겨찾기 목록 불러오기
-        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
           // accessToken이 유효하면 홈 화면으로 이동
           print("accessToken 유효, 홈으로 이동");
@@ -68,7 +70,8 @@ class _SplashScreenState extends State<SplashScreen> {
           if (isRefreshed) {
 
             // 즐겨찾기 목록 불러오기
-            await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+            await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+            // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
             print("새로운 accessToken 발급 완료, 홈으로 이동");
             Navigator.pushReplacement(
@@ -110,7 +113,8 @@ class _SplashScreenState extends State<SplashScreen> {
           if (isValid) {
 
             // 즐겨찾기 목록 불러오기
-            await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+            await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+            // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
             // accessToken이 유효하면 홈 화면으로 이동
             print("accessToken 유효, 홈으로 이동");
@@ -125,7 +129,8 @@ class _SplashScreenState extends State<SplashScreen> {
             if (isRefreshed) {
 
               // 즐겨찾기 목록 불러오기
-              await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+              await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+              // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
               print("새로운 accessToken 발급 완료, 홈으로 이동");
               Navigator.pushReplacement(

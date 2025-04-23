@@ -10,18 +10,25 @@ class ServerRequest {
 
   Future<bool> serverRequest(Future<bool> Function({bool isFinalRequest}) asyncFuction, BuildContext context) async{
     log("asyncFuction을 서버에 요청 시작 - 첫 번째");
+    print("ServerRequest - asyncFuction을 서버에 요청 시작 - 첫 번째");
     final asyncFunctionResult = await asyncFuction(isFinalRequest: false);
     log("asyncFunctionResult: $asyncFunctionResult");
+    print("ServerRequest - asyncFunctionResult: $asyncFunctionResult");
     if (!asyncFunctionResult) {
       log("서버에 요청 실패 - accessToken 재발급");
+      print("ServerRequest - 서버에 요청 실패 - accessToken 재발급");
       final tokenResponse = await refreshAccessToken();
       log("tokenResponse: $tokenResponse");
+      print("ServerRequest - tokenResponse: $tokenResponse");
       if (tokenResponse) {
         log("asyncFuction을 서버에 요청 시작 - 두 번째");
+        print("ServerRequest - asyncFuction을 서버에 요청 시작 - 두 번째");
         final asyncFunctionAgainResult = await asyncFuction(isFinalRequest: true);
         log("asyncFunctionAgainResult: $asyncFunctionAgainResult");
+        print("ServerRequest - asyncFunctionAgainResult: $asyncFunctionAgainResult");
         if (!asyncFunctionAgainResult) {
           log("두 번째 요청 실패 - 토큰 만료");
+          print("ServerRequest - 두 번째 요청 실패 - 토큰 만료");
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
@@ -42,11 +49,13 @@ class ServerRequest {
             ),
           );
         } else {
-          log("두 번째 요청 성공 - 토큰 재발급 성공");  
+          log("두 번째 요청 성공 - 토큰 재발급 성공");
+          print("ServerRequest - 두 번째 요청 성공 - 토큰 재발급 성공");
         }      
         return asyncFunctionAgainResult;
       } else {
         log("accessToken 재발급 실패");
+        print("ServerRequest - accessToken 재발급 실패");
       }
     }
     return asyncFunctionResult;
@@ -54,18 +63,25 @@ class ServerRequest {
 
   Future<String> serverRequestReturnStr(Future<String> Function({bool isFinalRequest}) asyncFuction, BuildContext context) async{
     log("asyncFuction을 서버에 요청 시작 - 첫 번째");
+    print("ServerRequest - asyncFuction을 서버에 요청 시작 - 첫 번째");
     final asyncFunctionResult = await asyncFuction(isFinalRequest: false);
     log("asyncFunctionResult: $asyncFunctionResult");
+    print("ServerRequest - asyncFunctionResult: $asyncFunctionResult");
     if (asyncFunctionResult.isEmpty) {
       log("서버에 요청 실패 - accessToken 재발급");
+      print("ServerRequest - 서버에 요청 실패 - accessToken 재발급");
       final tokenResponse = await refreshAccessToken();
       log("tokenResponse: $tokenResponse");
+      print("ServerRequest - tokenResponse: $tokenResponse");
       if (tokenResponse) {
         log("asyncFuction을 서버에 요청 시작 - 두 번째");
+        print("ServerRequest - asyncFuction을 서버에 요청 시작 - 두 번째");
         final asyncFunctionAgainResult = await asyncFuction(isFinalRequest: true);
         log("asyncFunctionAgainResult: $asyncFunctionAgainResult");
+        print("ServerRequest - asyncFunctionAgainResult: $asyncFunctionAgainResult");
         if (asyncFunctionAgainResult.isEmpty) {
           log("두 번째 요청 실패 - 토큰 만료");
+          print("ServerRequest - 두 번째 요청 실패 - 토큰 만료");
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
@@ -87,10 +103,12 @@ class ServerRequest {
           );
         } else {
           log("두 번째 요청 성공 - 토큰 재발급 성공");  
+          print("ServerRequest - 두 번째 요청 성공 - 토큰 재발급 성공");  
         }      
         return asyncFunctionAgainResult;
       } else {
         log("accessToken 재발급 실패");
+        print("ServerRequest - accessToken 재발급 실패");
       }
     }
     return asyncFunctionResult;

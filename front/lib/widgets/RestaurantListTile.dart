@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart'  as http;
 import 'dart:convert';
 
@@ -81,7 +82,8 @@ class RestaurantListTile extends ConsumerWidget {
       },
       borderRadius: BorderRadius.circular(10),
       child: FutureBuilder<String>(
-        future: favoriteProviderNotifier.getFavoriteCount(restaurant["id"]),
+        future: ServerRequest().serverRequestReturnStr(({bool isFinalRequest = false}) => favoriteProviderNotifier.getFavoriteCount(restaurant["id"], isFinalRequest: isFinalRequest), context),
+        // favoriteProviderNotifier.getFavoriteCount(restaurant["id"]),
         builder: (context, snapshot) {
           final favoriteCount = snapshot.data ?? "0";
           return Container(
@@ -196,7 +198,8 @@ class RestaurantListTile extends ConsumerWidget {
                             : Colors.black,
                         ),
                         onPressed: () {
-                          favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
+                          ServerRequest().serverRequest(({bool isFinalRequest = false}) => favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant, isFinalRequest: isFinalRequest), context);
+                          // favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                         },
                       ),
                       Text(

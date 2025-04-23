@@ -17,6 +17,6 @@ class TabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true; // ✅ 변경된 상태를 감지하고 다시 빌드하도록 설정
+    return true; // 변경된 상태를 감지하고 다시 빌드하도록 설정
   }
 }

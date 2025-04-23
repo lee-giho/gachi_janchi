@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -31,7 +32,8 @@ class _QRCodeButtonState extends State<QRCodeButton> {
       .then((value) async{
         print('QR value: ${value}');
         if (value != null && value.toString().isNotEmpty) {
-          await getRestaurant(value);
+          await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getRestaurant(value, isFinalRequest: isFinalRequest), context);
+          // await getRestaurant(value);
           
           widget.changeTap?.call(3);
         }
@@ -43,7 +45,7 @@ class _QRCodeButtonState extends State<QRCodeButton> {
   }
 
   // 음식점 아이디로 재료 요청하는 함수
-  Future<void> getRestaurant(String restaurantId) async {
+  Future<bool> getRestaurant(String restaurantId, {bool isFinalRequest = false}) async {
 
     String? accessToken = await SecureStorage.getAccessToken();
 
@@ -68,22 +70,31 @@ class _QRCodeButtonState extends State<QRCodeButton> {
         final ingredientId = data["ingredientId"];
         print("ingredientId: $ingredientId");
 
-        await addVisitedRestaurant(restaurantId, ingredientId);
-        await addIngredient(ingredientId);
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => addVisitedRestaurant(restaurantId, ingredientId, isFinalRequest: isFinalRequest), context);
+        // await addVisitedRestaurant(restaurantId, ingredientId);
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => addIngredient(ingredientId, isFinalRequest: isFinalRequest), context);
+        // await addIngredient(ingredientId);
 
+        print("방문 음식점 재료 아이디 요청 성공");
+        return true;
       } else {
         print("방문 음식점에 대한 재료 아이디를 불러올 수 없습니다.");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 
   // 방문한 음식점 저장하는 함수
-  Future<void> addVisitedRestaurant(String restaurantId, int ingredientId) async {
+  Future<bool> addVisitedRestaurant(String restaurantId, int ingredientId, {bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
@@ -112,22 +123,30 @@ class _QRCodeButtonState extends State<QRCodeButton> {
 
         print("result: $data");
 
-
+        print("방문 음식점 저장 성공");
+        return true;
       } else {
-        print("방문 음식점 저장 요청 실패");
+        print("방문 음식점 저장 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 
   // 재료 추가
-  Future<void> addIngredient(int ingredientId) async {
+  Future<bool> addIngredient(int ingredientId, {bool isFinalRequest = false})async {
     String? accessToken = await SecureStorage.getAccessToken();
-    if (accessToken == null) return;
+    if (accessToken == null) {
+      return false;
+    }
 
     // .env에서 서버 URL 가져오기
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/ingredients/add");
@@ -146,15 +165,21 @@ class _QRCodeButtonState extends State<QRCodeButton> {
       );
 
       if (response.statusCode == 200) {
-        print("재료 '$ingredientId' 추가됨");
+        print("재료 '$ingredientId' 추가 성공");
+        return true;
       } else {
         print("재료 '$ingredientId' 추가 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/utils/translation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -27,14 +28,17 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
   @override
   void initState() {
     super.initState();
-    fetchAllIngredients();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchAllIngredients(isFinalRequest: isFinalRequest), context);
+    // fetchAllIngredients();
     selectIngredients = List.from(widget.selected);
   }
 
   /// 전체 재료 목록 불러오기 (이름순 정렬 추가됨)
-  Future<void> fetchAllIngredients() async {
+  Future<bool> fetchAllIngredients({bool isFinalRequest = false}) async {
     String? accessToken = await SecureStorage.getAccessToken();
-    if (accessToken == null) return;
+    if (accessToken == null) {
+      return false;
+    }
 
     // .env에서 서버 URL 가져오기
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/ingredients/all");
@@ -62,14 +66,20 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
 
         print("allIngredients: $allIngredients");
         print("전체 재료 목록 불러오기 성공 ");
+        return true;
       } else {
         print("전체 재료 목록 불러오기 실패");
+        return false;
       }
     } catch (e) {
-      // 예외 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-      );
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+        );
+      }
+      return false;
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/QRCodeButton.dart';
 import 'package:gachi_janchi/widgets/RestaurantListTile.dart';
 
@@ -29,7 +30,8 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+      ServerRequest().serverRequest(({bool isFinalRequest = false}) => ref.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+      // ref.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
     });
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/screens/review_edit_screen.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -23,7 +24,7 @@ class MenuPopUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Future<void> deleteReview() async {
+    Future<bool> deleteReview({bool isFinalRequest = false}) async {
       String? accessToken = await SecureStorage.getAccessToken();
 
       // .env에서 서버 URL 가져오기
@@ -43,23 +44,24 @@ class MenuPopUp extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-          // 리뷰 삭제 성공
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("리뷰 삭제 완료"))
-          );
           fetchReview();
           fetchUserInfo();
+
+          print("리뷰 삭제 성공");
+          return true;
         } else {
-          // 리뷰 삭제 실패
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("리뷰 삭제 실패"))
-          );
+          print("리뷰 삭제 실패");
+          return false;
         }
       } catch (e) {
-        // 예외 처리
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
-        );
+        if (isFinalRequest) {
+          // 예외 처리
+          print("네트워크 오류: $e");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
+          );
+        }
+        return false;
       }
     }
 
@@ -105,10 +107,22 @@ class MenuPopUp extends StatelessWidget {
           ),
           const Divider(height: 1),
           TextButton.icon(
-            onPressed: () {
+            onPressed: () async {
               print("삭제하기");
               // removeOverlay();
-              deleteReview();
+              final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => deleteReview(isFinalRequest: isFinalRequest), context);
+              // deleteReview();
+              if (result) {
+                // 리뷰 삭제 성공
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("리뷰 삭제 완료"))
+                );
+              } else {
+                // 리뷰 삭제 실패
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("리뷰 삭제 실패"))
+                );
+              }
             },
             icon: const Icon(Icons.delete, color: Colors.red),
             label: const Text(

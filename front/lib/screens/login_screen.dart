@@ -10,6 +10,7 @@ import 'package:gachi_janchi/screens/nickName_registration_screen.dart';
 import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
+import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -87,7 +88,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
-        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         print("isexistNickName: ${existNickName}");
 
@@ -179,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
-        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         print("existNickName: ${existNickName}");
 
@@ -241,7 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
-        await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
+        await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
+        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         if (existNickName) {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동

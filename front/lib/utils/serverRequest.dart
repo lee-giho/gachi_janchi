@@ -52,6 +52,50 @@ class ServerRequest {
     return asyncFunctionResult;
   }
 
+  Future<String> serverRequestReturnStr(Future<String> Function({bool isFinalRequest}) asyncFuction, BuildContext context) async{
+    log("asyncFuction을 서버에 요청 시작 - 첫 번째");
+    final asyncFunctionResult = await asyncFuction(isFinalRequest: false);
+    log("asyncFunctionResult: $asyncFunctionResult");
+    if (asyncFunctionResult.isEmpty) {
+      log("서버에 요청 실패 - accessToken 재발급");
+      final tokenResponse = await refreshAccessToken();
+      log("tokenResponse: $tokenResponse");
+      if (tokenResponse) {
+        log("asyncFuction을 서버에 요청 시작 - 두 번째");
+        final asyncFunctionAgainResult = await asyncFuction(isFinalRequest: true);
+        log("asyncFunctionAgainResult: $asyncFunctionAgainResult");
+        if (asyncFunctionAgainResult.isEmpty) {
+          log("두 번째 요청 실패 - 토큰 만료");
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("로그인 만료"),
+              content: const Text("다시 로그인을 해주세요."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false // 스택에 남는 페이지 없이 전체 초기화
+                    );
+                  },
+                  child: const Text("로그인 화면으로 이동"),
+                ),
+              ],
+            ),
+          );
+        } else {
+          log("두 번째 요청 성공 - 토큰 재발급 성공");  
+        }      
+        return asyncFunctionAgainResult;
+      } else {
+        log("accessToken 재발급 실패");
+      }
+    }
+    return asyncFunctionResult;
+  }
+
   Future<bool> refreshAccessToken() async {
     String? refreshToken = await SecureStorage.getRefreshToken();
     // .env에서 서버 URL 가져오기

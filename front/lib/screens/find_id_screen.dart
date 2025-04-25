@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -217,6 +218,8 @@ class _FindIdScreenState extends State<FindIdScreen> {
         print("아이디 찾기 요청 완료");
         
         final data = json.decode(response.body);
+        log("response data: $data");
+        
         String findId = data['id'];
 
         print("find id: ${findId}");

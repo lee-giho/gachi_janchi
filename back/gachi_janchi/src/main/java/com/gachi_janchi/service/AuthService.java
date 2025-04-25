@@ -2,6 +2,8 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.*;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.*;
 import com.gachi_janchi.util.GoogleTokenVerifier;
 import com.gachi_janchi.util.JwtProvider;
@@ -34,19 +36,21 @@ public class AuthService {
     return new CheckIdDuplicationResponse(isDuplication);
   }
 
-  /**
-   * ✅ 로컬 회원가입
-   */
+   // 로컬 회원가입
+
   public RegisterResponse register(RegisterRequest registerRequest) {
     if (userRepository.existsById(registerRequest.getId())) {
-      throw new IllegalArgumentException("이미 사용 중인 ID입니다.");
+      // throw new IllegalArgumentException("이미 사용 중인 ID입니다.");
+      throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
     }
 
     Role roleUser = roleRepository.findById("ROLE_USER")
-            .orElseThrow(() -> new IllegalArgumentException("기본 권한 ROLE_USER가 설정되어 있지 않습니다."));
+            // .orElseThrow(() -> new IllegalArgumentException("기본 권한 ROLE_USER가 설정되어 있지 않습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND));
 
     Title defaultTitle = titleRepository.findByName("기본 칭호")
-            .orElseThrow(() -> new IllegalArgumentException("기본 칭호 '기본 칭호'가 존재하지 않습니다."));
+            // .orElseThrow(() -> new IllegalArgumentException("기본 칭호 '기본 칭호'가 존재하지 않습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
     // User 생성 (대표 칭호는 설정하지 않음)
     User user = new User();
@@ -70,12 +74,15 @@ public class AuthService {
 
   public LoginResponse login(LoginRequest loginRequest) {
     User user = userRepository.findById(loginRequest.getId())
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     LocalAccount localAccount = localAccountRepository.findById(loginRequest.getId())
-            .orElseThrow(() -> new IllegalArgumentException("비밀번호 정보를 찾을 수 없습니다."));
+            // .orElseThrow(() -> new IllegalArgumentException("비밀번호 정보를 찾을 수 없습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.LOCAL_ACCOUNT_NOT_FOUND));
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), localAccount.getPassword())) {
-      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+      // throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+      throw new CustomException(ErrorCode.INVALID_PASSWORD);
     }
 
     boolean existNickName = user.getNickName() != null && !user.getNickName().isEmpty();
@@ -93,15 +100,19 @@ public class AuthService {
       String id = (String) tokenInfo.get("email");
       String name = (String) tokenInfo.get("name");
 
-      if (id == null || name == null) throw new IllegalArgumentException("잘못된 사용자 정보");
+      if (id == null || name == null) 
+        // throw new IllegalArgumentException("잘못된 사용자 정보");
+        throw new CustomException(ErrorCode.INVALID_SOCIAL_TOKEN);
 
       User user = userRepository.findById(id).orElse(null);
       if (user == null) {
         Role roleUser = roleRepository.findById("ROLE_USER")
-                .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND));
 
         Title defaultTitle = titleRepository.findByName("기본 칭호")
-                .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
+                // .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
         user = new User();
         user.setId(id);
@@ -137,15 +148,19 @@ public class AuthService {
       String id = (String) tokenInfo.get("email");
       String name = (String) tokenInfo.get("name");
 
-      if (id == null || name == null) throw new IllegalArgumentException("잘못된 사용자 정보");
+      if (id == null || name == null)
+        // throw new IllegalArgumentException("잘못된 사용자 정보");
+        throw new CustomException(ErrorCode.INVALID_SOCIAL_TOKEN);
 
       User user = userRepository.findById(id).orElse(null);
       if (user == null) {
         Role roleUser = roleRepository.findById("ROLE_USER")
-                .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("ROLE_USER가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND));
 
         Title defaultTitle = titleRepository.findByName("기본 칭호")
-                .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
+                // .orElseThrow(() -> new IllegalArgumentException("칭호 '기본 칭호' 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
         user = new User();
         user.setId(id);
@@ -177,7 +192,8 @@ public class AuthService {
 
   public FindIdResponse findId(String name, String email) {
     User user = userRepository.findByNameAndEmail(name, email)
-            .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 유저가 없습니다."));
+            // .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 유저가 없습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     return new FindIdResponse(user.getId());
   }
 
@@ -188,10 +204,11 @@ public class AuthService {
 
   public ChangePasswordResponse changePassword(ChangePasswordRequest req) {
     try {
-      LocalAccount account = localAccountRepository.findById(req.getId())
-              .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
-      account.setPassword(passwordEncoder.encode(req.getPassword()));
-      localAccountRepository.save(account);
+      LocalAccount localAccount = localAccountRepository.findById(req.getId())
+              // .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+              .orElseThrow(() -> new CustomException(ErrorCode.LOCAL_ACCOUNT_NOT_FOUND));
+      localAccount.setPassword(passwordEncoder.encode(req.getPassword()));
+      localAccountRepository.save(localAccount);
       return new ChangePasswordResponse("Success");
     } catch (Exception e) {
       return new ChangePasswordResponse("Error: " + e.getMessage());

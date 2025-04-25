@@ -21,6 +21,9 @@ public enum ErrorCode {
 
   // 사용자
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+  LOCAL_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "로컬 계정을 찾을 수 없습니다."),
+  SOCIAL_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "소셜 계정을 찾을 수 없습니다."),
+  ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROLE_USER로 설정되어 있지 않습니다."),
   DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
   DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다."),
   INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),

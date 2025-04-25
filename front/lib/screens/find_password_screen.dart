@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -101,6 +102,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
       final response = await dio.post(apiAddress.toString(),
           data: {'email': email, 'type': 'password'});
 
+      log("response data = ${response.toString()}");
+
       if (response.statusCode == 200) {
         startTimer();
         // 인증번호 메일 보내기 성공 처리
@@ -119,6 +122,9 @@ class _FindPasswordState extends State<FindPasswordScreen> {
       }
     } catch (e) {
       // 예외 처리
+      if (e is DioError) {
+        log("${e.response?.toString()}");
+      }
       showDialog(
           context: context,
           builder: (_) => const AlertDialog(
@@ -145,6 +151,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
             headers: {'sessionId': sessionId}, // 세션 ID 헤더 추가
           ));
 
+      log("response data = ${response.toString()}");
+
       if (response.statusCode == 200) {
         // 인증번호 확인 성공 처리
         print("인증번호 확인 성공");
@@ -156,6 +164,9 @@ class _FindPasswordState extends State<FindPasswordScreen> {
       }
     } catch (e) {
       // 예외 처리
+      if (e is DioError) {
+        log("${e.response?.toString()}");
+      }
       showDialog(
           context: context,
           builder: (_) => const AlertDialog(
@@ -217,6 +228,8 @@ class _FindPasswordState extends State<FindPasswordScreen> {
         apiAddress,
         headers: headers,
       );
+
+      log("response data = ${utf8.decode(response.bodyBytes)}");
 
       if (response.statusCode == 200) {
         // 비밀번호 찾기 성공 처리

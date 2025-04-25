@@ -102,6 +102,8 @@ class _FindIdScreenState extends State<FindIdScreen> {
         }
       );
 
+      log("response data = ${response.toString()}");
+
       if (response.statusCode == 200) {
         startTimer();
         // 인증번호 메일 보내기 성공 처리
@@ -120,6 +122,10 @@ class _FindIdScreenState extends State<FindIdScreen> {
       }
     } catch (e) {
       // 예외 처리
+      if (e is DioError) {
+        log("${e.response?.toString()}");
+      }
+
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
@@ -138,7 +144,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
 
     // .env에서 서버 URL 가져오기
     final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/auth/email/verify");
-
+    
     try {
       final response = await dio.post(
         apiAddress.toString(),
@@ -149,6 +155,8 @@ class _FindIdScreenState extends State<FindIdScreen> {
           headers: {'sessionId': sessionId}, // 세션 ID 헤더 추가
         )
       );
+
+      log("response data = ${response.toString()}");
 
       if(response.statusCode == 200) {
         // 인증번호 확인 성공 처리
@@ -161,6 +169,9 @@ class _FindIdScreenState extends State<FindIdScreen> {
       }
     } catch (e) {
       // 예외 처리
+      if (e is DioError) {
+        log("${e.response?.toString()}");
+      }
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
@@ -214,6 +225,8 @@ class _FindIdScreenState extends State<FindIdScreen> {
         headers: headers
       );
 
+      log("response data = ${utf8.decode(response.bodyBytes)}");
+
       if (response.statusCode == 200) {
         print("아이디 찾기 요청 완료");
         
@@ -240,6 +253,9 @@ class _FindIdScreenState extends State<FindIdScreen> {
       }
     } catch (e) {
       // 예외 처리
+      if (e is DioError) {
+        log("${e.response?.toString()}");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("네트워크 오류: ${e.toString()}"))
       );

@@ -21,20 +21,22 @@ public class EmailController {
   @PostMapping("/email/code")
   public ResponseEntity<SendVerificationCodeResponse> sendVerificationCode(@RequestBody SendVerificationCodeRequest sendVerificationCodeRequest, HttpServletRequest request) {
     SendVerificationCodeResponse sendVerificationCodeResponse = emailService.sendVerificationEmail(sendVerificationCodeRequest, request);
-    if(sendVerificationCodeResponse.getResponseMsg().equals("인증번호가 이메일로 전송되었습니다.")) {
-      return ResponseEntity.ok(sendVerificationCodeResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(sendVerificationCodeResponse);
-    }
+    // if(sendVerificationCodeResponse.getResponseMsg().equals("인증번호가 이메일로 전송되었습니다.")) {
+    //   return ResponseEntity.ok(sendVerificationCodeResponse);
+    // } else {
+    //   return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(sendVerificationCodeResponse);
+    // }
+    return ResponseEntity.ok(sendVerificationCodeResponse);
   }
 
   @PostMapping("/email/verify")
   public ResponseEntity<CheckVerificationCodeResponse> checkVerificationCode(@RequestHeader("sessionId") String sessionId, @RequestBody CheckVerificationCodeRequest checkVerificationCodeRequest, HttpServletRequest request) {
     CheckVerificationCodeResponse checkVerificationCodeResponse = emailService.checkVerificationCode(checkVerificationCodeRequest, request, sessionId);
-    if(checkVerificationCodeResponse.getResponseMsg().equals("인증번호가 일치합니다.")) {
-      return ResponseEntity.ok(checkVerificationCodeResponse);
-    } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(checkVerificationCodeResponse);
-    }
+    // if(checkVerificationCodeResponse.getResponseMsg().equals("인증번호가 일치합니다.")) {
+    //   return ResponseEntity.ok(checkVerificationCodeResponse);
+    // } else {
+    //   return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(checkVerificationCodeResponse);
+    // }
+    return ResponseEntity.ok(checkVerificationCodeResponse);
   }
 }

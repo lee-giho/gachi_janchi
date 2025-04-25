@@ -36,6 +36,32 @@ public class AuthController {
     return ResponseEntity.ok(loginResponse);
   }
 
+  // 아이디 찾기 엔드포인트
+  @GetMapping("/id")
+  public ResponseEntity<FindIdResponse> findId(@RequestParam("name") String name, @RequestParam("email") String email) {
+    FindIdResponse findIdResponse = authService.findId(name, email);
+    return ResponseEntity.ok(findIdResponse);
+  }
+
+  // 비밀번호 찾기 엔드포인트
+  @GetMapping("/password")
+  public ResponseEntity<FindPasswordResponse> findPassword(@RequestParam("name") String name, @RequestParam("id") String id, @RequestParam("email") String email ) {
+    FindPasswordResponse findPasswordResponse = authService.findUserForFindPassword(name, id, email);
+    return ResponseEntity.ok(findPasswordResponse);
+  }
+
+  // 비밀번호 변경 엔드포인트
+  @PatchMapping("/password")
+  public ResponseEntity<ChangePasswordResponse> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+    ChangePasswordResponse changePasswordResponse = authService.changePassword(changePasswordRequest);
+    return switch (changePasswordResponse.getResponseMsg()) {
+      case "Success" -> ResponseEntity.ok(changePasswordResponse);
+      case "User not found" -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(changePasswordResponse);
+      case "Invalid data" -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(changePasswordResponse);
+      default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(changePasswordResponse);
+    };
+  }
+
   // 구글 로그인 엔드포인트
   @PostMapping("/login/google")
   public ResponseEntity<GoogleLoginResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {

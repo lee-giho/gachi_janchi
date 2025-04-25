@@ -36,7 +36,7 @@ public enum ErrorCode {
   VISITED_RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "방문한 음식점을 찾을 수 없습니다."),
   REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
   FAVORITE_RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "즐겨찾기한 음식점을 찾을 수 없습니다."),
-  ALREADY_FAVORITED(HttpStatus.CONFLICT, "이미 즐겨찾기한 음식점입니다."),
+  FAVORITE_RESTAURANT_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 즐겨찾기한 음식점입니다."),
 
   // 컬렉션
   COLLECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 컬렉션입니다."),
@@ -46,7 +46,7 @@ public enum ErrorCode {
   // 칭호
   TITLE_NOT_FOUND(HttpStatus.NOT_FOUND, "칭호가 존재하지 않습니다."),
   USER_DOES_NOT_OWN_TITLE(HttpStatus.FORBIDDEN, "해당 칭호를 보유하고 있지 않습니다."),
-  ALREADY_CLAIMED_TITLE(HttpStatus.CONFLICT, "이미 획득한 칭호입니다."),
+  TITLE_ALREADY_CLAIMED(HttpStatus.CONFLICT, "이미 획득한 칭호입니다."),
 
   // 인증번호 / 이메일
   VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 일치하지 않습니다."),

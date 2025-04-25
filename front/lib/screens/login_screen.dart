@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
@@ -72,6 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await http.post(apiAddress,
           headers: headers,
           body: json.encode({'id': id, 'password': password}));
+
+      log("response data = ${utf8.decode(response.bodyBytes)}");
 
       if (response.statusCode == 200) {
         // 로그인 성공 처리

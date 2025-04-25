@@ -17,21 +17,21 @@ public class CollectionController {
 
     private final CollectionService collectionService;
 
-    // ✅ 전체 컬렉션 목록 조회
+    // 전체 컬렉션 목록 조회
     @GetMapping
     public List<CollectionResponse> getCollections(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         return collectionService.getAllCollections(token);
     }
 
-    // ✅ 유저가 완성한 컬렉션 목록 조회
+    // 유저가 완성한 컬렉션 목록 조회
     @GetMapping("/user")
     public List<UserCollectionResponse> getUserCollections(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         return collectionService.getUserCollections(token);
     }
 
-    // ✅ 컬렉션 완성 요청
+    // 컬렉션 완성 요청
     @PostMapping("/complete")
     public String completeCollection(
             HttpServletRequest request,

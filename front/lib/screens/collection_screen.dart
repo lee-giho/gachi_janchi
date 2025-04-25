@@ -6,6 +6,8 @@ import 'package:gachi_janchi/utils/translation.dart';
 import 'dart:math' as math;
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+import 'dart:developer';
 
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
@@ -252,6 +254,7 @@ class _CollectionScreenState extends State<CollectionScreen>
         data: {"collectionName": name},
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
+
       if (res.statusCode == 200) {
         setState(() {
           completedCollections.add(name);
@@ -259,9 +262,13 @@ class _CollectionScreenState extends State<CollectionScreen>
         ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
         // await _fetchUserIngredients();
         print("컬렉션 완성 성공");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("컬렉션 획득")));
         return true;
       } else {
         print("컬렉션 완성 실패");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("컬렉션 획득 실패")));
         return false;
       }
     } catch (e) {
@@ -285,9 +292,11 @@ class _CollectionScreenState extends State<CollectionScreen>
           TextButton(
               onPressed: () => Navigator.pop(context), child: const Text("취소")),
           ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ServerRequest().serverRequest(({bool isFinalRequest = false}) => _completeCollection(name, isFinalRequest: isFinalRequest), context);
+              onPressed: () async{
+                final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _completeCollection(name, isFinalRequest: isFinalRequest), context);
+                if (result) {
+                  Navigator.pop(context);
+                }
                 // _completeCollection(name);
               },
               child: const Text("완성하기")),

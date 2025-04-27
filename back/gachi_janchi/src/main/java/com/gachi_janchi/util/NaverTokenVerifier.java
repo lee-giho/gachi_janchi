@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
+
 import java.util.Map;
 
 @Component
@@ -36,7 +39,8 @@ public class NaverTokenVerifier {
       System.out.println("response.getBody(): " + response.getBody());
       return (Map<String, Object>) response.getBody().get("response");
     } catch (Exception e) {
-      throw new IllegalArgumentException("유효하지 않은 AccessToken: " + e.getMessage());
+      // throw new IllegalArgumentException("유효하지 않은 AccessToken: " + e.getMessage());
+      throw new CustomException(ErrorCode.INVALID_NAVER_ACCESS_TOKEN);
     }
   }
 }

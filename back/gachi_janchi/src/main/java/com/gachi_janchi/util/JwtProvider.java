@@ -2,6 +2,8 @@ package com.gachi_janchi.util;
 
 import com.gachi_janchi.entity.LocalAccount;
 import com.gachi_janchi.entity.User;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.service.UserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
@@ -117,15 +119,20 @@ public class JwtProvider {
     try {
       claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     } catch (SignatureException e) {
-      throw new BadCredentialsException("잘못된 비밀키", e);
+      // throw new BadCredentialsException("잘못된 비밀키", e);
+      throw new CustomException(ErrorCode.INVALID_TOKEN_SIGNATURE);
     } catch (ExpiredJwtException e) {
-      throw new BadCredentialsException("만료된 토큰", e);
+      // throw new BadCredentialsException("만료된 토큰", e);
+      throw new CustomException(ErrorCode.TOKEN_EXPIRED);
     } catch (MalformedJwtException e) {
-      throw new BadCredentialsException("유효하지 않은 구성의 토큰", e);
+      // throw new BadCredentialsException("유효하지 않은 구성의 토큰", e);
+      throw new CustomException(ErrorCode.MALFORMED_JWT);
     } catch (UnsupportedJwtException e) {
-      throw new BadCredentialsException("지원되지 않은 형식이나 구성의 토큰", e);
+      // throw new BadCredentialsException("지원되지 않은 형식이나 구성의 토큰", e);
+      throw new CustomException(ErrorCode.UNSUPPORTED_JWT);
     } catch (IllegalArgumentException e) {
-      throw new BadCredentialsException("잘못된 입력값", e);
+      // throw new BadCredentialsException("잘못된 입력값", e);
+      throw new CustomException(ErrorCode.BAD_REQUEST);
     }
     return claims;
   }

@@ -2,9 +2,10 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.*;
 import com.gachi_janchi.entity.Title;
-import com.gachi_janchi.entity.TitleCondition;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.entity.UserTitle;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.*;
 import com.gachi_janchi.util.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -51,17 +52,20 @@ public class TitleService {
         String userId = jwtProvider.getUserId(jwtProvider.getTokenWithoutBearer(token));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (request.getTitleId() == null) {
             user.setTitle(null);
         } else {
             Title title = titleRepository.findById(request.getTitleId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 칭호가 존재하지 않습니다."));
+                    // .orElseThrow(() -> new IllegalArgumentException("해당 칭호가 존재하지 않습니다."));
+                    .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
             boolean hasTitle = userTitleRepository.existsByUserIdAndTitleId(userId, request.getTitleId());
             if (!hasTitle) {
-                throw new IllegalArgumentException("해당 칭호를 보유하고 있지 않습니다.");
+                // throw new IllegalArgumentException("해당 칭호를 보유하고 있지 않습니다.");
+                throw new CustomException(ErrorCode.USER_DOES_NOT_OWN_TITLE);
             }
 
             user.setTitle(title);
@@ -74,14 +78,17 @@ public class TitleService {
         String userId = jwtProvider.getUserId(jwtProvider.getTokenWithoutBearer(token));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Title title = titleRepository.findById(request.getTitleId())
-                .orElseThrow(() -> new IllegalArgumentException("칭호가 존재하지 않습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("칭호가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
         boolean alreadyOwned = userTitleRepository.existsByUserIdAndTitleId(userId, title.getId());
         if (alreadyOwned) {
-            throw new IllegalStateException("이미 획득한 칭호입니다.");
+            // throw new IllegalStateException("이미 획득한 칭호입니다.");
+            throw new CustomException(ErrorCode.TITLE_ALREADY_CLAIMED);
         }
         user.setExp(user.getExp() + title.getExp());
         userRepository.save(user);
@@ -109,7 +116,8 @@ public class TitleService {
     public List<TitleConditionProgressResponse> getUserTitleProgress(String token) {
         String userId = jwtProvider.getUserId(jwtProvider.getTokenWithoutBearer(token));
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                // .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return titleConditionRepository.findAll().stream()
                 .map(tc -> {

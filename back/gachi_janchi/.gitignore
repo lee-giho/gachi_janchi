@@ -8,6 +8,9 @@ build/
 ### 환경변수 ###
 *.env
 
+### 도커파일 ###
+Dockerfile
+
 ### STS ###
 .apt_generated
 .classpath

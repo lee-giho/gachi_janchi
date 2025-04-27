@@ -29,6 +29,8 @@ import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
 import com.gachi_janchi.entity.User;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.ReviewImageRepository;
 import com.gachi_janchi.repository.ReviewMenuRepository;
 import com.gachi_janchi.repository.ReviewRepository;
@@ -143,7 +145,8 @@ public class ReviewService {
           }
         }
       }
-      throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+      // throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+      throw new CustomException(ErrorCode.REVIEW_STORAGE_ERROR, "리뷰 저장 중 오류가 발생했습니다. - " + e.getMessage());
     }
   }
 
@@ -185,7 +188,9 @@ public class ReviewService {
         if (onlyImage && reviewImages.isEmpty()) // 이미지 없는 리뷰 제외
           return null; 
         List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
-        User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+        User user = userRepository.findById(review.getUserId())
+          // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         String titleName = (user.getTitle() != null)
           ? user.getTitle().getName()
           : null;
@@ -221,7 +226,9 @@ public class ReviewService {
       .map(review -> {
         List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
         List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
-        User user = userRepository.findById(review.getUserId()).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+        User user = userRepository.findById(review.getUserId())
+          // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
         return new ReviewWithImageAndMenu(
           new UserInfoWithProfileImageAndTitle(
@@ -247,7 +254,9 @@ public class ReviewService {
     String reviewId = deleteReviewRequest.getReviewId();
 
     // 리뷰 존재 여부 확인
-    Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다. - " + reviewId ));
+    Review review = reviewRepository.findById(reviewId)
+      // .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다. - " + reviewId ));
+      .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
     // 리뷰 이미지 조회 및 파일 삭제
     List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(reviewId);
@@ -257,7 +266,7 @@ public class ReviewService {
       if (imageFile.exists()) {
         boolean deleted = imageFile.delete();
         if (!deleted) {
-          System.out.println("이미지 삭제 실패 - " + imagePath);
+          throw new CustomException(ErrorCode.FILE_DELETE_ERROR);
         }
       }
     }
@@ -288,7 +297,9 @@ public class ReviewService {
     String accessToken = jwtProvider.getTokenWithoutBearer(token);
     String userId = jwtProvider.getUserId(accessToken);
 
-    Review review = reviewRepository.findById(updateReviewRequest.getReviewId()).orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+    Review review = reviewRepository.findById(updateReviewRequest.getReviewId())
+      // .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+      .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
     String originalType = review.getType();
     String changeType = "";
@@ -345,6 +356,7 @@ public class ReviewService {
               boolean deleted = imageFile.delete();
               if (!deleted) {
                 System.out.println("이미지 삭제 실패 - " + imagePath);
+
               }
               removedFiles.add(imageFile);
               backFiles.add(backUpFile);
@@ -473,7 +485,7 @@ public class ReviewService {
 
           try {
               Files.copy(backup.toPath(), deleted.toPath(), StandardCopyOption.REPLACE_EXISTING);
-              // backup.delete(); // 백업 파일은 복원 후 삭제
+              backup.delete(); // 백업 파일은 복원 후 삭제
           } catch (IOException ioException) {
               System.out.println("백업 이미지 복원 실패 - " + deleted.getName());
               ioException.printStackTrace();
@@ -481,7 +493,8 @@ public class ReviewService {
         }
       }
       
-      throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+      // throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
+      throw new CustomException(ErrorCode.REVIEW_UPDATE_ERROR, "리뷰 수정 중 오류가 발생했습니다. - " + e.getMessage());
     }
   }
 }

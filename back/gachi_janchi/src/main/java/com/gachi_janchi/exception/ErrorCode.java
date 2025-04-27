@@ -32,9 +32,16 @@ public enum ErrorCode {
   RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "음식점을 찾을 수 없습니다."),
   INGREDIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "재료를 찾을 수 없습니다."),
 
-  // 방문기록 / 리뷰 / 즐겨찾기
+  // 방문기록
   VISITED_RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "방문한 음식점을 찾을 수 없습니다."),
+
+  // 리뷰
   REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+  REVIEW_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 저장 중 오류가 발생했습니다."),
+  REVIEW_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 삭제 중 오류가 발생했습니다."),
+  REVIEW_UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 수정 중 오류가 발생했습니다."),
+
+  // 즐겨찾기
   FAVORITE_RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "즐겨찾기한 음식점을 찾을 수 없습니다."),
   FAVORITE_RESTAURANT_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 즐겨찾기한 음식점입니다."),
 

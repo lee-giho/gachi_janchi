@@ -6,11 +6,12 @@ import com.gachi_janchi.dto.RestaurantDetailInfo;
 import com.gachi_janchi.dto.RestaurantDetailScreenResponse;
 import com.gachi_janchi.dto.RestaurantWithIngredientAndReviewCountDto;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
-import com.gachi_janchi.dto.RestaurantsByDongResponse;
 import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
 import com.gachi_janchi.dto.ReviewCountAndAvg;
 import com.gachi_janchi.entity.Ingredient;
 import com.gachi_janchi.entity.Restaurant;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.RestaurantIngredientRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
 import com.gachi_janchi.repository.ReviewRepository;
@@ -62,7 +63,10 @@ public class RestaurantService {
 
   // 음식점 id로 Restaurant 찾기
   public RestaurantDetailScreenResponse findRestaurantByRestaurantId(String restaurantId) {
-    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+    Restaurant restaurant = restaurantRepository.findById(restaurantId)
+      // .orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+      .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
+
     ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
       reviewRepository.countByRestaurantId(restaurant.getId()),
       reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
@@ -112,7 +116,9 @@ public class RestaurantService {
 
   // 음식점 아이디로 메뉴 반환해주는 함수
   public GetRestaurantMenuResponse getRestaurantMenuByRestaurantId(String restaurantId) {
-    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+    Restaurant restaurant = restaurantRepository.findById(restaurantId)
+      // .orElseThrow(() -> new IllegalArgumentException("음식점을 찾을 수 없습니다. - " + restaurantId));
+      .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
     return new GetRestaurantMenuResponse(restaurant.getMenu());
   }
 }

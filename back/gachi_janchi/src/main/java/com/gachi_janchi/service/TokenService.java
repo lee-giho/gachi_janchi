@@ -2,9 +2,9 @@ package com.gachi_janchi.service;
 
 import com.gachi_janchi.dto.TokenRefreshResponse;
 import com.gachi_janchi.dto.TokenValidationResponse;
-import com.gachi_janchi.entity.RefreshToken;
 import com.gachi_janchi.entity.User;
-import com.gachi_janchi.repository.RefreshTokenRepository;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +18,6 @@ public class TokenService {
 
   @Autowired
   private JwtProvider jwtProvider;
-
-  @Autowired
-  private RefreshTokenRepository refreshTokenRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -40,12 +37,15 @@ public class TokenService {
     String refreshToken = jwtProvider.getTokenWithoutBearer(token);
     System.out.println("refreshAccessToken: " + refreshToken);
     if (!jwtProvider.validateToken(refreshToken)) {
-      throw new IllegalArgumentException("Invalid refresh token");
+      // throw new IllegalArgumentException("Invalid refresh token");
+      throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
     // refreshToken이 유효한 경우, 새로운 accessToken을 발급
     String id = jwtProvider.getUserId(refreshToken);
-    User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + id));
+    User user = userRepository.findById(id)
+      // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + id));
+      .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     return new TokenRefreshResponse(jwtProvider.generateAccessToken(user));
   }
 

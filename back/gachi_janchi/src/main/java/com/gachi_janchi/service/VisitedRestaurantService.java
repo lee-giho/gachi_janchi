@@ -13,6 +13,8 @@ import com.gachi_janchi.dto.VisitedRestaurantList;
 import com.gachi_janchi.entity.Ingredient;
 import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.entity.VisitedRestaurant;
+import com.gachi_janchi.exception.CustomException;
+import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.IngredientRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
 import com.gachi_janchi.repository.ReviewRepository;
@@ -79,8 +81,12 @@ public class VisitedRestaurantService {
 
     List<VisitedRestaurantDto> visitedRestaurantDtos = visitedRestaurants.stream()
       .map(visitedRestaurant -> {
-        Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId()).orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));
-        Ingredient ingredient = ingredientRepository.findById(visitedRestaurant.getIngredientId()).orElseThrow(() -> new IllegalArgumentException("해당 재료가 존재하지 않습니다. - " + visitedRestaurant.getIngredientId()));
+        Restaurant restaurant = restaurantRepository.findById(visitedRestaurant.getRestaurantId())
+          // .orElseThrow(() -> new IllegalArgumentException("해당 음식점이 존재하지 않습니다. - " + visitedRestaurant.getRestaurantId()));
+          .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
+        Ingredient ingredient = ingredientRepository.findById(visitedRestaurant.getIngredientId())
+          // .orElseThrow(() -> new IllegalArgumentException("해당 재료가 존재하지 않습니다. - " + visitedRestaurant.getIngredientId()));
+          .orElseThrow(() -> new CustomException(ErrorCode.INGREDIENT_NOT_FOUND));
         // 방문한 음심점에 리뷰를 작성했는지 여부 확인
         Boolean isReviewWrite = reviewRepository.existsByVisitedId(visitedRestaurant.getId());
         System.out.println("isReviewWrite: " + isReviewWrite);

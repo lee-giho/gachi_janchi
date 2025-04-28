@@ -1,11 +1,13 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=0:ff7eb3,100:87CEEB&text=가치,%20잔치&fontSize=60&fontAlignY=30&animation=fadeIn&rotate=0&reversal=false&fontColor=ffffff" style="width: 120%;">
-<!-- &desc=딥러닝%20기반%20중고%20렌트%20거래%20플랫폼&descSize=30 -->
+<img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=0:ff7eb3,100:87CEEB&text=가치,%20잔치&fontSize=60&fontAlignY=30&animation=fadeIn&rotate=0&desc=게임%20요소가%20추가된%20맛집%20애플리케이션%20&descSize=30&reversal=false&fontColor=ffffff" style="width: 120%;">
 
 # 🚀 프로젝트 소개 🚀  
 
 
 ## 프로젝트 개요 및 배경
-
+리뷰 수와 높은 별점, 추천 글이 아닌 원하는 재료를 획득하기 위해 새로운 음식점에 방문하며 숨은 맛집을 찾을 수 있다.<br>
+하지만 기본의 맛집 애플리케이션은 단순히 리뷰와 추천 글을 통해 자신의 맛집을 공유하고 알아보며 음식점을 방문하고 있다.<br>
+우리는 이러한 맛집 애플리케이션에 게임 요소를 추가하여 사람들의 새로움에 대한 도전과 적극적인 참여를 이끌어내고자 한다.<br>
+직접 방문하여 재료를 획득해야 하는 시스템은 주변 음식점 상권의 활성화에도 도움이 될 것이다.<br>
 
 <br>
 
@@ -70,13 +72,6 @@
 <br>
 
 ## 🏗 시스템 아키텍처 🏛  
-<div align="center">
- 
-</div>
-
-<br>
-
-## 🏗 시스템 구조도 🏛  
 <div align="center">
  
 </div>
@@ -155,24 +150,19 @@ QR코드 스캔이 완료되면 정보가 저장되고 방문내역 탭으로 �
 <br>
 
 ## 주요 기능 영상
-1. 회원가입
-2. 로그인
-3. 아이디와 비밀번호 찾기
-4. 홈 탭
-5. 랭킹 탭
-6. 즐겨찾기 탭
-7. 방문내역 탭
-8. 마이페이지 탭
-9. 음식점 상세 페이지
-
-<br>
-
-| **화면1** | **화면2** | **화면3** |
+| **회원가입** | **로그인** | **아이디/비밀번호 찾기** |
 | :---: | :---: | :---: |
-| 영상1 | 영상2 | 영상3 |
-| **화면4** | **화면5** | **화면6** |
-| 영상4 | 영상5 | 영상6 |
+| <img src="https://github.com/user-attachments/assets/28c9b5b0-d0ce-4e63-9aff-095b8bc72579" height="300" /> | <img src="https://github.com/user-attachments/assets/247790cf-07af-4abd-ac1f-0ac5a7436e6e" height="300" /> | <img src="https://github.com/user-attachments/assets/6ccbf001-4fdb-4ce2-859a-8c348d2bae23" height="300" /> |
+| **홈 탭** | **랭킹 탭** | **즐겨찾기 탭** |
+| <img src="https://github.com/user-attachments/assets/492a7c43-38e8-4722-a5b9-a20fe69d1cda" height="300" /> | <img src="https://github.com/user-attachments/assets/2e9cab98-40e0-45eb-8679-ad50b43a134d" height="300" /> | <img src="https://github.com/user-attachments/assets/5826c3ef-54f2-495a-a232-ad76cba16290" height="300" /> |
+| **방문내역 탭** | **마이페이지 탭** | **음식점 상세 페이지** |
+| <img src="https://github.com/user-attachments/assets/d5547eb0-5bb0-4558-9481-bc6986cdf9da" height="300" /> | <img src="https://github.com/user-attachments/assets/3f4b75ba-16c7-4ffd-92ad-d08dfa96259b" height="300" /> | <img src="https://github.com/user-attachments/assets/467f1063-69cf-4df5-9d07-7116cfcbf694" height="300" /> |
 
 <br><br>
-# 🛠 결론 🏗
+# 🛠 추후 계획
+| **추가 기능** | **설명** |
+| :---: | :---: |
+| 관리자 페이지 | 전체 데이터 조회 및 관리 |
+| 사장님 페이지 | 음식점을 운영하는 사장님이 음식점에 대한 정보를 입력하고 등록 |
+| 새로운 게임적 요소 | 랜덤 상자, 멀티&싱글 모드 등 |
 

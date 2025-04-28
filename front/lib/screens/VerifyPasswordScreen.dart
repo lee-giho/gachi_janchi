@@ -107,99 +107,111 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("현재 비밀번호 확인")),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              "현재 비밀번호를 입력해주세요.",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextFormField(
-              controller: passwordController,
-              obscureText: true,
-              onChanged: (value) {
-                setState(() {
-                  _isPasswordEntered = value.isNotEmpty;
-                });
-              },
-              onFieldSubmitted: (_) async {
-                  final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
-                  if (result) {
-                    if (_isPasswordValid) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EditpasswordScreen()
-                        )
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
-                    }
-                  } else {
-                    ScaffoldMessenger.of(context)
-                      .showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "비밀번호 확인 실패"
-                          )
-                        )
-                      );
-                  }
-                },
-              
-                  // verifyCurrentPassword(), // Enter 키 입력 시 실행
-              decoration: const InputDecoration(
-                hintText: "현재 비밀번호 입력",
-                border: UnderlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: (_isLoading || !_isPasswordEntered)
-                  ? null
-                  : () async {
-                    final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
-                    if (result) {
-                      if (_isPasswordValid) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EditpasswordScreen()
-                          )
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "비밀번호 확인 실패"
-                            )
-                          )
-                        );
-                    }
-                  },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      body: SafeArea(
+        child: Container( // 전체 화면
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "현재 비밀번호를 입력해주세요.",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: true,
+                        onChanged: (value) {
+                          setState(() {
+                            _isPasswordEntered = value.isNotEmpty;
+                          });
+                        },
+                        onFieldSubmitted: (_) async {
+                            final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
+                            if (result) {
+                              if (_isPasswordValid) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EditpasswordScreen()
+                                  )
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "비밀번호 확인 실패"
+                                    )
+                                  )
+                                );
+                            }
+                          },
+                        
+                            // verifyCurrentPassword(), // Enter 키 입력 시 실행
+                        decoration: const InputDecoration(
+                          hintText: "현재 비밀번호 입력",
+                          border: UnderlineInputBorder(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("확인", style: TextStyle(fontSize: 16)),
               ),
-            ),
-          ],
+              const SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: (_isLoading || !_isPasswordEntered)
+                    ? null
+                    : () async {
+                      final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => verifyCurrentPassword(isFinalRequest: isFinalRequest), context);
+                      if (result) {
+                        if (_isPasswordValid) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EditpasswordScreen()
+                            )
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("비밀번호가 일치하지 않습니다.")));
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "비밀번호 확인 실패"
+                              )
+                            )
+                          );
+                      }
+                    },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("확인", style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

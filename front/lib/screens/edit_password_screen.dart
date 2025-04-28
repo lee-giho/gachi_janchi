@@ -100,86 +100,97 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("비밀번호 변경")),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              "새로운 비밀번호를 입력해주세요.",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            TextFormField(
-              controller: newPasswordController,
-              obscureText: true,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                return CheckValidate().validatePassword(value);
-              },
-              onChanged: (value) {
-                setState(() {
-                  isNewPasswordValid =
-                      CheckValidate().validatePassword(value) == null;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "새 비밀번호 입력",
-                border: UnderlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextFormField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                return CheckValidate()
-                    .validateRePassword(newPasswordController.text, value);
-              },
-              onChanged: (value) {
-                setState(() {
-                  isConfirmPasswordValid = CheckValidate().validateRePassword(
-                          newPasswordController.text, value) ==
-                      null;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "새 비밀번호 확인",
-                border: UnderlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                onPressed: (_isLoading ||
-                        !isNewPasswordValid ||
-                        !isConfirmPasswordValid)
-                    ? null
-                    : () async {
-                      final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => changePassword(isFinalRequest: isFinalRequest), context);
-                      if (result) {
-                        ScaffoldMessenger.of(context)
-                          .showSnackBar(const SnackBar(content: Text("비밀번호가 성공적으로 변경되었습니다.")));
-                        Navigator.pop(context); // 변경 성공 후 화면 닫기
-                      } else {
-                        ScaffoldMessenger.of(context)
-                          .showSnackBar(const SnackBar(content: Text("비밀번호 변경에 실패했습니다.")));
-                      }
-                    },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      body: SafeArea(
+        child: Container( // 전체 화면
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "새로운 비밀번호를 입력해주세요.",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      TextFormField(
+                        controller: newPasswordController,
+                        obscureText: true,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          return CheckValidate().validatePassword(value);
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            isNewPasswordValid =
+                                CheckValidate().validatePassword(value) == null;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "새 비밀번호 입력",
+                          border: UnderlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        obscureText: true,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          return CheckValidate()
+                              .validateRePassword(newPasswordController.text, value);
+                        },
+                        onChanged: (value) {
+                          setState(() {
+                            isConfirmPasswordValid = CheckValidate().validateRePassword(
+                                    newPasswordController.text, value) ==
+                                null;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "새 비밀번호 확인",
+                          border: UnderlineInputBorder(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("변경 완료", style: TextStyle(fontSize: 16)),
               ),
-            ),
-          ],
+              Center(
+                child: ElevatedButton(
+                  onPressed: (_isLoading ||
+                          !isNewPasswordValid ||
+                          !isConfirmPasswordValid)
+                      ? null
+                      : () async {
+                        final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => changePassword(isFinalRequest: isFinalRequest), context);
+                        if (result) {
+                          ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("비밀번호가 성공적으로 변경되었습니다.")));
+                          Navigator.pop(context); // 변경 성공 후 화면 닫기
+                        } else {
+                          ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text("비밀번호 변경에 실패했습니다.")));
+                        }
+                      },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("변경 완료", style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

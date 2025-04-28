@@ -196,7 +196,7 @@ public class ReviewService {
           : null;
         return new ReviewWithImageAndMenu(
           new UserInfoWithProfileImageAndTitle(
-            user.getId(), titleName, user.getProfileImage()
+            user.getId(), user.getNickName(), titleName, user.getProfileImage()
           ),
           review,
           reviewImages,
@@ -232,7 +232,7 @@ public class ReviewService {
         String titleName = (user.getTitle() != null) ? user.getTitle().getName() : null;
         return new ReviewWithImageAndMenu(
           new UserInfoWithProfileImageAndTitle(
-            user.getId(), titleName, user.getProfileImage()
+            user.getId(), user.getNickName(), titleName, user.getProfileImage()
           ),
           review,
           reviewImages,

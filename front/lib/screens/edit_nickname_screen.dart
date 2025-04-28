@@ -170,127 +170,138 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              "잔치를 여실 용사님의 새로운 이름을 알려주세요.",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-
-            // 닉네임 입력 필드 + 중복 확인 버튼 추가
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: controller,
-                    keyboardType: TextInputType.text,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (value) {
-                      return CheckValidate()
-                          .validateNickName(value, _isNickNameValid);
-                    },
-                    onChanged: (value) {
-                      if (_isDuplicateChecked) {
-                        setState(() {
-                          _isNickNameValid = false;
-                          _isDuplicateChecked = false;
-                        });
-                      }
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "새로운 닉네임 입력",
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () async{
-                    final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => checkNickNameDuplication(isFinalRequest: isFinalRequest), context);
-                    if (result) {
-                      if (_isNickNameValid) {
-                        ScaffoldMessenger.of(context)
-                          .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
-                      } else {
-                        ScaffoldMessenger.of(context)
-                          .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "닉네임 중복 확인 실패"
-                            )
-                          )
-                        );
-                    }
-                  },
-                  // checkNickNameDuplication,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(100, 50),
-                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5)),
-                  ),
-                  child: const Text(
-                    "중복확인",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            // 변경 완료 버튼 (닉네임 중복 확인 후 활성화)
-            Center(
-              child: ElevatedButton(
-                onPressed:
-                    (_isLoading || !_isNickNameValid || !_isDuplicateChecked)
-                        ? null
-                        : () async {
-                            bool result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => saveNickName(isFinalRequest: isFinalRequest), context);
-                            if (result) {
-                              ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "닉네임이 변경되었습니다."
+      body: SafeArea(
+        child: Container( // 전체 화면
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "잔치를 여실 용사님의 새로운 이름을 알려주세요.",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      // 닉네임 입력 필드 + 중복 확인 버튼 추가
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: controller,
+                              keyboardType: TextInputType.text,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                return CheckValidate()
+                                    .validateNickName(value, _isNickNameValid);
+                              },
+                              onChanged: (value) {
+                                if (_isDuplicateChecked) {
+                                  setState(() {
+                                    _isNickNameValid = false;
+                                    _isDuplicateChecked = false;
+                                  });
+                                }
+                              },
+                              decoration: const InputDecoration(
+                                hintText: "새로운 닉네임 입력",
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () async{
+                              final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => checkNickNameDuplication(isFinalRequest: isFinalRequest), context);
+                              if (result) {
+                                if (_isNickNameValid) {
+                                  ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(content: Text("사용 가능한 닉네임입니다.")));
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(content: Text("중복된 닉네임입니다.")));
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "닉네임 중복 확인 실패"
+                                      )
                                     )
-                                  )
-                                );
-                              Navigator.pop(context, controller.text.trim());
-                            } else {
-                              ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "닉네임 변경을 실패했습니다."
-                                    )
-                                  )
-                                );
-                            }
-                          },
-                        // saveNickName,
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                                  );
+                              }
+                            },
+                            // checkNickNameDuplication,
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(100, 50),
+                              backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                            ),
+                            child: const Text(
+                              "중복확인",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("변경 완료"),
               ),
-            ),
-          ],
+              // 변경 완료 버튼 (닉네임 중복 확인 후 활성화)
+              Center(
+                child: ElevatedButton(
+                  onPressed:
+                      (_isLoading || !_isNickNameValid || !_isDuplicateChecked)
+                          ? null
+                          : () async {
+                              bool result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => saveNickName(isFinalRequest: isFinalRequest), context);
+                              if (result) {
+                                ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "닉네임이 변경되었습니다."
+                                      )
+                                    )
+                                  );
+                                Navigator.pop(context, controller.text.trim());
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "닉네임 변경을 실패했습니다."
+                                      )
+                                    )
+                                  );
+                              }
+                            },
+                          // saveNickName,
+                          
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                      backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "변경 완료",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

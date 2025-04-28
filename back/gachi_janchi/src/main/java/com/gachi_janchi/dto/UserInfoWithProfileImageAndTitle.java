@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserInfoWithProfileImageAndTitle {
   private String id;
+  private String nickName;
   private String title;
   private String profileImage;
 }

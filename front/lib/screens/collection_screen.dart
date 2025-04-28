@@ -428,39 +428,43 @@ class _CollectionScreenState extends State<CollectionScreen>
                                   ? Colors.grey[440]
                                   : Colors.white,
                               child: SizedBox(
-                                height: 600,
+                                height: 650,
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(
-                                          top: Radius.circular(12)),
-                                      child: Image.asset(
-                                        toAssetPath(name),
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(Icons.broken_image),
-                                      ),
+                                    Column(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.vertical(
+                                              top: Radius.circular(12)),
+                                          child: Image.asset(
+                                            toAssetPath(name),
+                                            height: 120,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                const Icon(Icons.broken_image),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(Translation.translateCollection(name),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16)),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.symmetric(horizontal: 8),
+                                          child: Text(
+                                            description,
+                                            style: const TextStyle(
+                                                fontSize: 12, color: Colors.grey),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.start,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 5),
-                                    Text(Translation.translateCollection(name),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16)),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 8),
-                                      child: Text(
-                                        description,
-                                        style: const TextStyle(
-                                            fontSize: 12, color: Colors.grey),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
                                     if (!isCompleted)
                                       Wrap(
                                         spacing: 8,
@@ -475,8 +479,8 @@ class _CollectionScreenState extends State<CollectionScreen>
                                             children: [
                                               Image.asset(
                                                 toIngredientAssetPath(ing),
-                                                width: 40,
-                                                height: 40,
+                                                width: 35,
+                                                height: 35,
                                                 errorBuilder: (_, __, ___) =>
                                                     const Icon(Icons.error),
                                               ),

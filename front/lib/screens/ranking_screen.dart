@@ -253,7 +253,7 @@ class _RankingScreenState extends State<RankingScreen> {
           user["profileImage"] != null
             ? CircleAvatar(
                 radius: 25,
-                backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${myInfo["profileImage"]}")
+                backgroundImage: NetworkImage("${dotenv.env["API_ADDRESS"]}/images/profile/${user["profileImage"]}")
               )
             : Container(
                 width: 50,

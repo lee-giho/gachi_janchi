@@ -348,6 +348,36 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                     ),
                                   ),
                                   Container(
+                                    // 이름 입력 부분
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "아이디 *",
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        TextFormField(
+                                          controller: idController,
+                                          focusNode: idFocus,
+                                          keyboardType: TextInputType.text,
+                                          autovalidateMode: AutovalidateMode
+                                              .onUserInteraction,
+                                          validator: (value) {
+                                            return CheckValidate()
+                                                .validateId(value, true);
+                                          },
+                                          decoration: const InputDecoration(
+                                              hintText: "이름을 입력해주세요."),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
                                     // 이메일 입력 부분
                                     margin:
                                         const EdgeInsets.fromLTRB(0, 0, 0, 20),
@@ -521,6 +551,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                           isCodeCheck
                       ? () {
                           print("비밀번호 찾기 버튼 클릭");
+                          findPassword();
                         }
                       : null,
                   style: ElevatedButton.styleFrom(

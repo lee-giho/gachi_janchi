@@ -507,7 +507,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
                             // 구글 로그인 버튼
@@ -532,22 +532,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fontWeight: FontWeight.bold),
                                 )),
                           ),
-                          // Container( // 구글 로그인
-                          //   // width: screenWidth*0.7,
-                          //   height: 40,
-                          //   // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                          //   decoration: BoxDecoration(
-                          //     color: Colors.white,
-                          //     border: Border.all(
-                          //       color: Colors.black,
-                          //       width: 1
-                          //     ),
-                          //     borderRadius: BorderRadius.circular(5),
-                          //   ),
-                          //   child: const Center(
-                          //     child: Text("구글로 로그인")
-                          //   ),
-                          // ),
+                          SizedBox(height: 20),
                           Container(
                             // 네이버 로그인 버튼
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
@@ -571,48 +556,32 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fontWeight: FontWeight.bold),
                                 )),
                           ),
-                          // Container( // 네이버 로그인
-                          //   // width: screenWidth*0.7,
-                          //   height: 40,
-                          //   // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
-                          //   decoration: BoxDecoration(
-                          //     color: Colors.green,
-                          //     border: Border.all(
-                          //       color: Colors.black,
-                          //       width: 1
-                          //     ),
-                          //     borderRadius: BorderRadius.circular(5),
-                          //   ),
-                          //   child: const Center(
-                          //     child: Text("네이버로 로그인")
-                          //   ),
+                          // Container(
+                          //   // 테스트 화면
+                          //   child: ElevatedButton(
+                          //       onPressed: () {
+                          //         Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //                 builder: (context) =>
+                          //                     const TestScreen()));
+                          //       },
+                          //       style: ElevatedButton.styleFrom(
+                          //           // minimumSize: Size(screenWidth*0.8, 50),
+                          //           minimumSize: const Size.fromHeight(50),
+                          //           backgroundColor:
+                          //               const Color.fromARGB(255, 95, 95, 95),
+                          //           foregroundColor: Colors.white,
+                          //           shape: RoundedRectangleBorder(
+                          //               borderRadius:
+                          //                   BorderRadius.circular(5))),
+                          //       child: const Text(
+                          //         "테스트 화면",
+                          //         style: TextStyle(
+                          //             fontSize: 20,
+                          //             fontWeight: FontWeight.bold),
+                          //       )),
                           // ),
-                          Container(
-                            // 테스트 화면
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const TestScreen()));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    // minimumSize: Size(screenWidth*0.8, 50),
-                                    minimumSize: const Size.fromHeight(50),
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 95, 95, 95),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5))),
-                                child: const Text(
-                                  "테스트 화면",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                          ),
                         ],
                       ),
                     )

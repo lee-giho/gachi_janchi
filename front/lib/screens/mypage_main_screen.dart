@@ -180,15 +180,15 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("프로필 선택", style: TextStyle(fontSize: 20)),
+                const Text("프로필 선택", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.image, color: Colors.purple),
+                  icon: const Icon(Icons.image, color: Colors.white),
                   label: const Text("갤러리에서 선택",
-                      style: TextStyle(color: Colors.purple)),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.white,
                     shadowColor: Colors.black12,
                     elevation: 4,
                     padding: const EdgeInsets.symmetric(
@@ -210,12 +210,12 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.person, color: Colors.purple),
+                  icon: const Icon(Icons.person, color: Colors.white),
                   label: const Text("기본 이미지 선택",
-                      style: TextStyle(color: Colors.purple)),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                     foregroundColor: Colors.white,
-                    backgroundColor: Colors.white,
                     shadowColor: Colors.black12,
                     elevation: 4,
                     padding: const EdgeInsets.symmetric(

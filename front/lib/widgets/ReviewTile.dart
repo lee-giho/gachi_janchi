@@ -156,7 +156,7 @@ class _ReviewtileState extends State<ReviewTile> {
                         ),
                       SizedBox(width: 15,),
                       Text(
-                        review["userId"],
+                        writer["nickName"],
                         style: TextStyle(
                           fontSize: 16
                         ),

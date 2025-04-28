@@ -8,7 +8,6 @@
 하지만 기본의 맛집 애플리케이션은 단순히 리뷰와 추천 글을 통해 자신의 맛집을 공유하고 알아보며 음식점을 방문하고 있다.<br>
 우리는 이러한 맛집 애플리케이션에 게임 요소를 추가하여 사람들의 새로움에 대한 도전과 적극적인 참여를 이끌어내고자 한다.<br>
 직접 방문하여 재료를 획득해야 하는 시스템은 주변 음식점 상권의 활성화에도 도움이 될 것이다.<br>
-
 <br>
 
 ## 팀원 소개
@@ -73,7 +72,7 @@
 
 ## 🏗 시스템 아키텍처 🏛  
 <div align="center">
- 
+ <img src="https://github.com/user-attachments/assets/04c8949b-7737-44bf-bb54-0572f5cbf6be" height="600"/>
 </div>
 
 <br>
@@ -81,8 +80,6 @@
 ## 🛠 ERD 🗂  
 <div align="center">
  <img src="https://github.com/user-attachments/assets/b67a8bf4-35a5-4c3d-850a-3a24e186b960"/>
- 
-
 </div>
 
 <br>
@@ -152,11 +149,11 @@ QR코드 스캔이 완료되면 정보가 저장되고 방문내역 탭으로 �
 ## 주요 기능 영상
 | **회원가입** | **로그인** | **아이디/비밀번호 찾기** |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/28c9b5b0-d0ce-4e63-9aff-095b8bc72579" height="300" /> | <img src="https://github.com/user-attachments/assets/247790cf-07af-4abd-ac1f-0ac5a7436e6e" height="300" /> | <img src="https://github.com/user-attachments/assets/6ccbf001-4fdb-4ce2-859a-8c348d2bae23" height="300" /> |
+| <img src="https://github.com/user-attachments/assets/28c9b5b0-d0ce-4e63-9aff-095b8bc72579" height="350" /> | <img src="https://github.com/user-attachments/assets/247790cf-07af-4abd-ac1f-0ac5a7436e6e" height="350" /> | <img src="https://github.com/user-attachments/assets/6ccbf001-4fdb-4ce2-859a-8c348d2bae23" height="350" /> |
 | **홈 탭** | **랭킹 탭** | **즐겨찾기 탭** |
-| <img src="https://github.com/user-attachments/assets/492a7c43-38e8-4722-a5b9-a20fe69d1cda" height="300" /> | <img src="https://github.com/user-attachments/assets/2e9cab98-40e0-45eb-8679-ad50b43a134d" height="300" /> | <img src="https://github.com/user-attachments/assets/5826c3ef-54f2-495a-a232-ad76cba16290" height="300" /> |
+| <img src="https://github.com/user-attachments/assets/492a7c43-38e8-4722-a5b9-a20fe69d1cda" height="350" /> | <img src="https://github.com/user-attachments/assets/2e9cab98-40e0-45eb-8679-ad50b43a134d" height="350" /> | <img src="https://github.com/user-attachments/assets/5826c3ef-54f2-495a-a232-ad76cba16290" height="350" /> |
 | **방문내역 탭** | **마이페이지 탭** | **음식점 상세 페이지** |
-| <img src="https://github.com/user-attachments/assets/d5547eb0-5bb0-4558-9481-bc6986cdf9da" height="300" /> | <img src="https://github.com/user-attachments/assets/3f4b75ba-16c7-4ffd-92ad-d08dfa96259b" height="300" /> | <img src="https://github.com/user-attachments/assets/467f1063-69cf-4df5-9d07-7116cfcbf694" height="300" /> |
+| <img src="https://github.com/user-attachments/assets/d5547eb0-5bb0-4558-9481-bc6986cdf9da" height="350" /> | <img src="https://github.com/user-attachments/assets/3f4b75ba-16c7-4ffd-92ad-d08dfa96259b" height="350" /> | <img src="https://github.com/user-attachments/assets/467f1063-69cf-4df5-9d07-7116cfcbf694" height="350" /> |
 
 <br><br>
 # 🛠 추후 계획

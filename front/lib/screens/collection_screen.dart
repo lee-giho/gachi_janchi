@@ -290,7 +290,24 @@ class _CollectionScreenState extends State<CollectionScreen>
         content: Text("‘${Translation.translateCollection(name)}’을(를) 완성할까요?"),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context), child: const Text("취소")),
+              onPressed: () => Navigator.pop(context), 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(
+                    width: 0.5
+                  )
+                )
+              ),
+              child: const Text(
+                "취소",
+                style: TextStyle(
+                  color: const Color.fromRGBO(122, 11, 11, 1),
+                ),
+              )
+          ),
           ElevatedButton(
               onPressed: () async{
                 final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _completeCollection(name, isFinalRequest: isFinalRequest), context);
@@ -299,7 +316,20 @@ class _CollectionScreenState extends State<CollectionScreen>
                 }
                 // _completeCollection(name);
               },
-              child: const Text("완성하기")),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)
+                )
+              ),
+              child: const Text(
+                "완성하기",
+                style: TextStyle(
+                  color: Colors.white
+                ),
+              )
+          ),
         ],
       ),
     );

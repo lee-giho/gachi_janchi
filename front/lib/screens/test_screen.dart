@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
-import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
 
@@ -17,8 +15,6 @@ class TestScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<TestScreen> {
-
-  // String accessToken = SecureStorage.getAccessToken();
 
   // 토큰 확인 - 테스트용
   void clickBtn() async {
@@ -55,49 +51,6 @@ class _HomeScreenState extends ConsumerState<TestScreen> {
       MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => false // false를 반환하여 모든 기존 화면 제거
     );
-
-    // String? refreshToken = await SecureStorage.getRefreshToken();
-
-    // .env에서 서버 URL 가져오기
-    // final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/user/logout");
-    // final headers = {'Authorization': 'Bearer $refreshToken'};
-
-    // try {
-    //   final response = await http.delete(
-    //     apiAddress,
-    //     headers: headers
-    //   );
-
-    //   if (response.statusCode == 200) {
-    //     // 서버에서 refreshToken 삭제 성공
-    //     // SecureStorage에서 토큰 삭제
-    //     await SecureStorage.deleteTokens();
-
-    //     await SecureStorage.saveIsAutoLogin(false);
-
-    //     await SecureStorage.saveLoginType("");
-
-    //     // 로그아웃 후 로그인 화면으로 이동
-    //     Navigator.pushReplacement(
-    //       context, 
-    //       MaterialPageRoute(builder: (context) => const LoginScreen())
-    //     );
-    //   } else {
-    //     // 서버에서 refreshToken 삭제 실패
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text("로그아웃 실패: ${response.body}"))
-    //     );
-    //   }
-    // } catch (e) {
-    //   // 예외 처리
-    //   showDialog(
-    //     context: context,
-    //     builder: (_) => const AlertDialog(
-    //       title: Text("로그아웃 오류"),
-    //       content: Text("서버에 문제가 발생했습니다."),
-    //     )
-    //   );
-    // }
   }
 
   // 네이버 로그아웃

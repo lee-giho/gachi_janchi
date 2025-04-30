@@ -6,8 +6,6 @@ import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/login_screen.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 
@@ -55,7 +53,6 @@ class _SplashScreenState extends State<SplashScreen> {
         
         // 즐겨찾기 목록 불러오기
         await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
           // accessToken이 유효하면 홈 화면으로 이동
           print("accessToken 유효, 홈으로 이동");
@@ -71,7 +68,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // 즐겨찾기 목록 불러오기
             await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-            // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
             print("새로운 accessToken 발급 완료, 홈으로 이동");
             Navigator.pushReplacement(
@@ -114,7 +110,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // 즐겨찾기 목록 불러오기
             await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-            // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
             // accessToken이 유효하면 홈 화면으로 이동
             print("accessToken 유효, 홈으로 이동");
@@ -130,7 +125,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
               // 즐겨찾기 목록 불러오기
               await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-              // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
               print("새로운 accessToken 발급 완료, 홈으로 이동");
               Navigator.pushReplacement(

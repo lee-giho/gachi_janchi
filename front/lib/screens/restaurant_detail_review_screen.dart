@@ -45,7 +45,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], "latest", isOnlyImage, isFinalRequest: isFinalRequest), context);
-    // getReview(widget.data["restaurantId"], "latest", isOnlyImage);
     reviewTypeController.text = selectedReviewSortType;
   }
   
@@ -90,7 +89,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
             }
           }
         });
-        // showReviewTypeToggle();
 
         print("리뷰 리스트 요청 성공");
         return true;
@@ -118,23 +116,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
       return avg.toStringAsFixed(1); // 소수점 1자리
     }
   }
-
-  // 사진 리뷰 필터링 함수
-  // Future<void> showReviewTypeToggle() async {
-  //   if (isOnlyImage) {
-  //     setState(() {
-  //       showReviews = reviews.where((review) {
-  //         bool isImageReview = review["review"]["type"] == "image";
-
-  //         return isImageReview;
-  //       }).toList();
-  //     });
-  //   } else {
-  //     setState(() {
-  //       showReviews = reviews;
-  //     });
-  //   }
-  // }
 
   Widget buildRatingDistribution() {
     int total = ratings.length;
@@ -261,9 +242,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                         setState(() {
                           isOnlyImage = !isOnlyImage;
                         });
-                        // showReviewTypeToggle();
                         ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
-                        // getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage);
                         print("사진 리뷰만 보기 버튼 클릭!!!!");
                         print("isOnlyImage: $isOnlyImage");
                       },
@@ -278,7 +257,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                         backgroundColor: isOnlyImage
                           ? const Color.fromRGBO(122, 11, 11, 1)
                           : Colors.white,
-                        // backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                         overlayColor: const Color.fromARGB(116, 122, 11, 11),
                       ),
                       icon: Icon(
@@ -312,7 +290,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                             selectedReviewSortType = value;
                           });
                           ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
-                          // getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage);
                         }
                       },
                       inputDecorationTheme: const InputDecorationTheme(

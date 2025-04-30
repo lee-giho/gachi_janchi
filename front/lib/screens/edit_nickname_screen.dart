@@ -5,7 +5,6 @@ import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../utils/checkValidate.dart';
-import 'mypage_screen.dart'; // 마이페이지로 돌아가기 위해 추가
 
 class EditnicknameScreen extends StatefulWidget {
   final String currentValue;
@@ -61,8 +60,8 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
     try {
       final response = await http.get(apiAddress, headers: headers);
 
-      print("🔹 서버 응답 코드: ${response.statusCode}");
-      print("🔹 서버 응답 데이터: ${response.body}");
+      print("서버 응답 코드: ${response.statusCode}");
+      print("서버 응답 데이터: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -133,8 +132,8 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
       final response =
           await http.patch(apiAddress, headers: headers, body: body);
 
-      print("🔹 서버 응답 코드: ${response.statusCode}");
-      print("🔹 서버 응답 데이터: ${response.body}");
+      print("서버 응답 코드: ${response.statusCode}");
+      print("서버 응답 데이터: ${response.body}");
 
       if (response.statusCode == 200) {
         print("닉네임 저장 성공");
@@ -187,7 +186,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
-                      // 닉네임 입력 필드 + 중복 확인 버튼 추가
+                      // 닉네임 입력 필드 + 중복 확인 버튼
                       Row(
                         children: [
                           Expanded(
@@ -196,7 +195,7 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
                               keyboardType: TextInputType.text,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               validator: (value) {
-                                return CheckValidate()
+                                return checkValidate()
                                     .validateNickName(value, _isNickNameValid);
                               },
                               onChanged: (value) {
@@ -283,7 +282,6 @@ class _EditnicknameScreenState extends State<EditnicknameScreen> {
                                   );
                               }
                             },
-                          // saveNickName,
                           
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),

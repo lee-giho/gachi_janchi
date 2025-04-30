@@ -4,9 +4,6 @@ import 'package:gachi_janchi/utils/checkValidate.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// import 'package:gachi_janchi/utils/screen_size.dart';
-
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -15,10 +12,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-
-  // ScreenSize 값 가져오기
-  // final screenWidth = ScreenSize().width;
-  // final screenHeight = ScreenSize().height;
 
   // 이름 & 이메일 & 아이디 & 비밀번호 & 비밀번호 확인 입력 값 저장
   var nameController = TextEditingController();
@@ -53,14 +46,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     super.dispose();
 
-    // TextEditingController dispose
     nameController.dispose();
     emailController.dispose();
     idController.dispose();
     passwordController.dispose();
     rePasswordController.dispose();
 
-    // FocusNode dispose
     nameFocus.dispose();
     emailFocus.dispose();
     idFocus.dispose();
@@ -71,11 +62,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // 입력 상태 체크 함수
   void checkFormValid() {
     setState(() {
-      isNameValid = CheckValidate().validateName(nameController.text) == null;
-      isEmailValid = CheckValidate().validateEmail(emailController.text) == null;
-      isIdValid = CheckValidate().validateId(idController.text, idValid) == null;
-      isPasswordValid = CheckValidate().validatePassword(passwordController.text) == null;
-      isRePasswordValid = CheckValidate().validateRePassword(passwordController.text, rePasswordController.text) == null;
+      isNameValid = checkValidate().validateName(nameController.text) == null;
+      isEmailValid = checkValidate().validateEmail(emailController.text) == null;
+      isIdValid = checkValidate().validateId(idController.text, idValid) == null;
+      isPasswordValid = checkValidate().validatePassword(passwordController.text) == null;
+      isRePasswordValid = checkValidate().validateRePassword(passwordController.text, rePasswordController.text) == null;
     });
   }
 
@@ -207,8 +198,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
-                      // padding: EdgeInsets.fromLTRB(screenWidth*0.1, screenHeight*0.05, screenWidth*0.1, screenHeight*0.05),
-                      // width: screenWidth,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +231,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Column(
                                   children: [
                                     Container( // 이름 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             keyboardType: TextInputType.text,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validateName(value);
+                                              return checkValidate().validateName(value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -273,7 +261,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                     ),
                                     Container( // 이메일 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             keyboardType: TextInputType.emailAddress,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validateEmail(value);
+                                              return checkValidate().validateEmail(value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -304,7 +291,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                     ),
                                     Container( // 아이디 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,14 +311,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   keyboardType: TextInputType.text,
                                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                                   validator: (value) {
-                                                    return CheckValidate().validateId(value, idValid);
+                                                    return checkValidate().validateId(value, idValid);
                                                   },
                                                   onChanged: (value) {
                                                     setState(() {
-                                                      idInputValid = CheckValidate().checkIdInput(value);  
+                                                      idInputValid = checkValidate().checkIdInput(value);  
                                                     });
                                                     
-                                                    isIdValid = CheckValidate().validateId(value, idValid) == null;
+                                                    isIdValid = checkValidate().validateId(value, idValid) == null;
                                                     idValid = false; // 값이 변경되면 중복확인 필요
                                                   },
                                                   decoration: const InputDecoration(
@@ -372,7 +358,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                     ),
                                     Container( // 비밀번호 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             focusNode: passwordFocus,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validatePassword(value);
+                                              return checkValidate().validatePassword(value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -403,7 +388,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                     ),
                                     Container( // 비밀번호 확인 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,7 +404,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             focusNode: rePasswordFocus,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validateRePassword(passwordController.text, value);
+                                              return checkValidate().validateRePassword(passwordController.text, value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -444,26 +428,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   Container(
                     child: ElevatedButton(
-                      // onPressed: () {
-                      //   if (formKey.currentState!.validate()) {
-                      //     // ScaffoldMessenger.of(context).showSnackBar(
-                      //     //   SnackBar(content: Text("폼이 유효합니다."))
-                      //     // );
-                      //     signUp();
-                      //     Navigator.pop(context);
-                      //   } else {
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       const SnackBar(content: Text("입력 정보를 다시 확인해주세요."))
-                      //     );
-                      //   }
-                      // },
                       onPressed: isFormValid
                       ? () {
                           signUp();
                         }
                       : null,
                       style: ElevatedButton.styleFrom(
-                        // minimumSize: Size(screenWidth*0.8, 50),
                         minimumSize: const Size.fromHeight(50),
                         backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                         foregroundColor: Colors.white,

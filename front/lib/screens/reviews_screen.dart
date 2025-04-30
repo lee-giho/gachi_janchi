@@ -25,7 +25,6 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchReviews("latest", isFinalRequest: isFinalRequest), context);
-    // fetchReviews("latest");
   }
 
   Future<bool> fetchReviews(String sortType, {bool isFinalRequest = false}) async {
@@ -89,7 +88,6 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                 menuButton: true,
                 fetchReview: () {
                   ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchReviews("latest", isFinalRequest: isFinalRequest), context);
-                  // fetchReviews("latest");
                 },
                 fetchUserInfo: widget.fetchUserInfo,
               );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/CustomSearchAppBar.dart';
@@ -35,7 +34,6 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
         searchKeywordController.text = widget.data['keyword'];
       });
       ServerRequest().serverRequest(({bool isFinalRequest = false}) => searchRestaurantsByKeword(isFinalRequest: isFinalRequest), context);
-      // searchRestaurantsByKeword();
     }
   }
 
@@ -116,7 +114,6 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
           print("${searchKeywordController.text} 검색!!!");
           // 검색 함수 실행
           ServerRequest().serverRequest(({bool isFinalRequest = false}) => searchRestaurantsByKeword(isFinalRequest: isFinalRequest), context);
-          // searchRestaurantsByKeword();
         },
         onClearPressed: () {
           searchKeywordController.clear(); // TextField 내용 비우기
@@ -133,19 +130,6 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
             Expanded(
               child: CustomScrollView(
                 slivers: [
-                  // SliverToBoxAdapter(
-                  //   child: Center(
-                  //     child: Container(
-                  //       decoration: const BoxDecoration(
-                  //         color: Colors.black,
-                  //         borderRadius: BorderRadius.all(Radius.circular(10))
-                  //       ),
-                  //       height: 4,
-                  //       width: 80,
-                  //       margin: const EdgeInsets.symmetric(vertical: 5),
-                  //     ),
-                  //   ),
-                  // ),
                   SliverList.builder(
                     itemCount: searchRestaurants.length,
                     itemBuilder: (context, index) {
@@ -156,9 +140,6 @@ class _SearchRestaurantScreenState extends State<SearchRestaurantScreen> {
                         onPressed: () {
                           print("클릭한 음식점: ${restaurant["restaurantName"]}");
                         },
-                        // onBookmarkPressed: () {
-                        //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                        // },
                       );
                     }
                   )

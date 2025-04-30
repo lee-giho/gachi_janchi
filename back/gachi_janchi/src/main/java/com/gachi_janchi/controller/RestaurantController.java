@@ -5,9 +5,7 @@ import com.gachi_janchi.dto.GetIngredientByRestaurantIdResponse;
 import com.gachi_janchi.dto.GetRestaurantMenuResponse;
 import com.gachi_janchi.dto.RestaurantDetailScreenResponse;
 import com.gachi_janchi.dto.RestaurantsByBoundsResponse;
-import com.gachi_janchi.dto.RestaurantsByDongResponse;
 import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
-import com.gachi_janchi.entity.Restaurant;
 import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/restaurant")

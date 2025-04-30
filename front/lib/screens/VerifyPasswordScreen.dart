@@ -55,8 +55,8 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
       final response = await dio.post(apiAddress.toString(),
           options: Options(headers: headers), data: body);
 
-      print("🔹 [API 응답] 상태 코드: ${response.statusCode}");
-      print("🔹 [API 응답 데이터]: ${response.data}");
+      print("[API 응답] 상태 코드: ${response.statusCode}");
+      print("[API 응답 데이터]: ${response.data}");
 
       if (response.statusCode == 200) {
         var responseData = response.data;
@@ -156,8 +156,6 @@ class _VerifyPasswordScreenState extends State<VerifyPasswordScreen> {
                                 );
                             }
                           },
-                        
-                            // verifyCurrentPassword(), // Enter 키 입력 시 실행
                         decoration: const InputDecoration(
                           hintText: "현재 비밀번호 입력",
                           border: UnderlineInputBorder(),

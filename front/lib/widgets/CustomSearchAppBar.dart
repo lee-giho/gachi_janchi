@@ -24,18 +24,9 @@ class CustomSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        // decoration: const BoxDecoration(
-        //   color: Colors.white,
-        //   border: Border(bottom: BorderSide(color: Colors.black26)),
-        // ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Image.asset( // 가치, 잔치 로고
-            //   'assets/images/gachi_janchi_logo.png',
-            //   fit: BoxFit.contain,
-            //   height: 40,
-            // ),
             IconButton(
               icon: const Icon(Icons.arrow_back_ios),
               onPressed: onBackPressed,

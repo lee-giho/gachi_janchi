@@ -6,9 +6,7 @@ import '../utils/secure_storage.dart';
 import 'mypage_screen.dart';
 import '../widgets/ProfileWidget.dart';
 import 'collected_ingredients_screen.dart';
-import 'visit_history_screen.dart';
 import 'reviews_screen.dart';
-import 'discount_coupons_screen.dart';
 import 'notices_screen.dart';
 import 'settings_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -31,7 +29,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
-    // _fetchUserInfo();
   }
 
   Future<bool> _resetToDefaultImage({bool isFinalRequest = false}) async {
@@ -204,7 +201,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                         await picker.pickImage(source: ImageSource.gallery);
                     if (pickedFile != null) {
                       ServerRequest().serverRequest(({bool isFinalRequest = false}) => _uploadImage(pickedFile.path, isFinalRequest: isFinalRequest), context);
-                      // await _uploadImage(pickedFile.path);
                     }
                   },
                 ),
@@ -227,7 +223,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                   onPressed: () async {
                     Navigator.pop(context);
                     await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _resetToDefaultImage(isFinalRequest: isFinalRequest), context);
-                    // await _resetToDefaultImage();
                   },
                 ),
               ],
@@ -279,7 +274,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                   MaterialPageRoute(builder: (context) => const MypageScreen()),
                 ).then((_) {
                   ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
-                  // _fetchUserInfo();
                 });
               },
               child: Container(
@@ -355,7 +349,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
             const SizedBox(height: 25),
             _buildMenuItem(
                 Icons.shopping_basket, "모은재료", CollectedIngredientsScreen()),
-            // _buildMenuItem(Icons.receipt, "방문내역", VisitHistoryScreen()),
             _buildMenuItem(
               Icons.comment, 
               "리뷰", 
@@ -363,7 +356,6 @@ class _MyPageMainScreenState extends State<MyPageMainScreen> {
                 fetchUserInfo: () {
                   ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfo(isFinalRequest: isFinalRequest), context);
                 }
-                // _fetchUserInfo,
               )
             ),
             _buildMenuItem(Icons.campaign, "공지사항", NoticesScreen()),

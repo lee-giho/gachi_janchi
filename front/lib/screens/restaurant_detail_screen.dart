@@ -35,7 +35,6 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => getRestaurantInfo(widget.restaurantId, isFinalRequest: isFinalRequest), context);
-    // getRestaurantInfo(widget.restaurantId);
   }
 
   @override
@@ -191,7 +190,6 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
   void showOverlay(BuildContext context) {
     if (overlayEntry != null) return; // 이미 열려있으면 중복 생성 방지
 
-    OverlayState overlayState = Overlay.of(context);
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         width: 150,
@@ -236,7 +234,6 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
     );
 
     Overlay.of(context).insert(overlayEntry!);
-    // overlayState.insert(overlayEntry!);
   }
 
   // 오버레이 창 닫는 함수
@@ -437,7 +434,6 @@ class _RestaurantDetailScreenState extends ConsumerState<RestaurantDetailScreen>
                                     onPressed: () {
                                       print("즐겨찾기 버튼 클릭!!!");
                                       ServerRequest().serverRequest(({bool isFinalRequest = false}) => favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant, isFinalRequest: isFinalRequest), context);
-                                      // favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                                     },
                                     icon: Icon(
                                       isFavorite

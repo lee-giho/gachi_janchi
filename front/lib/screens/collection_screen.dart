@@ -3,11 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/utils/translation.dart';
-import 'dart:math' as math;
 import '../utils/secure_storage.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert';
-import 'dart:developer';
 
 class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
@@ -45,18 +41,13 @@ class _CollectionScreenState extends State<CollectionScreen>
 
     _initializeUserInfo();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
-    // _fetchUserIngredients();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchCollections(isFinalRequest: isFinalRequest), context);
-    // _fetchCollections();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserCollections(isFinalRequest: isFinalRequest), context);
-    // _fetchUserCollections();
   }
 
   Future<void> _initializeUserInfo() async {
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserData(isFinalRequest: isFinalRequest), context);
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserRanking(isFinalRequest: isFinalRequest), context);
-    // await _fetchUserData();
-    // await _fetchUserRanking();
   }
 
   @override
@@ -260,7 +251,6 @@ class _CollectionScreenState extends State<CollectionScreen>
           completedCollections.add(name);
         });
         ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
-        // await _fetchUserIngredients();
         print("컬렉션 완성 성공");
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("컬렉션 획득")));
@@ -290,16 +280,45 @@ class _CollectionScreenState extends State<CollectionScreen>
         content: Text("‘${Translation.translateCollection(name)}’을(를) 완성할까요?"),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context), child: const Text("취소")),
+              onPressed: () => Navigator.pop(context), 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(
+                    width: 0.5
+                  )
+                )
+              ),
+              child: const Text(
+                "취소",
+                style: TextStyle(
+                  color: const Color.fromRGBO(122, 11, 11, 1),
+                ),
+              )
+          ),
           ElevatedButton(
               onPressed: () async{
                 final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _completeCollection(name, isFinalRequest: isFinalRequest), context);
                 if (result) {
                   Navigator.pop(context);
                 }
-                // _completeCollection(name);
               },
-              child: const Text("완성하기")),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)
+                )
+              ),
+              child: const Text(
+                "완성하기",
+                style: TextStyle(
+                  color: Colors.white
+                ),
+              )
+          ),
         ],
       ),
     );

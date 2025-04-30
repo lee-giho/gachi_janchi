@@ -23,9 +23,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfoAndTitles(isFinalRequest: isFinalRequest), context);
-    // _fetchUserInfoAndTitles();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllTitleProgress(isFinalRequest: isFinalRequest), context);
-    // _fetchAllTitleProgress();
   }
 
   Future<bool> _fetchUserInfoAndTitles({bool isFinalRequest = false}) async {
@@ -159,9 +157,7 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
       if (res.statusCode == 200) {
         print("\uD83C\uDFC5 칭호 획득 성공: $titleId");
         ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserInfoAndTitles(isFinalRequest: isFinalRequest), context);
-        // _fetchUserInfoAndTitles();
         ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllTitleProgress(isFinalRequest: isFinalRequest), context);
-        // _fetchAllTitleProgress();
         return true;
       } else {
         print("\u274C 칭호 획득 실패");
@@ -255,15 +251,6 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              /*Center(
-                child: ElevatedButton(
-                  onPressed: () => _saveSelectedTitle(
-                    selectedTitleId,
-                    selectedTitle ?? "칭호 없음",
-                  ),
-                  child: const Text("저장"),
-                ),
-              ),*/
               const Text("획득하지 않은 칭호",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
@@ -283,7 +270,6 @@ class _EditTitleScreenState extends State<EditTitleScreen> {
                               onPressed: () {
                                 ServerRequest().serverRequest(({bool isFinalRequest = false}) => _claimTitle(title["titleId"], isFinalRequest: isFinalRequest), context);
                               },
-                              // _claimTitle(title['titleId']),
                               child: const Text("획득하기"),
                             )
                           : null,

@@ -1,6 +1,5 @@
 package com.gachi_janchi.dto;
 
-import com.gachi_janchi.entity.Restaurant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

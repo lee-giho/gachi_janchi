@@ -31,7 +31,6 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
     super.initState();
     Future.microtask(() {
       ServerRequest().serverRequest(({bool isFinalRequest = false}) => ref.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-      // ref.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
     });
   }
 
@@ -99,10 +98,6 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
               children: [
                 Container( // 검색바
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  // decoration: const BoxDecoration(
-                  //   color: Colors.white,
-                  //   border: Border(bottom: BorderSide(color: Colors.black26)),
-                  // ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

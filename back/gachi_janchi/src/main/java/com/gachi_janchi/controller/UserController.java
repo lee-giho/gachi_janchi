@@ -1,7 +1,6 @@
 package com.gachi_janchi.controller;
 
 import com.gachi_janchi.dto.*;
-import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.service.FavoriteRestaurantService;
 import com.gachi_janchi.service.TokenService;
 import com.gachi_janchi.service.UserService;
@@ -31,8 +30,6 @@ public class UserController {
   @Autowired
   private VisitedRestaurantService visitedRestaurantService;
 
-  @Autowired
-  private UserRepository userRepository;
   @GetMapping("/info")
   public ResponseEntity<UserResponse> getUserInfo(@RequestHeader("Authorization") String accessToken) {
     return ResponseEntity.ok(userService.getUserInfo(accessToken));

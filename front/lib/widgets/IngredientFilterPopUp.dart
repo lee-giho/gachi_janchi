@@ -1,9 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
-import 'package:gachi_janchi/utils/translation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -29,7 +27,6 @@ class _IngredientFilterPopUpState extends State<IngredientFilterPopUp> {
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchAllIngredients(isFinalRequest: isFinalRequest), context);
-    // fetchAllIngredients();
     selectIngredients = List.from(widget.selected);
   }
 

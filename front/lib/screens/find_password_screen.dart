@@ -67,7 +67,6 @@ class _FindPasswordState extends State<FindPasswordScreen> {
     timer?.cancel(); // 화면 종료 시 타이머 취소
     super.dispose();
 
-    // TextEditingController dispose
     nameController.dispose();
     idController.dispose();
     emailController.dispose();
@@ -82,7 +81,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
 
   // 이메일 상태를 개별적으로 검증하는 함수
   void validateEmail(String email) {
-    final isValid = CheckValidate().validateEmail(email) == null;
+    final isValid = checkValidate().validateEmail(email) == null;
     setState(() {
       isEmailValid = isValid;
     });
@@ -178,7 +177,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
 
   // 인증번호 상태를 개별적으로 검증하는 함수
   void validateCode(String code) {
-    final isValid = CheckValidate().validateCode(code) == null &&
+    final isValid = checkValidate().validateCode(code) == null &&
         (remainingTime > 0 && remainingTime < 180);
     setState(() {
       isCodeValid = isValid;
@@ -338,7 +337,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                           autovalidateMode: AutovalidateMode
                                               .onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate()
+                                            return checkValidate()
                                                 .validateName(value);
                                           },
                                           decoration: const InputDecoration(
@@ -368,7 +367,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                           autovalidateMode: AutovalidateMode
                                               .onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate()
+                                            return checkValidate()
                                                 .validateId(value, true);
                                           },
                                           decoration: const InputDecoration(
@@ -405,7 +404,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                                     AutovalidateMode
                                                         .onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate()
+                                                  return checkValidate()
                                                       .validateEmail(value);
                                                 },
                                                 decoration:
@@ -493,7 +492,7 @@ class _FindPasswordState extends State<FindPasswordScreen> {
                                                     AutovalidateMode
                                                         .onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate()
+                                                  return checkValidate()
                                                       .validateCode(value);
                                                 },
                                                 decoration:

@@ -109,9 +109,7 @@ class MenuPopUp extends StatelessWidget {
           TextButton.icon(
             onPressed: () async {
               print("삭제하기");
-              // removeOverlay();
               final result = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => deleteReview(isFinalRequest: isFinalRequest), context);
-              // deleteReview();
               if (result) {
                 // 리뷰 삭제 성공
                 ScaffoldMessenger.of(context).showSnackBar(

@@ -5,7 +5,6 @@ import java.util.List;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
-import com.gachi_janchi.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

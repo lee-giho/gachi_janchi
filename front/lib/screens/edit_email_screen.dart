@@ -3,9 +3,8 @@ import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
-import '../utils/checkValidate.dart'; // CheckValidate 추가
+import '../utils/checkValidate.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'mypage_screen.dart'; // 마이페이지로 돌아가기 위해 추가
 
 class EditemailScreen extends StatefulWidget {
   final String currentValue;
@@ -33,7 +32,7 @@ class _EditemailScreenState extends State<EditemailScreen> {
     super.dispose();
   }
 
-  // 서버에 이메일 저장 요청 (`http` 사용)
+  // 서버에 이메일 저장 요청
   Future<bool> saveEmail({bool isFinalRequest = false}) async {
     print("이메일 저장 요청 시작");
 
@@ -132,7 +131,7 @@ class _EditemailScreenState extends State<EditemailScreen> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _emailError = CheckValidate().validateEmail(value);
+                  _emailError = checkValidate().validateEmail(value);
                 });
               },
             ),

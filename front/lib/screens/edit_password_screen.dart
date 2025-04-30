@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../utils/checkValidate.dart'; // 유효성 검사 추가
+import '../utils/checkValidate.dart';
 
 class EditpasswordScreen extends StatefulWidget {
   const EditpasswordScreen({super.key});
@@ -121,12 +121,12 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
                         obscureText: true,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
-                          return CheckValidate().validatePassword(value);
+                          return checkValidate().validatePassword(value);
                         },
                         onChanged: (value) {
                           setState(() {
                             isNewPasswordValid =
-                                CheckValidate().validatePassword(value) == null;
+                                checkValidate().validatePassword(value) == null;
                           });
                         },
                         decoration: const InputDecoration(
@@ -140,12 +140,12 @@ class _EditpasswordScreenState extends State<EditpasswordScreen> {
                         obscureText: true,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
-                          return CheckValidate()
+                          return checkValidate()
                               .validateRePassword(newPasswordController.text, value);
                         },
                         onChanged: (value) {
                           setState(() {
-                            isConfirmPasswordValid = CheckValidate().validateRePassword(
+                            isConfirmPasswordValid = checkValidate().validateRePassword(
                                     newPasswordController.text, value) ==
                                 null;
                           });

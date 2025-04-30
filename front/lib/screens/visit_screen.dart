@@ -28,7 +28,6 @@ class _VisitScreenState extends State<VisitScreen> {
   void initState() {
     super.initState();
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
-    // fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -109,7 +108,6 @@ class _VisitScreenState extends State<VisitScreen> {
 
   void refreshScreen(int index) {
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
-    // fetchVisitedRestaurants("latest");
   }
 
   @override
@@ -138,10 +136,6 @@ class _VisitScreenState extends State<VisitScreen> {
               children: [
                 Container( // 검색바
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  // decoration: const BoxDecoration(
-                  //   color: Colors.white,
-                  //   border: Border(bottom: BorderSide(color: Colors.black26)),
-                  // ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -235,7 +229,6 @@ class _VisitScreenState extends State<VisitScreen> {
                             visitedRestaurant: visitedRestaurant,
                             onReviewCompleted: () {
                               ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchVisitedRestaurants("latest", isFinalRequest: isFinalRequest), context);
-                              // fetchVisitedRestaurants("latest");
                             },
                           );
                         },

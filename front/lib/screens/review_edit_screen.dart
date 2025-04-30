@@ -48,8 +48,6 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
   final int maxImages = 5; // 사진 최대 업로그 개수 설정
   FocusNode changeContentFocus = FocusNode(); // 리뷰 내용 FocusNode
 
-  // bool isSubmitEnabled = false; // 리뷰 수정 버튼 활성화 조건
-
   bool isImageChanged = false;
   bool isMenuChanged = false;
   bool isContentChanged = false;
@@ -72,7 +70,6 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
 
   Future<void> initReviewData() async {
     await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getRestaurantMenus(isFinalRequest: isFinalRequest), context);
-    // await getRestaurantMenus();
 
     setState(() {
       originalImageNames = List<String>.from(widget.reviewInfo!["reviewImages"].map((img) => img["imageName"]));
@@ -613,7 +610,7 @@ class _ReviewEditScreenState extends State<ReviewEditScreen> {
                                 maxChildSize: 0.9,
                                 title: const Text("메뉴 선택"),
                                 buttonText: const Text("메뉴를 선택하세요."),
-                                items: (restaurantMenus as List<dynamic>)
+                                items: (restaurantMenus)
                                         .map<MultiSelectItem<String>>((menu) => MultiSelectItem<String>(
                                           menu["name"] as String,
                                           "${menu["name"]} (${menu["price"]})"

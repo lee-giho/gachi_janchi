@@ -82,8 +82,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   // 입력 상태 체크 함수
   void checkFormValid() {
     setState(() {
-      isPasswordValid = CheckValidate().validatePassword(passwordController.text) == null;
-      isRePasswordValid = CheckValidate().validateRePassword(passwordController.text, rePasswordController.text) == null;
+      isPasswordValid = checkValidate().validatePassword(passwordController.text) == null;
+      isRePasswordValid = checkValidate().validateRePassword(passwordController.text, rePasswordController.text) == null;
     });
   }
 
@@ -112,13 +112,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               child: const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Text(
-                                  //   widget.data['id'],
-                                  //   style: TextStyle(
-                                  //     fontSize: 30,
-                                  //     fontWeight: FontWeight.bold
-                                  //   ),
-                                  // ),
                                   Text(
                                     "우리 가치,",
                                     style: TextStyle(
@@ -140,7 +133,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               child: Column(
                                 children: [
                                   Container( // 비밀번호 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +149,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                             focusNode: passwordFocus,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validatePassword(value);
+                                              return checkValidate().validatePassword(value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -171,7 +163,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                       ),
                                     ),
                                     Container( // 비밀번호 확인 입력 부분
-                                      // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                             focusNode: rePasswordFocus,
                                             autovalidateMode: AutovalidateMode.onUserInteraction,
                                             validator: (value) {
-                                              return CheckValidate().validateRePassword(passwordController.text, value);
+                                              return checkValidate().validateRePassword(passwordController.text, value);
                                             },
                                             onChanged: (value) {
                                               checkFormValid();
@@ -220,7 +211,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         }
                       : null,
                       style: ElevatedButton.styleFrom(
-                        // minimumSize: Size(screenWidth*0.8, 50),
                         minimumSize: const Size.fromHeight(50),
                         backgroundColor: const Color.fromRGBO(122, 11, 11, 1),
                         foregroundColor: Colors.white,

@@ -48,8 +48,7 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
       )
       ? 150.0
       : 300.0;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
+
     return QRView(
       key: qrKey,
       onQRViewCreated: onQRViewCreated, // QRView가 생성되면 onQRViewCreated를 실행
@@ -116,7 +115,7 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
 
   @override
   void dispose() {
-    controller?.dispose();
     super.dispose();
+    controller?.dispose();
   }
 }

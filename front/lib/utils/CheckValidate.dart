@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-class CheckValidate {
+class checkValidate {
   String? validateName(String? name) {
     String pattern = r'^[^\s](\S*(\s\S+)*)?$';
     RegExp regExp = RegExp(pattern);

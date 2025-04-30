@@ -24,11 +24,6 @@ public class GoogleTokenVerifier {
     try {
       Map<String, Object> tokenInfo = restTemplate.getForObject(url, Map.class);
       System.out.println("tokenInfo: " + tokenInfo);
-//      // 클라이언트 ID 검증
-//      String audience = (String) tokenInfo.get("aud");
-//      if (!googleWebClientId.equals(audience)) {
-//        throw new IllegalArgumentException("클라이언트 ID가 일치하지 않습니다.");
-//      }
 
       return tokenInfo;
     } catch (Exception e) {

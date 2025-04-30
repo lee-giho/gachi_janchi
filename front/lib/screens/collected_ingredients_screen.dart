@@ -29,8 +29,6 @@ class _CollectedIngredientsScreenState
   Future<void> _loadData() async {
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchAllIngredients(isFinalRequest: isFinalRequest), context);
     ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchUserIngredients(isFinalRequest: isFinalRequest), context);
-    // await _fetchAllIngredients();
-    // await _fetchUserIngredients();
   }
 
   /// 전체 재료 목록 불러오기 (이름순 정렬 추가됨)
@@ -118,35 +116,6 @@ class _CollectedIngredientsScreenState
     }
   }
 
-  /// 재료 추가
-  // Future<void> _addIngredient(String ingredientName) async {
-  //   String? token = await SecureStorage.getAccessToken();
-  //   if (token == null) return;
-
-  //   try {
-  //     final res = await _dio.post(
-  //       "${dotenv.get("API_ADDRESS")}/api/ingredients/add",
-  //       data: {"ingredientName": ingredientName},
-  //       options: Options(
-  //         headers: {
-  //           "Authorization": "Bearer $token",
-  //           "Content-Type": "application/json"
-  //         },
-  //       ),
-  //     );
-
-  //     if (res.statusCode == 200) {
-  //       setState(() {
-  //         userIngredients.update(ingredientName, (v) => v + 1,
-  //             ifAbsent: () => 1);
-  //       });
-  //       print("재료 '$ingredientName' 추가됨");
-  //     }
-  //   } catch (e) {
-  //     print("❌ 재료 추가 실패: $e");
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     if (allIngredients.isEmpty) {
@@ -175,7 +144,6 @@ class _CollectedIngredientsScreenState
             bool isCollected = quantity > 0;
 
             return GestureDetector(
-              // onTap: () => _addIngredient(name),
               child: Column(
                 children: [
                   Stack(

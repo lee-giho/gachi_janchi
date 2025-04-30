@@ -64,12 +64,10 @@ class _FindIdScreenState extends State<FindIdScreen> {
   void dispose() {
     timer?.cancel(); // 화면 종료 시 타이머 취소
 
-    // TextEditingController dispose
     nameController.dispose();
     emailController.dispose();
     codeController.dispose();
 
-    // FocusNode dispose
     nameFocus.dispose();
     emailFocus.dispose();
     codeFocus.dispose();
@@ -79,8 +77,8 @@ class _FindIdScreenState extends State<FindIdScreen> {
 
   void checkFormValid() {
     setState(() {
-      isEmailValid = CheckValidate().validateEmail(emailController.text) == null;
-      isCodeValid = CheckValidate().validateCode(codeController.text) == null && (remainingTime > 0 && remainingTime < 180);
+      isEmailValid = checkValidate().validateEmail(emailController.text) == null;
+      isCodeValid = checkValidate().validateCode(codeController.text) == null && (remainingTime > 0 && remainingTime < 180);
     });
   }
 
@@ -326,7 +324,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                                           keyboardType: TextInputType.text,
                                           autovalidateMode: AutovalidateMode.onUserInteraction,
                                           validator: (value) {
-                                            return CheckValidate().validateName(value);
+                                            return checkValidate().validateName(value);
                                           },
                                           decoration: const InputDecoration(
                                             hintText: "이름을 입력해주세요."
@@ -359,7 +357,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                                                 },
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateEmail(value);
+                                                  return checkValidate().validateEmail(value);
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "이메일을 입력해주세요."
@@ -431,7 +429,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                                                 }, // 입력할 때마다 인증번호 유효성 검사
                                                 autovalidateMode: AutovalidateMode.onUserInteraction,
                                                 validator: (value) {
-                                                  return CheckValidate().validateCode(value);
+                                                  return checkValidate().validateCode(value);
                                                 },
                                                 decoration: const InputDecoration(
                                                   hintText: "인증번호를 입력해주세요."

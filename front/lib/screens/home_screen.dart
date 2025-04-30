@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:gachi_janchi/screens/search_restaurant_screen.dart';
-import 'package:gachi_janchi/utils/qr_code_scanner.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
 import 'package:gachi_janchi/widgets/IngredientFilterPopUp.dart';
 import 'package:gachi_janchi/widgets/QRCodeButton.dart';
@@ -167,54 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return false;
     }
   }
-
-  // 음식점 검색 요청 함수
-  // Future<void> searchRestaurantsByKeword() async {
-  //   String? accessToken = await SecureStorage.getAccessToken();
-  //   String keyword = searchKeywordController.text.trim();
-  //   // .env에서 서버 URL 가져오기
-  //   final apiAddress = Uri.parse(
-  //       "${dotenv.get("API_ADDRESS")}/api/restaurant/keyword?keyword=$keyword");
-  //   final headers = {
-  //     'Authorization': 'Bearer ${accessToken}',
-  //     'Content-Type': 'application/json'
-  //   };
-
-  //   if (keyword.isNotEmpty) {
-  //     try {
-  //       final response = await http.get(apiAddress, headers: headers);
-
-  //       if (response.statusCode == 200) {
-  //         print("음식점 리스트 요청 완료");
-
-  //         // UTF-8로 디코딩
-  //         final decodedData = utf8.decode(response.bodyBytes);
-  //         final data = json.decode(decodedData);
-
-  //         print("API 응답 데이터: $data");
-
-  //         if (data.containsKey("restaurants")) {
-  //           List<dynamic> restaurants = data["restaurants"];
-  //           for (var restaurant in restaurants) {
-  //             if (restaurant.containsKey("restaurantName")) {
-  //               print("음식점 이름: ${restaurant["restaurantName"]}");
-  //             } else {
-  //               print("오류: 'restaurantName' 키가 없음");
-  //             }
-  //           }
-  //         } else {
-  //           print("오류: 'restaurants' 키가 없음");
-  //         }
-  //       } else {
-  //         print("음식점 리스트를 불러올 수 없습니다.");
-  //       }
-  //     } catch (e) {
-  //       // 예외 처리
-  //       ScaffoldMessenger.of(context)
-  //           .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
-  //     }
-  //   }
-  // }
 
   // 가져온 음식점 리스트를 마커로 변환하여 지도에 추가
   void updateMarkers(List<dynamic> restaurantList) async {
@@ -491,15 +442,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (mapController != null) {
                   NCameraPosition position =
                       await mapController!.getCameraPosition();
-                  // await fetchRestaurantsInBounds(position);
                   ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchRestaurantsInBounds(position, isFinalRequest: isFinalRequest), context);
                   setState(() {
                     isMarkerTap = false;
                     tapRestaurant = {};
                   });
-                  // setState(() {
-                  //   currentPosition = position.target;
-                  // });
                   print(
                       "카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
                 } else {
@@ -606,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 removeOverlay();
                                 setState(() {});
                                 print("${searchKeywordController.text} 검색!!!");
-                                // searchRestaurantsByKeword();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -735,12 +681,6 @@ class _HomeScreenState extends State<HomeScreen> {
       
                                 return RestaurantListTile(
                                   restaurant: restaurant,
-                                  // onPressed: () {
-                                  //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                                  // },
-                                  // onBookmarkPressed: () {
-                                  //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                                  // },
                                 );
                               })
                         ],
@@ -789,12 +729,6 @@ class _HomeScreenState extends State<HomeScreen> {
       
                                 return RestaurantListTile(
                                   restaurant: restaurant,
-                                  // onPressed: () {
-                                  //   print("클릭한 음식점: ${restaurant["restaurantName"]}");
-                                  // },
-                                  // onBookmarkPressed: () {
-                                  //   print("${restaurant["restaurantName"]} 즐겨찾기 클릭!!");
-                                  // },
                                 );
                               })
                         ],

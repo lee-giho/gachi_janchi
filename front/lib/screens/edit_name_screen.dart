@@ -30,7 +30,7 @@ class _EditnameScreenState extends State<EditnameScreen> {
     super.dispose();
   }
 
-  /// 서버에 이름 저장 요청 (`http` 사용)
+  /// 서버에 이름 저장 요청
   Future<bool> saveName({bool isFinalRequest = false}) async {
     print("이름 저장 요청 시작");
 

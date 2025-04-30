@@ -4,12 +4,12 @@ class SecureStorage {
   // FlutterSecureStorage 인스턴스 생성
   static final storage = FlutterSecureStorage();
 
-// ✅ 공통적인 `write` 메서드 추가
+// 공통적인 `write` 메서드 추가
   static Future<void> writeData(String key, String value) async {
     await storage.write(key: key, value: value);
   }
 
-  // ✅ 공통적인 `read` 메서드 추가
+  // 공통적인 `read` 메서드 추가
   static Future<String?> readData(String key) async {
     return await storage.read(key: key);
   }

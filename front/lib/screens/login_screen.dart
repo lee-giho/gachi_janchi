@@ -6,10 +6,8 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/find_id_screen.dart';
 import 'package:gachi_janchi/screens/find_password_screen.dart';
-import 'package:gachi_janchi/screens/home_screen.dart';
 import 'package:gachi_janchi/screens/main_screen.dart';
 import 'package:gachi_janchi/screens/nickName_registration_screen.dart';
-import 'package:gachi_janchi/screens/test_screen.dart';
 import 'package:gachi_janchi/screens/register_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
@@ -17,7 +15,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utils/secure_storage.dart';
-// import '../utils/screen_size.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,9 +24,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // ScreenSize 값 가져오기
-  // final screenWidth = ScreenSize().width;
-  // final screenHeight = ScreenSize().height;
 
   bool? isAutoLogin = false;
 
@@ -93,7 +87,6 @@ class _LoginScreenState extends State<LoginScreen> {
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
         await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         print("isexistNickName: ${existNickName}");
 
@@ -101,13 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
           Navigator.pushReplacement(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(builder: (context) => const MainScreen()));
         } else {
           // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
           Navigator.push(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(
                   builder: (context) => const NicknameRegistrationScreen()));
         }
@@ -186,7 +177,6 @@ class _LoginScreenState extends State<LoginScreen> {
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
         await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         print("existNickName: ${existNickName}");
 
@@ -194,13 +184,11 @@ class _LoginScreenState extends State<LoginScreen> {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
           Navigator.pushReplacement(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(builder: (context) => const MainScreen()));
         } else {
           // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
           Navigator.push(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(
                   builder: (context) => const NicknameRegistrationScreen()));
         }
@@ -215,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // 네이버 로그인
   Future<void> handleNaverSignIn() async {
     try {
-      // 1. 로그인 (토큰 가져오기)
+      // 로그인 (토큰 가져오기)
       await FlutterNaverLogin.logIn(); // 네이버 로그인 시도
       NaverAccessToken token =
           await FlutterNaverLogin.currentAccessToken; // 토큰 가져오기
@@ -249,19 +237,16 @@ class _LoginScreenState extends State<LoginScreen> {
         // 즐겨찾기 목록 불러오기
         final container = ProviderContainer();
         await ServerRequest().serverRequest(({bool isFinalRequest = false}) => container.read(favoriteProvider.notifier).fetchFavoriteRestaurants(isFinalRequest: isFinalRequest), context);
-        // await container.read(favoriteProvider.notifier).fetchFavoriteRestaurants();
 
         if (existNickName) {
           // 로그인 성공 후 닉네임이 있을 경우, 메인 화면으로 이동
           Navigator.pushReplacement(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(builder: (context) => const MainScreen()));
         } else {
           // 로그인 성공 후 닉네임이 없을 경우, 닉네임 등록 화면으로 이동
           Navigator.push(
               context,
-              // MaterialPageRoute(builder: (context) => const TestScreen())
               MaterialPageRoute(
                   builder: (context) => const NicknameRegistrationScreen()));
         }
@@ -277,19 +262,15 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
-          // padding: EdgeInsets.fromLTRB(screenWidth*0.1, 0, screenWidth*0.1, 0),
           padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
-          // width: screenWidth,
           child: Column(
             children: [
               Container(
                 // 로고
-                // margin: EdgeInsets.fromLTRB(0, screenHeight*0.05, 0, screenHeight*0.05),
                 margin: const EdgeInsets.fromLTRB(0, 50, 0, 30),
                 child: Image.asset(
                   'assets/images/gachi_janchi_logo.png',
                   fit: BoxFit.contain,
-                  // height: screenHeight*0.15,
                   height: 150,
                 ),
               ),
@@ -304,7 +285,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Container(
                             // 아이디 입력 부분
-                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +327,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Container(
                             // 비밀번호 입력 부분
-                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,7 +373,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Container(
                       // 로그인 버튼 부분
-                      // margin: EdgeInsets.fromLTRB(0, screenHeight*0.01, 0, 0),
                       child: Column(
                         children: [
                           Container(
@@ -422,7 +400,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Container(
                             // 로그인 버튼
-                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                                 onPressed: () {
                                   if (formKey.currentState!.validate()) {
@@ -433,7 +410,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                    // minimumSize: Size(screenWidth*0.8, 50),
                                     minimumSize: const Size.fromHeight(50),
                                     backgroundColor:
                                         const Color.fromRGBO(122, 11, 11, 1),
@@ -502,7 +478,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Container(
                       // 소셜로그인 부분
-                      // margin: EdgeInsets.fromLTRB(0, screenHeight*0.02, 0, 0),
                       height: 200,
                       margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -511,13 +486,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Container(
                             // 구글 로그인 버튼
-                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                                 onPressed: () {
                                   handleGoogleSignIn();
                                 },
                                 style: ElevatedButton.styleFrom(
-                                    // minimumSize: Size(screenWidth*0.8, 50),
                                     minimumSize: const Size.fromHeight(50),
                                     backgroundColor:
                                         const Color.fromARGB(255, 14, 31, 184),
@@ -535,13 +508,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(height: 20),
                           Container(
                             // 네이버 로그인 버튼
-                            // margin: EdgeInsets.fromLTRB(0, 0, 0, screenHeight*0.01),
                             child: ElevatedButton(
                                 onPressed: () {
                                   handleNaverSignIn();
                                 },
                                 style: ElevatedButton.styleFrom(
-                                    // minimumSize: Size(screenWidth*0.8, 50),
                                     minimumSize: const Size.fromHeight(50),
                                     backgroundColor:
                                         const Color.fromARGB(255, 0, 182, 67),
@@ -556,32 +527,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fontWeight: FontWeight.bold),
                                 )),
                           ),
-                          // Container(
-                          //   // 테스트 화면
-                          //   child: ElevatedButton(
-                          //       onPressed: () {
-                          //         Navigator.push(
-                          //             context,
-                          //             MaterialPageRoute(
-                          //                 builder: (context) =>
-                          //                     const TestScreen()));
-                          //       },
-                          //       style: ElevatedButton.styleFrom(
-                          //           // minimumSize: Size(screenWidth*0.8, 50),
-                          //           minimumSize: const Size.fromHeight(50),
-                          //           backgroundColor:
-                          //               const Color.fromARGB(255, 95, 95, 95),
-                          //           foregroundColor: Colors.white,
-                          //           shape: RoundedRectangleBorder(
-                          //               borderRadius:
-                          //                   BorderRadius.circular(5))),
-                          //       child: const Text(
-                          //         "테스트 화면",
-                          //         style: TextStyle(
-                          //             fontSize: 20,
-                          //             fontWeight: FontWeight.bold),
-                          //       )),
-                          // ),
                         ],
                       ),
                     )

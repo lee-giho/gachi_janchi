@@ -8,7 +8,6 @@ import 'package:gachi_janchi/widgets/StarRating.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ReviewRegistrationScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -118,11 +117,6 @@ class _ReviewRegistrationScreenState extends State<ReviewRegistrationScreen> {
     request.fields['restaurantId'] = widget.data['restaurantId'];
     request.fields['rating'] = reviewRating.toString();
     request.fields['content'] = contentController.text;
-
-    // 선택된 메뉴 리스트
-    // for (String menu in selectedMenus) {
-    //   request.fields['menuNames'] = menu;
-    // }
 
     for (int i = 0; i < selectedMenus.length; i++) {
       request.fields['menuNames[$i]'] = selectedMenus[i];

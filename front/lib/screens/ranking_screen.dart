@@ -40,9 +40,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Future<void> _initializeData() async {
     await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchMyInfoAndRanking(isFinalRequest: isFinalRequest), context);
-    // await _fetchMyInfoAndRanking();
     await ServerRequest().serverRequest(({bool isFinalRequest = false}) => _fetchRanking(isFinalRequest: isFinalRequest), context);
-    // await _fetchRanking();
     _updateMyRanking();
   }
 
@@ -131,9 +129,8 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   Widget _buildPodiumUser(
-      Map<String, dynamic> user, int rank, Color color, double height) {
+    Map<String, dynamic> user, int rank, Color color, double height) {
     int level = (user['exp'] ~/ 100) + 1;
-    double avatarRadius = rank == 1 ? 26 : 22;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -337,13 +334,6 @@ class _RankingScreenState extends State<RankingScreen> {
         : currentPageData;
     final totalPages = (rankings.length / pageSize).ceil();
 
-    final podiumColors = [
-      Colors.amber.shade600,
-      Colors.grey.shade400,
-      Colors.brown.shade300
-    ];
-    final podiumHeights = [140.0, 110.0, 90.0];
-
     return Scaffold(
       body: Column(
         children: [
@@ -452,21 +442,22 @@ class _RankingScreenState extends State<RankingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                  totalPages,
-                  (index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: ElevatedButton(
-                          onPressed: () => _onPageChange(index),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: currentPage == index
-                                ? Colors.blue
-                                : Colors.grey,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          child: Text("${index + 1}"),
-                        ),
-                      )),
+                totalPages,
+                (index) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: ElevatedButton(
+                    onPressed: () => _onPageChange(index),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: currentPage == index
+                          ? Colors.blue
+                          : Colors.grey,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                    child: Text("${index + 1}"),
+                  ),
+                )
+              ),
             ),
           ),
         ],

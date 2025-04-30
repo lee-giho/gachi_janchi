@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gachi_janchi/screens/restaurant_detail_screen.dart';
 import 'package:gachi_janchi/utils/favorite_provider.dart';
-import 'package:gachi_janchi/utils/secure_storage.dart';
 import 'package:gachi_janchi/utils/serverRequest.dart';
-import 'package:http/http.dart'  as http;
-import 'dart:convert';
 
 
 class RestaurantListTile extends ConsumerWidget {
   final Map<String, dynamic> restaurant;
   final Function()? onPressed;
-  // final Function()? onBookmarkPressed;
 
   const RestaurantListTile({
     super.key,
     required this.restaurant,
     this.onPressed,
-    // this.onBookmarkPressed,
   });
 
   // 음식점이 영업 중인지 확인하는 함수
@@ -199,7 +193,6 @@ class RestaurantListTile extends ConsumerWidget {
                         ),
                         onPressed: () {
                           ServerRequest().serverRequest(({bool isFinalRequest = false}) => favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant, isFinalRequest: isFinalRequest), context);
-                          // favoriteProviderNotifier.toggleFavoriteRestaurant(restaurant);
                         },
                       ),
                       Text(

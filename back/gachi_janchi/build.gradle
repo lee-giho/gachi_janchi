@@ -24,72 +24,71 @@ repositories {
 }
 
 dependencies {
-    dependencies {
 
-        // 이메일 발송을 위한 Spring Boot Starter Mail
-        implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // 이메일 발송을 위한 Spring Boot Starter Mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-        // HTML 템플릿을 사용하여 이메일을 꾸미기 위한 Thymeleaf
-        implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // HTML 템플릿을 사용하여 이메일을 꾸미기 위한 Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-        // Google API Client Library for Java
-        implementation 'com.google.api-client:google-api-client:2.7.2'
+    // Google API Client Library for Java
+    implementation 'com.google.api-client:google-api-client:2.7.2'
 
-        // Google OAuth Client Library
-        implementation 'com.google.oauth-client:google-oauth-client:1.36.0'
+    // Google OAuth Client Library
+    implementation 'com.google.oauth-client:google-oauth-client:1.36.0'
 
-        // Google HTTP Client Library
-        implementation 'com.google.http-client:google-http-client:1.43.3'
+    // Google HTTP Client Library
+    implementation 'com.google.http-client:google-http-client:1.43.3'
 
-        // Google HTTP Client with Apache
-        implementation 'com.google.http-client:google-http-client-apache-v2:1.43.3'
+    // Google HTTP Client with Apache
+    implementation 'com.google.http-client:google-http-client-apache-v2:1.43.3'
 
-        // Google HTTP Client with Jackson2
-        implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
+    // Google HTTP Client with Jackson2
+    implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
 
-        // OAuth2
-        implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-        // Spring Boot Starter
-        implementation 'org.springframework.boot:spring-boot-starter'
+    // Spring Boot Starter
+    implementation 'org.springframework.boot:spring-boot-starter'
 
-        // Spring Boot Security Starter (JWT, 인증/인가를 위한 Spring Security)
-        implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Spring Boot Security Starter (JWT, 인증/인가를 위한 Spring Security)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-        // Spring Boot Data JPA (데이터베이스 작업을 위한 JPA)
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Spring Boot Data JPA (데이터베이스 작업을 위한 JPA)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-        // MySQL Driver (MySQL 데이터베이스 사용)
-        runtimeOnly 'com.mysql:mysql-connector-j'
+    // MySQL Driver (MySQL 데이터베이스 사용)
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
-        // MongoDB DB
-        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // MongoDB DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-        // JWT (JSON Web Token 라이브러리)
-        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // JWT (JSON Web Token 라이브러리)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-        // Spring Web (RESTful API 구현)
-        implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Spring Web (RESTful API 구현)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-        // Lombok (Getter, Setter, Builder 등 간소화를 위한 도구)
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
+    // Lombok (Getter, Setter, Builder 등 간소화를 위한 도구)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-        // Dotenv (환경 변수 관리 .env 파일 사용)
-        implementation 'io.github.cdimascio:dotenv-java:2.2.0'
+    // Dotenv (환경 변수 관리 .env 파일 사용)
+    implementation 'io.github.cdimascio:dotenv-java:2.2.0'
 
-        // Test dependencies
-        testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        testImplementation 'org.springframework.security:spring-security-test'
-        // ✅ 파일 업로드를 위한 Apache Commons IO 추가
-        implementation 'commons-io:commons-io:2.11.0'
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    // 파일 업로드를 위한 Apache Commons IO 추가
+    implementation 'commons-io:commons-io:2.11.0'
 
-        // ✅ 이미지 리사이징 및 변환을 위한 Thumbnailator 추가 (선택 사항)
-        implementation 'net.coobird:thumbnailator:0.4.14'
-    }
-
+    // 이미지 리사이징 및 변환을 위한 Thumbnailator 추가
+    implementation 'net.coobird:thumbnailator:0.4.14'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
 }
 

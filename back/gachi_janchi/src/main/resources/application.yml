@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: gachi-janchi
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_ENDPOINT:localhost}:3306/gachiJanchi?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: gachiJanchi_user
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 32
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URL}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dlrlghproject0429@gmail.com
+    password: ${GOOGLE_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - info
+          - prometheus
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  address: 0.0.0.0
+  port: 8080

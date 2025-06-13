@@ -44,7 +44,8 @@ public class SecurityConfig {
                       "/api/auth/**", 
                       "/api/user/logout",
                       "/images/review/**",
-                      "/images/profile/**"
+                      "/images/profile/**",
+                      "/actuator/**"
                     ).permitAll() // 인증 없이 접근 가능
 
                     .anyRequest().authenticated() // 나머지 요청은 인증 필요

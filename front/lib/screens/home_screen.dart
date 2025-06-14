@@ -35,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isMarkerTap = false; // 마커를 클릭 상태 관리
   Map<String, dynamic> tapRestaurant = {};
   NLatLng? currentPosition;
+  NCameraPosition? showCameraPosition;
+  bool isMapMoved = false;
 
   List<dynamic> restaurants = [];
   List<dynamic> searchRestaurants = [];
@@ -431,6 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               onCameraChange: (reason, animated) async {
                 setState(() {
+                  isMapMoved = true;
                   isMarkerTap = false;
                   tapRestaurant = {};
                 });
@@ -440,13 +443,15 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               onCameraIdle: () async {
                 if (mapController != null) {
-                  NCameraPosition position =
-                      await mapController!.getCameraPosition();
-                  ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchRestaurantsInBounds(position, isFinalRequest: isFinalRequest), context);
+                  NCameraPosition position = await mapController!.getCameraPosition();
                   setState(() {
-                    isMarkerTap = false;
-                    tapRestaurant = {};
+                    showCameraPosition = position;
                   });
+                  // ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchRestaurantsInBounds(position, isFinalRequest: isFinalRequest), context);
+                  // setState(() {
+                  //   isMarkerTap = false;
+                  //   tapRestaurant = {};
+                  // });
                   print(
                       "카메라 위치: ${position.target.latitude}, ${position.target.longitude}");
                 } else {
@@ -460,8 +465,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
               top: 60,
               left: 0,
-              right:
-                  0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
+              right: 0, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.
               child: Align(
                 alignment: Alignment.center,
                 child: Container(
@@ -577,6 +581,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               )),
+          if(isMapMoved)
+            Positioned(
+              top: 120,
+              right: 0,
+              left: 0,
+              child: Align(
+                alignment: Alignment.center,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    side: const BorderSide(
+                      color: Colors.black,
+                      width: 1
+                    ),
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color.fromRGBO(122, 11, 11, 1)
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isMapMoved = false;
+                    });
+                    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchRestaurantsInBounds(showCameraPosition!, isFinalRequest: isFinalRequest), context);
+                  },
+                  icon: const Icon(
+                    Icons.refresh,
+                    color: Color.fromRGBO(122, 11, 11, 1)
+                  ),
+                  label: const Text(
+                    "여기서 다시 검색",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(122, 11, 11, 1)
+                    ),
+                  )
+                ),
+              )
+            ),
           Positioned(
             bottom: 25,
             right: 10, // Continer를 Align 위젝으로 감싸고 left와 right를 0으로 설정하면 가운데 정렬이 된다.

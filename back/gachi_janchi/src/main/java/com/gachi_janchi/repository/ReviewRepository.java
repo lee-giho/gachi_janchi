@@ -2,6 +2,7 @@ package com.gachi_janchi.repository;
 
 import java.util.List;
 
+import com.gachi_janchi.dto.ReviewCountAndAvg;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,4 +33,17 @@ public interface ReviewRepository extends JpaRepository<Review, String>{
   // 음식점 아이디로 찾은 리뷰의 평균값 반환
   @Query("SELECT AVG(r.rating) FROM Review r WHERE r.restaurantId = :restaurantId")
   Double findAverageRatingByRestaurantId(@Param("restaurantId") String restaurantId);
+
+  // 리뷰의 수와 평균값 반환
+  @Query("""
+    SELECT new com.gachi_janchi.dto.ReviewCountAndAvg(
+      r.restaurantId,
+      COUNT(r.id),
+      COALESCE(AVG(r.rating), 0)
+    )
+    FROM Review r
+    WHERE r.restaurantId IN :restaurantIds
+    GROUP BY r.restaurantId
+    """)
+  List<ReviewCountAndAvg> findReviewStatsByRestaurantIds(@Param("restaurantIds") List<String> restaurantIds);
 }

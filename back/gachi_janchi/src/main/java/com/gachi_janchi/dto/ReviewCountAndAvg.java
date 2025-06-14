@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ReviewCountAndAvg {
-  private int reviewCount;
-  private Double reviewAvg;
+  private String restaurantId;
+  private long reviewCount;
+  private double reviewAvg;
 }

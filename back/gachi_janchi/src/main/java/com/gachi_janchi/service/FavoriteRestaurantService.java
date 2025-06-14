@@ -74,6 +74,7 @@ public class FavoriteRestaurantService {
     List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientDtos = favoriteRestaurants.stream()
             .map(restaurant -> {
               ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
+                restaurant.getId(),
                 reviewRepository.countByRestaurantId(restaurant.getId()),
                 reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
               );

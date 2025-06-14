@@ -10,6 +10,7 @@ import com.gachi_janchi.dto.RestaurantsByKeywordResponse;
 import com.gachi_janchi.dto.ReviewCountAndAvg;
 import com.gachi_janchi.entity.Ingredient;
 import com.gachi_janchi.entity.Restaurant;
+import com.gachi_janchi.entity.RestaurantIngredient;
 import com.gachi_janchi.exception.CustomException;
 import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.RestaurantIngredientRepository;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,9 +50,31 @@ public class RestaurantService {
   public RestaurantsByBoundsResponse findRestaurantsInBounds(double latMin, double latMax, double lonMin, double lonMax) {
     List<Restaurant> restaurants = restaurantRepository.findByLocationLatitudeBetweenAndLocationLongitudeBetween(latMin, latMax, lonMin, lonMax);
 
-    List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientDtos = makeRestaurantWithIngredientDtos(restaurants);
+    List<String> restaurantIds = restaurants.stream()
+      .map(Restaurant::getId)
+      .toList();
 
-    return new RestaurantsByBoundsResponse(restaurantWithIngredientDtos);
+    // 리뷰, 평균값 한 번에 조회
+    List<ReviewCountAndAvg> reviewStats = reviewRepository.findReviewStatsByRestaurantIds(restaurantIds);
+    Map<String, ReviewCountAndAvg> reviewStatMap = reviewStats.stream()
+      .collect(Collectors.toMap(ReviewCountAndAvg::getRestaurantId, Function.identity()));
+
+    // 재료 한 번에 조회
+    List<RestaurantIngredient> restaurantIngredients = restaurantIngredientRepository.findByRestaurantIdIn(restaurantIds);
+    Map<String, Ingredient> ingredientMap = restaurantIngredients.stream()
+      .collect(Collectors.toMap(RestaurantIngredient::getRestaurantId, RestaurantIngredient::getIngredient));
+
+    // DTO 생성
+    List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientAndReviewCountDtos = restaurants.stream()
+      .map(restaurant -> {
+        ReviewCountAndAvg stats = reviewStatMap.getOrDefault(
+          restaurant.getId(), new ReviewCountAndAvg(restaurant.getId(), 0L, 0.0));
+        Ingredient ingredient = ingredientMap.get(restaurant.getId());
+        return RestaurantWithIngredientAndReviewCountDto.from(restaurant, ingredient, stats);
+      })
+      .toList();
+
+    return new RestaurantsByBoundsResponse(restaurantWithIngredientAndReviewCountDtos);
   }
 
   // 검색어로 Restaurant 찾기
@@ -68,6 +93,7 @@ public class RestaurantService {
       .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
 
     ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
+      restaurantId,
       reviewRepository.countByRestaurantId(restaurant.getId()),
       reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
     );
@@ -104,6 +130,7 @@ public class RestaurantService {
     return restaurants.stream()
             .map(restaurant -> {
               ReviewCountAndAvg reviewCountAndAvg = new ReviewCountAndAvg(
+                restaurant.getId(),
                 reviewRepository.countByRestaurantId(restaurant.getId()),
                 reviewRepository.findAverageRatingByRestaurantId(restaurant.getId())
               );

@@ -15,6 +15,7 @@ import com.gachi_janchi.exception.CustomException;
 import com.gachi_janchi.exception.ErrorCode;
 import com.gachi_janchi.repository.RestaurantIngredientRepository;
 import com.gachi_janchi.repository.RestaurantRepository;
+import com.gachi_janchi.repository.RestaurantStatRepository;
 import com.gachi_janchi.repository.ReviewRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class RestaurantService {
   @Autowired
   private ReviewRepository reviewRepository;
 
+  @Autowired
+  private RestaurantStatRepository restaurantStatRepository;
+
   // dong을 기준으로 Restaurant 찾기
   // public RestaurantsByDongResponse findRestaurantsByDong(String dong) {
   //   List<Restaurant> restaurants = restaurantRepository.findByAddress_Dong(dong);
@@ -55,7 +59,7 @@ public class RestaurantService {
       .toList();
 
     // 리뷰, 평균값 한 번에 조회
-    List<ReviewCountAndAvg> reviewStats = reviewRepository.findReviewStatsByRestaurantIds(restaurantIds);
+    List<ReviewCountAndAvg> reviewStats = restaurantStatRepository.findReviewStatsByRestaurantIds(restaurantIds);
     Map<String, ReviewCountAndAvg> reviewStatMap = reviewStats.stream()
       .collect(Collectors.toMap(ReviewCountAndAvg::getRestaurantId, Function.identity()));
 

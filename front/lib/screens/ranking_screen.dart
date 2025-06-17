@@ -366,11 +366,25 @@ class _RankingScreenState extends State<RankingScreen> {
               _onPageChange(page);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: currentPage == page ? Colors.blue : Colors.grey,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+              minimumSize: const Size(36, 36),
+              backgroundColor: currentPage == page ? const Color.fromRGBO(122, 11, 11, 1) : Colors.grey[200],
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              side: const BorderSide(
+                width: 1,
+                color: Color.fromRGBO(122, 11, 11, 1)
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)
+              )
             ),
             child: Text(
-              "${page + 1}"
+              "${page + 1}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: currentPage == page
+                  ? Colors.white
+                  : Colors.black
+              ),
             )
           ),
         )),

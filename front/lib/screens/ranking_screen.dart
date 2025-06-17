@@ -13,7 +13,7 @@ class RankingScreen extends StatefulWidget {
 
 class _RankingScreenState extends State<RankingScreen> {
   final Dio _dio = Dio();
-  List<Map<String, dynamic>> rankings = [];
+
   Map<String, dynamic> myInfo = {
     "nickname": "",
     "ranking": 0,
@@ -25,12 +25,14 @@ class _RankingScreenState extends State<RankingScreen> {
 
   int currentPage = 0;
   static const int pageSize = 10;
+  int totalPages = 0;
+  List<Map<String, dynamic>> rankings = [];
 
-  List<Map<String, dynamic>> get currentPageData {
-    int start = currentPage * pageSize;
-    int end = (start + pageSize).clamp(0, rankings.length);
-    return rankings.sublist(start, end);
-  }
+  // List<Map<String, dynamic>> get currentPageData {
+  //   int start = currentPage * pageSize;
+  //   int end = (start + pageSize).clamp(0, rankings.length);
+  //   return rankings.sublist(start, end);
+  // }
 
   @override
   void initState() {
@@ -49,13 +51,17 @@ class _RankingScreenState extends State<RankingScreen> {
 
     try {
       final res = await _dio.get(
-        "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=0&size=1000",
+        "${dotenv.get("API_ADDRESS")}/api/user/ranking?page=$currentPage&size=$pageSize",
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
+
       if (res.statusCode == 200) {
-        final data = List<Map<String, dynamic>>.from(res.data);
+        final responseData = Map<String, dynamic>.from(res.data);
+        final content = List<Map<String, dynamic>>.from(responseData["content"]);
+
         setState(() {
-          rankings = data;
+          rankings = content;
+          totalPages = responseData["totalPages"];
         });
         
         print("랭킹 불러오기 성공");
@@ -319,20 +325,76 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  void _onPageChange(int newPage) {
+  void _onPageChange(int newPage) async {
+    if (newPage == currentPage) return;
     setState(() {
       currentPage = newPage;
     });
+    await _fetchRanking();
+  }
+
+  List<int> _getDisplayedPageNumbers(int totalPages, int currentPage, {int maxButtons = 5}) {
+    if (totalPages <= maxButtons) {
+      // 전체 페이지 수가 버튼 수보다 적다면 0부터 전체 페이지 수까지 모두 보여주기
+      return List.generate(totalPages, (index) => index);
+    }
+
+    int start = (currentPage - (maxButtons ~/ 2)).clamp(0, totalPages - maxButtons);
+    int end = start + maxButtons;
+
+    return List.generate(end - start, (index) => start + index);
+  }
+
+  Widget _buildPageButtons() {
+    final pageNumbers = _getDisplayedPageNumbers(totalPages, currentPage);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (currentPage > 0)
+          IconButton(
+            icon: Icon(
+              Icons.chevron_left
+            ),
+            onPressed: () {
+              _onPageChange(currentPage - 1);
+            },
+          ),
+        ...pageNumbers.map((page) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: ElevatedButton(
+            onPressed: () {
+              _onPageChange(page);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: currentPage == page ? Colors.blue : Colors.grey,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+            ),
+            child: Text(
+              "${page + 1}"
+            )
+          ),
+        )),
+        if (currentPage < totalPages - 1)
+          IconButton(
+            icon: const Icon(
+              Icons.chevron_right
+            ),
+            onPressed: () {
+              _onPageChange(currentPage + 1);
+            },
+          )
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isFirstPage = currentPage == 0;
-    final top3 = isFirstPage ? rankings.take(3).toList() : [];
-    final others = isFirstPage
-        ? rankings.skip(3).take(pageSize - 3).toList()
-        : currentPageData;
-    final totalPages = (rankings.length / pageSize).ceil();
+    final top3 = currentPage == 0
+      ? rankings.take(3).toList() 
+      : [];
+    final others = currentPage == 0
+      ? rankings.skip(3).toList()
+      : rankings;
 
     return Scaffold(
       body: Column(
@@ -409,18 +471,24 @@ class _RankingScreenState extends State<RankingScreen> {
                 children: [
                   if (top3.length >= 2) ...[
                     Flexible(
-                        child: _buildPodiumUser(
-                            top3[1], 2, Colors.grey.shade400, 100)),
+                      child: _buildPodiumUser(
+                        top3[1], 2, Colors.grey.shade400, 100
+                      )
+                    ),
                     const SizedBox(width: 8),
                   ],
                   Flexible(
-                      child: _buildPodiumUser(
-                          top3[0], 1, Colors.amber.shade600, 130)),
+                    child: _buildPodiumUser(
+                      top3[0], 1, Colors.amber.shade600, 130
+                    )
+                  ),
                   if (top3.length >= 3) ...[
                     const SizedBox(width: 8),
                     Flexible(
-                        child: _buildPodiumUser(
-                            top3[2], 3, Colors.brown.shade300, 90)),
+                      child: _buildPodiumUser(
+                        top3[2], 3, Colors.brown.shade300, 90
+                      )
+                    ),
                   ],
                 ],
               ),
@@ -430,35 +498,17 @@ class _RankingScreenState extends State<RankingScreen> {
             child: ListView.builder(
               itemCount: others.length,
               itemBuilder: (context, index) {
-                int rank = isFirstPage
-                    ? index + 4
-                    : currentPage * pageSize + index + 1;
+                int baseRank = (currentPage == 0)
+                  ? 3
+                  : (currentPage * pageSize);
+                int rank = baseRank + index + 1;
                 return _buildRankingTile(others[index], rank - 1);
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                totalPages,
-                (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: ElevatedButton(
-                    onPressed: () => _onPageChange(index),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: currentPage == index
-                          ? Colors.blue
-                          : Colors.grey,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
-                    child: Text("${index + 1}"),
-                  ),
-                )
-              ),
-            ),
+            child: _buildPageButtons(),
           ),
         ],
       ),

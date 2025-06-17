@@ -9,6 +9,7 @@ import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.repository.LocalAccountRepository;
 import com.gachi_janchi.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -219,13 +220,27 @@ public class UserService {
     userRepository.save(user);
   }
 
-  public List<RankingUserResponse> getRanking(Pageable pageable) {
-    System.out.println("랭킹 조회 시작");
-    List<User> topUsers = userRepository.findTopUsers(pageable).getContent();
-    System.out.println("사용자 수: " + topUsers.size());
-    return topUsers.stream()
-            .map(u -> new RankingUserResponse(u.getNickName(), u.getProfileImage(),    u.getTitle() != null ? u.getTitle().getName() : null,u.getExp()))
-            .toList();
-  }
+//  public List<RankingUserInfo> getRanking(Pageable pageable) {
+//    System.out.println("랭킹 조회 시작");
+//    List<User> topUsers = userRepository.findTopUsers(pageable).getContent();
+//    System.out.println("사용자 수: " + topUsers.size());
+//    return topUsers.stream()
+//            .map(u -> new RankingUserInfo(u.getNickName(), u.getProfileImage(),    u.getTitle() != null ? u.getTitle().getName() : null,u.getExp()))
+//            .toList();
+//  }
 
+  public Page<RankingUserInfo> getRanking(Pageable pageable) {
+    Page<User> userPage = userRepository.findTopUsers(pageable);
+
+    return userPage.map(user ->
+      new RankingUserInfo(
+        user.getNickName(),
+        user.getProfileImage(),
+        user.getTitle() != null
+          ? user.getTitle().getName()
+          : null,
+        user.getExp()
+      )
+    );
+  }
 }

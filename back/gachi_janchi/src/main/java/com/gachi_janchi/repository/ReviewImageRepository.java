@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.gachi_janchi.entity.ReviewImage;
 
 public interface ReviewImageRepository extends JpaRepository<ReviewImage, String> {
+
+  List<ReviewImage> findAllByReviewIdIn(List<String> reviewIds);
+
   // 리뷰 ID로 이미지 리스트 찾기
   List<ReviewImage> findAllByReviewId(String reviewId);
 

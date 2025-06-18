@@ -3,10 +3,8 @@ package com.gachi_janchi.service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,60 +149,134 @@ public class ReviewService {
   }
 
   // 음식점 ID로 리뷰 가져오기
+//  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage) {
+//    // 음식점에 대한 리뷰 다 가져오기
+//    List<Review> reviewList = new ArrayList<>();
+//
+//    // if (sortType.equals("latest")) { // 최신순
+//
+//    // } else if (sortType.equals("earliest")) { // 오래된 순
+//
+//    // } else if (sortType.equals("highRating")) { // 높은 별점 순
+//
+//    // } else if (sortType.equals("lowRating")) { // 낮은 별점 순
+//
+//    // }
+//
+//    switch (sortType) {
+//      case "latest": // 최신순
+//        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+//        break;
+//      case "earliest": // 오래된 순
+//        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
+//        break;
+//      case "highRating": // 높은 별점 순
+//        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
+//        break;
+//      case "lowRating": // 낮은 별점 순
+//        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
+//        break;
+//      default: // 잘못된 값
+//        break;
+//    }
+//
+//    List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
+//      .map(review -> {
+//        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
+//        if (onlyImage && reviewImages.isEmpty()) // 이미지 없는 리뷰 제외
+//          return null;
+//        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
+//        User user = userRepository.findById(review.getUserId())
+//          // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
+//          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//        String titleName = (user.getTitle() != null)
+//          ? user.getTitle().getName()
+//          : null;
+//        return new ReviewWithImageAndMenu(
+//          new UserInfoWithProfileImageAndTitle(
+//            user.getId(), user.getNickName(), titleName, user.getProfileImage()
+//          ),
+//          review,
+//          reviewImages,
+//          reviewMenus
+//        );
+//      })
+//      .filter(Objects::nonNull) // null 필터링
+//      .collect(Collectors.toList());
+//
+//    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
+//  }
+
   public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage) {
-    // 음식점에 대한 리뷰 다 가져오기
-    List<Review> reviewList = new ArrayList<>();
 
-    // if (sortType.equals("latest")) { // 최신순
-      
-    // } else if (sortType.equals("earliest")) { // 오래된 순
-      
-    // } else if (sortType.equals("highRating")) { // 높은 별점 순
-      
-    // } else if (sortType.equals("lowRating")) { // 낮은 별점 순
-      
-    // }
+    // 리뷰 정렬 방식에 따라 조회
+    List<Review> reviewList = switch (sortType) {
+      case "latest" -> reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+      case "earliest" -> reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
+      case "highRating" -> reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
+      case "lowRating" -> reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
+      default -> new ArrayList<>();
+    };
 
-    switch (sortType) {
-      case "latest": // 최신순
-        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
-        break;
-      case "earliest": // 오래된 순
-        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
-        break;
-      case "highRating": // 높은 별점 순
-        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
-        break;
-      case "lowRating": // 낮은 별점 순
-        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
-        break;
-      default: // 잘못된 값
-        break;
-    }
+    if (reviewList.isEmpty())
+      return new GetReviewByRestaurantIdResponse(List.of());
+
+    // 리뷰 ID 리스트
+    List<String> reviewIds = reviewList.stream()
+      .map(Review::getId)
+      .toList();
+
+    // 이미지, 메뉴, 사용자 데이터 조회
+    List<ReviewImage> allImages = reviewImageRepository.findAllByReviewIdIn(reviewIds);
+    List<ReviewMenu> allMenus = reviewMenuRepository.findAllByReviewIdIn(reviewIds);
+
+    // 리뷰 ID로 그룹핑
+    Map<String, List<ReviewImage>> imageMap = allImages.stream()
+      .collect(Collectors.groupingBy(ReviewImage::getReviewId));
+    Map<String, List<ReviewMenu>> menuMap = allMenus.stream()
+      .collect(Collectors.groupingBy(ReviewMenu::getReviewId));
+
+    // 사용자 ID 리스트
+    Set<String> userIds = reviewList.stream()
+      .map(Review::getUserId)
+      .collect(Collectors.toSet());
+
+    List<User> users = userRepository.findAllById(userIds);
+    Map<String, User> userMap = users.stream()
+      .collect(Collectors.toMap(User::getId, Function.identity()));
 
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
       .map(review -> {
-        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
-        if (onlyImage && reviewImages.isEmpty()) // 이미지 없는 리뷰 제외
-          return null; 
-        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
-        User user = userRepository.findById(review.getUserId())
-          // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
-          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<ReviewImage> images = imageMap.getOrDefault(review.getId(), List.of());
+
+        // onlyImage == true 이고 이미지 없으면 제외
+        if (onlyImage && images.isEmpty())
+          return null;
+
+        List<ReviewMenu> menus = menuMap.getOrDefault(review.getId(), List.of());
+        User user = userMap.get(review.getUserId());
+
+        if (user == null)
+          throw new CustomException(ErrorCode.USER_NOT_FOUND);
+
         String titleName = (user.getTitle() != null)
           ? user.getTitle().getName()
           : null;
+
         return new ReviewWithImageAndMenu(
           new UserInfoWithProfileImageAndTitle(
-            user.getId(), user.getNickName(), titleName, user.getProfileImage()
+            user.getId(),
+            user.getNickName(),
+            titleName,
+            user.getProfileImage()
           ),
           review,
-          reviewImages,
-          reviewMenus
+          images,
+          menus
         );
       })
-      .filter(Objects::nonNull) // null 필터링
-      .collect(Collectors.toList());
+      .filter(Objects::nonNull)
+      .toList();
 
     return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
   }

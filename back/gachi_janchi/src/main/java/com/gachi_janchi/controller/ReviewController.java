@@ -1,6 +1,9 @@
 package com.gachi_janchi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,8 +43,14 @@ public class ReviewController {
   }
 
   @GetMapping("/restaurantId")
-  public ResponseEntity<GetReviewByRestaurantIdResponse> getReviewByRestaurantId(@RequestParam("restaurantId") String restaurantId, @RequestParam("sortType") String sortType, @RequestParam("onlyImage") boolean onlyImage) {
-    GetReviewByRestaurantIdResponse getReviewByRestaurantIdResponse = reviewService.getReviewByRestaurant(restaurantId, sortType, onlyImage);
+  public ResponseEntity<GetReviewByRestaurantIdResponse> getReviewByRestaurantId(
+    @RequestParam(name = "restaurantId") String restaurantId,
+    @RequestParam(name = "sortType") String sortType,
+    @RequestParam(name = "onlyImage") boolean onlyImage,
+    @RequestParam(name = "page", defaultValue = "0") int page,
+    @RequestParam(name = "size", defaultValue = "10") int size
+  ) {
+    GetReviewByRestaurantIdResponse getReviewByRestaurantIdResponse = reviewService.getReviewByRestaurant(restaurantId, sortType, onlyImage, page, size);
     return ResponseEntity.ok(getReviewByRestaurantIdResponse);
   }
 

@@ -1,6 +1,6 @@
 package com.gachi_janchi.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
@@ -16,6 +16,6 @@ import lombok.NoArgsConstructor;
 public class ReviewWithImageAndMenu {
   UserInfoWithProfileImageAndTitle writerInfo;
   Review review;
-  List<ReviewImage> reviewImages;
-  List<ReviewMenu> reviewMenus;
+  Set<ReviewImage> reviewImages;
+  Set<ReviewMenu> reviewMenus;
 }

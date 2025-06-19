@@ -1,12 +1,11 @@
 package com.gachi_janchi.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,7 +43,14 @@ public class Review {
   @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
   private LocalDateTime createdAt;
 
-  // createdAt을 자동 생성하는 생성자 추가
+  @OneToMany(mappedBy = "review", fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private Set<ReviewImage> reviewImages = new HashSet<>();
+
+  @OneToMany(mappedBy = "review", fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private Set<ReviewMenu> reviewMenus = new HashSet<>();
+
   public Review(String id, String userId, String visitedId, String restaurantId, int rating, String content, String type) {
     this.id = id;
     this.userId = userId;
@@ -55,5 +61,4 @@ public class Review {
     this.type = type;
     this.createdAt = LocalDateTime.now();
   }
-  
 }

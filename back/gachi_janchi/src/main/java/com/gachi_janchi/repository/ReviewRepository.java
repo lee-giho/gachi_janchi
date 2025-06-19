@@ -3,6 +3,9 @@ package com.gachi_janchi.repository;
 import java.util.List;
 
 import com.gachi_janchi.dto.ReviewCountAndAvg;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,17 +15,8 @@ import com.gachi_janchi.entity.Review;
 public interface ReviewRepository extends JpaRepository<Review, String>{
   Boolean existsByVisitedId(String visitedId); 
 
-  // 음식점 아이디로 리뷰 찾기 - 최신순
-  List<Review> findAllByRestaurantIdOrderByCreatedAtDesc(String restaurantId);
-
-  // 음식점 아이디로 리뷰 찾기 - 오래된 순
-  List<Review> findAllByRestaurantIdOrderByCreatedAtAsc(String restaurantId);
-
-  // 음식점 아이디로 리뷰 찾기 - 높은 별점 순
-  List<Review> findAllByRestaurantIdOrderByRatingDesc(String restaurantId);
-
-  // 음식점 아이디로 리뷰 찾기 - 낮은 별점 순
-  List<Review> findAllByRestaurantIdOrderByRatingAsc(String restaurantId);
+  @EntityGraph(attributePaths = {"reviewImages", "reviewMenus"})
+  Page<Review> findByRestaurantId(String restaurantId, Pageable pageable);
 
   // 사용자 아이디로 리뷰 찾기 - 최신순
   List<Review> findAllByUserIdOrderByCreatedAtDesc(String userId);

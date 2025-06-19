@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleUnhandledException(Exception e, HttpServletRequest request) {
     ErrorResponse response = new ErrorResponse(
       ErrorCode.INTERNAL_SERVER_ERROR.name(),
-      ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+      e.getMessage(),
       LocalDateTime.now(),
       request.getRequestURI()
     );

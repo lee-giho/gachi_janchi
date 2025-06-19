@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,8 +113,8 @@ public class ReviewService {
         for (String menuName : addReviewRequest.getMenuNames()) {
           ReviewMenu reviewMenu = new ReviewMenu(
             UUID.randomUUID().toString(),
-            reviewId,
-            menuName
+            menuName,
+            review
           );
           reviewMenuRepository.save(reviewMenu);
         }
@@ -120,8 +124,8 @@ public class ReviewService {
       for (String imageName : savedFileNames) {
         ReviewImage reviewImage = new ReviewImage(
           UUID.randomUUID().toString(),
-          reviewId,
-          imageName
+          imageName,
+          review
         );
         reviewImageRepository.save(reviewImage);
       }
@@ -149,115 +153,22 @@ public class ReviewService {
   }
 
   // 음식점 ID로 리뷰 가져오기
-//  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage) {
-//    // 음식점에 대한 리뷰 다 가져오기
-//    List<Review> reviewList = new ArrayList<>();
-//
-//    // if (sortType.equals("latest")) { // 최신순
-//
-//    // } else if (sortType.equals("earliest")) { // 오래된 순
-//
-//    // } else if (sortType.equals("highRating")) { // 높은 별점 순
-//
-//    // } else if (sortType.equals("lowRating")) { // 낮은 별점 순
-//
-//    // }
-//
-//    switch (sortType) {
-//      case "latest": // 최신순
-//        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
-//        break;
-//      case "earliest": // 오래된 순
-//        reviewList = reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
-//        break;
-//      case "highRating": // 높은 별점 순
-//        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
-//        break;
-//      case "lowRating": // 낮은 별점 순
-//        reviewList = reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
-//        break;
-//      default: // 잘못된 값
-//        break;
-//    }
-//
-//    List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
-//      .map(review -> {
-//        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
-//        if (onlyImage && reviewImages.isEmpty()) // 이미지 없는 리뷰 제외
-//          return null;
-//        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
-//        User user = userRepository.findById(review.getUserId())
-//          // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
-//          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-//        String titleName = (user.getTitle() != null)
-//          ? user.getTitle().getName()
-//          : null;
-//        return new ReviewWithImageAndMenu(
-//          new UserInfoWithProfileImageAndTitle(
-//            user.getId(), user.getNickName(), titleName, user.getProfileImage()
-//          ),
-//          review,
-//          reviewImages,
-//          reviewMenus
-//        );
-//      })
-//      .filter(Objects::nonNull) // null 필터링
-//      .collect(Collectors.toList());
-//
-//    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
-//  }
+  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage, int page, int size) {
 
-  public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage) {
+    Sort sort = getSortBySortType(sortType);
+    Pageable pageable = PageRequest.of(page, size, sort);
 
-    // 리뷰 정렬 방식에 따라 조회
-    List<Review> reviewList = switch (sortType) {
-      case "latest" -> reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
-      case "earliest" -> reviewRepository.findAllByRestaurantIdOrderByCreatedAtAsc(restaurantId);
-      case "highRating" -> reviewRepository.findAllByRestaurantIdOrderByRatingDesc(restaurantId);
-      case "lowRating" -> reviewRepository.findAllByRestaurantIdOrderByRatingAsc(restaurantId);
-      default -> new ArrayList<>();
-    };
+    Page<Review> reviewPage = reviewRepository.findByRestaurantId(restaurantId, pageable);
+    List<Review> reviewList = reviewPage.getContent();
 
     if (reviewList.isEmpty())
-      return new GetReviewByRestaurantIdResponse(List.of());
-
-    // 리뷰 ID 리스트
-    List<String> reviewIds = reviewList.stream()
-      .map(Review::getId)
-      .toList();
-
-    // 이미지, 메뉴, 사용자 데이터 조회
-    List<ReviewImage> allImages = reviewImageRepository.findAllByReviewIdIn(reviewIds);
-    List<ReviewMenu> allMenus = reviewMenuRepository.findAllByReviewIdIn(reviewIds);
-
-    // 리뷰 ID로 그룹핑
-    Map<String, List<ReviewImage>> imageMap = allImages.stream()
-      .collect(Collectors.groupingBy(ReviewImage::getReviewId));
-    Map<String, List<ReviewMenu>> menuMap = allMenus.stream()
-      .collect(Collectors.groupingBy(ReviewMenu::getReviewId));
-
-    // 사용자 ID 리스트
-    Set<String> userIds = reviewList.stream()
-      .map(Review::getUserId)
-      .collect(Collectors.toSet());
-
-    List<User> users = userRepository.findAllById(userIds);
-    Map<String, User> userMap = users.stream()
-      .collect(Collectors.toMap(User::getId, Function.identity()));
+      return new GetReviewByRestaurantIdResponse(List.of(), reviewPage.isLast());
 
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
       .map(review -> {
-        List<ReviewImage> images = imageMap.getOrDefault(review.getId(), List.of());
 
-        // onlyImage == true 이고 이미지 없으면 제외
-        if (onlyImage && images.isEmpty())
-          return null;
-
-        List<ReviewMenu> menus = menuMap.getOrDefault(review.getId(), List.of());
-        User user = userMap.get(review.getUserId());
-
-        if (user == null)
-          throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        User user = userRepository.findById(review.getUserId())
+          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String titleName = (user.getTitle() != null)
           ? user.getTitle().getName()
@@ -271,14 +182,13 @@ public class ReviewService {
             user.getProfileImage()
           ),
           review,
-          images,
-          menus
+          review.getReviewImages(),
+          review.getReviewMenus()
         );
       })
-      .filter(Objects::nonNull)
       .toList();
 
-    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus);
+    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus, reviewPage.isLast());
   }
 
   // 사용자 Id로 리뷰 가져오기
@@ -296,8 +206,8 @@ public class ReviewService {
 
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
       .map(review -> {
-        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
-        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
+        Set<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(review.getId());
+        Set<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(review.getId());
         User user = userRepository.findById(review.getUserId())
           // .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. - " + review.getUserId()));
           .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -331,7 +241,7 @@ public class ReviewService {
       .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
     // 리뷰 이미지 조회 및 파일 삭제
-    List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(reviewId);
+    Set<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(reviewId);
     for (ReviewImage reviewImage : reviewImages) {
       String imagePath = reviewImageRelativePath + reviewImage.getImageName();
       File imageFile = new File(imagePath);
@@ -344,7 +254,7 @@ public class ReviewService {
     }
 
     // 리뷰 메뉴 DB 삭제
-    List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(reviewId);
+    Set<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(reviewId);
     reviewMenuRepository.deleteAll(reviewMenus);
 
     // 리뷰 이미지 DB 삭제
@@ -403,7 +313,7 @@ public class ReviewService {
       // 기존 이미지 파일 삭제
       if (updateReviewRequest.getRemoveOriginalImageNames() != null) {
         // 리뷰 이미지 조회 및 파일 삭제
-        List<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(updateReviewRequest.getReviewId());
+        Set<ReviewImage> reviewImages = reviewImageRepository.findAllByReviewId(updateReviewRequest.getReviewId());
 
         // 저장되어 있는 사진 이름
         List<String> savedImageNames = reviewImages.stream()
@@ -439,7 +349,7 @@ public class ReviewService {
 
       // 메뉴 변경 (삭제 후 재등록)
       if (updateReviewRequest.getChangeMenus() != null) {
-        List<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(updateReviewRequest.getReviewId());
+        Set<ReviewMenu> reviewMenus = reviewMenuRepository.findAllByReviewId(updateReviewRequest.getReviewId());
 
         // 저장되어 있는 메뉴 이름
         List<String> savedMenuNames = reviewMenus.stream()
@@ -467,8 +377,8 @@ public class ReviewService {
           for (String menuName : saveMenuNames) {
             ReviewMenu reviewMenu = new ReviewMenu(
               UUID.randomUUID().toString(),
-              updateReviewRequest.getReviewId(),
-              menuName
+              menuName,
+              review
             );
             reviewMenuRepository.save(reviewMenu);
           }
@@ -497,8 +407,8 @@ public class ReviewService {
         for (String imageName : savedFileNames) {
           ReviewImage reviewImage = new ReviewImage(
             UUID.randomUUID().toString(),
-            updateReviewRequest.getReviewId(),
-            imageName
+            imageName,
+            review
           );
           reviewImageRepository.save(reviewImage);
         }
@@ -568,5 +478,15 @@ public class ReviewService {
       // throw new RuntimeException("리뷰 저장 중 오류 발생: " + e.getMessage(), e);
       throw new CustomException(ErrorCode.REVIEW_UPDATE_ERROR, "리뷰 수정 중 오류가 발생했습니다. - " + e.getMessage());
     }
+  }
+
+  private Sort getSortBySortType(String sortType) {
+    return switch (sortType) {
+      case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+      case "earliest" -> Sort.by(Sort.Direction.ASC, "createdAt");
+      case "highRating" -> Sort.by(Sort.Direction.DESC, "rating");
+      case "lowRating" -> Sort.by(Sort.Direction.ASC, "rating");
+      default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
+    };
   }
 }

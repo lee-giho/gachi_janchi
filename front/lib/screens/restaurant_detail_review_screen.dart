@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gachi_janchi/utils/secure_storage.dart';
@@ -30,6 +32,9 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
     5: 0
   };
   bool isOnlyImage = false;
+  int currentPage = 0;
+  int pageSize = 10;
+  bool hasMore = true;
 
   final TextEditingController reviewTypeController = TextEditingController();
   List<String> reviewSortTypeList = ["최신순", "오래된 순", "높은 별점 순", "낮은 별점 순"];
@@ -41,18 +46,41 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   };
   String selectedReviewSortType = "최신순";
 
+  ScrollController scrollController = ScrollController();
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], "latest", isOnlyImage, isFinalRequest: isFinalRequest), context);
+    fetchReviews();
     reviewTypeController.text = selectedReviewSortType;
+    scrollController.addListener(scrollListener);
+  }
+
+  void scrollListener() {
+    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 100 && !isLoading && hasMore) {
+      fetchReviews();
+    }
+  }
+
+  Future<void> fetchReviews() async {
+    log("시작");
+    if (isLoading) return;
+    isLoading = true;
+
+    final success = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], "latest", isOnlyImage, isFinalRequest: isFinalRequest), context);
+
+    isLoading = false;
+    log("끝");
   }
   
   Future<bool> getReview(String restaurantId, String sortType, bool onlyImage, {bool isFinalRequest = false}) async {
+    if (!hasMore) return false;
+
     String? accessToken = await SecureStorage.getAccessToken();
 
     // .env에서 서버 URL 가져오기
-    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=$restaurantId&sortType=$sortType&onlyImage=$onlyImage");
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/restaurantId?restaurantId=$restaurantId&sortType=$sortType&onlyImage=$onlyImage&page=$currentPage&size=$pageSize");
     final headers = {
       'Authorization': 'Bearer ${accessToken}',
       'Content-Type': 'application/json'
@@ -71,11 +99,15 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
         final decodedData = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedData);
 
-        print("API 응답 데이터: ${data}");
+        log("API 응답 데이터: ${data}");
+
+        List<dynamic> newReviews = data["reviews"];
 
         setState(() {
-          reviews = data["reviews"];
+          reviews.addAll(newReviews);
           showReviews = reviews;
+          currentPage++;
+          hasMore = !data["last"];
           
           // 값 초기화
           ratings = [];
@@ -170,6 +202,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      controller: scrollController,
       slivers: [
         SliverToBoxAdapter(
           child: Column(

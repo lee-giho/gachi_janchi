@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetReviewByRestaurantIdResponse {
-  List<ReviewWithImageAndMenu> reviews;
+  private List<ReviewWithImageAndMenu> reviews;
+  private boolean isLast;
 }

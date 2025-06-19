@@ -40,6 +40,7 @@ public enum ErrorCode {
   REVIEW_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 저장 중 오류가 발생했습니다."),
   REVIEW_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 삭제 중 오류가 발생했습니다."),
   REVIEW_UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 수정 중 오류가 발생했습니다."),
+  INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 방식입니다."),
 
   // 즐겨찾기
   FAVORITE_RESTAURANT_NOT_FOUND(HttpStatus.NOT_FOUND, "즐겨찾기한 음식점을 찾을 수 없습니다."),

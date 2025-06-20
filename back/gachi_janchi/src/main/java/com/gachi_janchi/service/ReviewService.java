@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.gachi_janchi.dto.*;
+import com.gachi_janchi.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,26 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.gachi_janchi.dto.AddReviewRequest;
-import com.gachi_janchi.dto.AddReviewResponse;
-import com.gachi_janchi.dto.DeleteReviewRequest;
-import com.gachi_janchi.dto.DeleteReviewResponse;
-import com.gachi_janchi.dto.GetReviewByRestaurantIdResponse;
-import com.gachi_janchi.dto.GetReviewByUserIdResponse;
-import com.gachi_janchi.dto.ReviewWithImageAndMenu;
-import com.gachi_janchi.dto.UpdateReviewRequest;
-import com.gachi_janchi.dto.UpdateReviewResponse;
-import com.gachi_janchi.dto.UserInfoWithProfileImageAndTitle;
 import com.gachi_janchi.entity.Review;
 import com.gachi_janchi.entity.ReviewImage;
 import com.gachi_janchi.entity.ReviewMenu;
 import com.gachi_janchi.entity.User;
 import com.gachi_janchi.exception.CustomException;
 import com.gachi_janchi.exception.ErrorCode;
-import com.gachi_janchi.repository.ReviewImageRepository;
-import com.gachi_janchi.repository.ReviewMenuRepository;
-import com.gachi_janchi.repository.ReviewRepository;
-import com.gachi_janchi.repository.UserRepository;
 import com.gachi_janchi.util.JwtProvider;
 import java.nio.file.Files;
 
@@ -157,49 +145,23 @@ public class ReviewService {
 
     long start = System.currentTimeMillis();
 
-    Sort sort = getSortBySortType(sortType);
-    Pageable pageable = PageRequest.of(page, size, sort);
+    Pageable pageable = PageRequest.of(page, size);
 
-    Page<Review> reviewPage = reviewRepository.findByRestaurantId(restaurantId, pageable);
-    List<Review> reviewList = reviewPage.getContent();
+    Page<ReviewWithWriterDto> dtoPage = reviewRepository.searchByRestaurantId(restaurantId, pageable, onlyImage, sortType);
 
-    if (reviewList.isEmpty())
-      return new GetReviewByRestaurantIdResponse(List.of(), reviewPage.isLast());
-
-    Set<String> userIds = reviewList.stream()
-      .map(Review::getUserId)
-      .collect(Collectors.toSet());
-
-    Map<String, User> userMap = userRepository.findAllById(userIds)
-      .stream()
-      .collect(Collectors.toMap(User::getId, Function.identity()));
-
-    List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
-      .map(review -> {
-        User user = userMap.get(review.getUserId());
-
-        String titleName = (user.getTitle() != null)
-          ? user.getTitle().getName()
-          : null;
-
-        return new ReviewWithImageAndMenu(
-          new UserInfoWithProfileImageAndTitle(
-            user.getId(),
-            user.getNickName(),
-            titleName,
-            user.getProfileImage()
-          ),
-          review,
-          review.getReviewImages(),
-          review.getReviewMenus()
-        );
-      })
+    List<ReviewWithImageAndMenu> result = dtoPage.getContent().stream()
+      .map(dto -> new ReviewWithImageAndMenu(
+        new UserInfoWithProfileImageAndTitle(dto.getUserId(), dto.getNickName(), dto.getTitle(), dto.getProfileImage()),
+        new Review(dto.getReviewId(), dto.getUserId(), null, restaurantId, dto.getRating(), dto.getContent(), dto.getType(), dto.getCreateAt()),
+        dto.getImageNames().stream().map(img -> new ReviewImage(null, img, null)).collect(Collectors.toSet()),
+        dto.getMenuNames().stream().map(menu -> new ReviewMenu(null, menu, null)).collect(Collectors.toSet())
+      ))
       .toList();
 
     long end = System.currentTimeMillis();
     System.out.println("getReviewByRestaurant 실행 시간: " + (end - start) + "ms");
 
-    return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus, reviewPage.isLast());
+    return new GetReviewByRestaurantIdResponse(result, dtoPage.isLast());
   }
 
   // 사용자 Id로 리뷰 가져오기

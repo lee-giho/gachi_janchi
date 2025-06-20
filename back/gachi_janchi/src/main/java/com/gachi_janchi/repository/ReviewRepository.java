@@ -12,11 +12,8 @@ import org.springframework.data.repository.query.Param;
 
 import com.gachi_janchi.entity.Review;
 
-public interface ReviewRepository extends JpaRepository<Review, String>{
-  Boolean existsByVisitedId(String visitedId); 
-
-  @EntityGraph(attributePaths = {"reviewImages", "reviewMenus"})
-  Page<Review> findByRestaurantId(String restaurantId, Pageable pageable);
+public interface ReviewRepository extends JpaRepository<Review, String>, ReviewRepositoryCustom{
+  Boolean existsByVisitedId(String visitedId);
 
   // 사용자 아이디로 리뷰 찾기 - 최신순
   List<Review> findAllByUserIdOrderByCreatedAtDesc(String userId);

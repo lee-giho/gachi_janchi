@@ -61,4 +61,15 @@ public class Review {
     this.type = type;
     this.createdAt = LocalDateTime.now();
   }
+
+  public Review(String id, String userId, String visitedId, String restaurantId, int rating, String content, String type, LocalDateTime createdAt) {
+    this.id = id;
+    this.userId = userId;
+    this.visitedId = visitedId;
+    this.restaurantId = restaurantId;
+    this.rating = rating;
+    this.content = content;
+    this.type = type;
+    this.createdAt = createdAt;
+  }
 }

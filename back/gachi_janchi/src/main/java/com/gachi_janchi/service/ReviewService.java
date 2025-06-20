@@ -155,6 +155,8 @@ public class ReviewService {
   // 음식점 ID로 리뷰 가져오기
   public GetReviewByRestaurantIdResponse getReviewByRestaurant(String restaurantId, String sortType, boolean onlyImage, int page, int size) {
 
+    long start = System.currentTimeMillis();
+
     Sort sort = getSortBySortType(sortType);
     Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -164,11 +166,17 @@ public class ReviewService {
     if (reviewList.isEmpty())
       return new GetReviewByRestaurantIdResponse(List.of(), reviewPage.isLast());
 
+    Set<String> userIds = reviewList.stream()
+      .map(Review::getUserId)
+      .collect(Collectors.toSet());
+
+    Map<String, User> userMap = userRepository.findAllById(userIds)
+      .stream()
+      .collect(Collectors.toMap(User::getId, Function.identity()));
+
     List<ReviewWithImageAndMenu> reviewWithImageAndMenus = reviewList.stream()
       .map(review -> {
-
-        User user = userRepository.findById(review.getUserId())
-          .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = userMap.get(review.getUserId());
 
         String titleName = (user.getTitle() != null)
           ? user.getTitle().getName()
@@ -187,6 +195,9 @@ public class ReviewService {
         );
       })
       .toList();
+
+    long end = System.currentTimeMillis();
+    System.out.println("getReviewByRestaurant 실행 시간: " + (end - start) + "ms");
 
     return new GetReviewByRestaurantIdResponse(reviewWithImageAndMenus, reviewPage.isLast());
   }

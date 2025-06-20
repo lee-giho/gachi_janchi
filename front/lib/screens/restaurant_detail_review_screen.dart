@@ -68,10 +68,21 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
     if (isLoading) return;
     isLoading = true;
 
-    final success = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], "latest", isOnlyImage, isFinalRequest: isFinalRequest), context);
+    final success = await ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
 
     isLoading = false;
     log("끝");
+  }
+
+  void resetAndFetchReviews() {
+    setState(() {
+      currentPage = 0;
+      hasMore = true;
+      reviews.clear();
+      showReviews.clear();
+    });
+
+    fetchReviews();
   }
   
   Future<bool> getReview(String restaurantId, String sortType, bool onlyImage, {bool isFinalRequest = false}) async {
@@ -275,7 +286,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                         setState(() {
                           isOnlyImage = !isOnlyImage;
                         });
-                        ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                        // ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap[selectedReviewSortType]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                        resetAndFetchReviews();
                         print("사진 리뷰만 보기 버튼 클릭!!!!");
                         print("isOnlyImage: $isOnlyImage");
                       },
@@ -322,7 +334,8 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           setState(() {
                             selectedReviewSortType = value;
                           });
-                          ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                          // ServerRequest().serverRequest(({bool isFinalRequest = false}) => getReview(widget.data["restaurantId"], sortTypeMap["$value"]!, isOnlyImage, isFinalRequest: isFinalRequest), context);
+                          resetAndFetchReviews();
                         }
                       },
                       inputDecorationTheme: const InputDecorationTheme(

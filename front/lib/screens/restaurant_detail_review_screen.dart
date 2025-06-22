@@ -23,8 +23,9 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
 
   List<dynamic> reviews = [];
   List<dynamic> showReviews = [];
-  List<int> ratings = [];
-  Map<int, int> ratingCounts = {
+  Map<dynamic, dynamic> ratingStatus = {
+    "avg": 0.0,
+    "totalCount": 0,
     1: 0,
     2: 0,
     3: 0,
@@ -52,6 +53,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   @override
   void initState() {
     super.initState();
+    ServerRequest().serverRequest(({bool isFinalRequest = false}) => fetchReviewRatingStatus(widget.data["restaurantId"]), context);
     fetchReviews();
     reviewTypeController.text = selectedReviewSortType;
     scrollController.addListener(scrollListener);
@@ -60,6 +62,66 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   void scrollListener() {
     if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 100 && !isLoading && hasMore) {
       fetchReviews();
+    }
+  }
+
+  Future<bool> fetchReviewRatingStatus(String restaurantId, {bool isFinalRequest = false}) async {
+    String? accessToken = await SecureStorage.getAccessToken();
+
+    // .env에서 서버 URL 가져오기
+    final apiAddress = Uri.parse("${dotenv.get("API_ADDRESS")}/api/review/ratingStatus?restaurantId=$restaurantId");
+    final headers = {
+      'Authorization': 'Bearer ${accessToken}',
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      final response = await http.get(
+        apiAddress,
+        headers: headers
+      );
+
+      if (response.statusCode == 200) {
+        // UTF-8로 디코딩
+        final decodedData = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedData);
+
+        log("API 응답 데이터: ${data}");
+        
+        int sumForAvg = 0;
+
+        for (int i = 1; i <= 5; i++) {
+          final key = 'rating_$i';
+          if (data.containsKey(key)) {
+            int count = data[key] ?? 0;
+
+            ratingStatus[i] = count;
+            ratingStatus["totalCount"] += count;
+            sumForAvg += i * count;
+          } 
+        }
+
+        if (ratingStatus["totalCount"] > 0) {
+          ratingStatus["avg"] = double.parse(
+            (sumForAvg / ratingStatus["totalCount"]).toStringAsFixed(1)
+          );
+        }
+
+        print("ratingStatus: $ratingStatus");
+
+        return true;
+      } else {
+        log("ratingStatus 가져오기 실패");
+        return false;
+      }
+    } catch (e) {
+      if (isFinalRequest) {
+        // 예외 처리
+        print("네트워크 오류: ${e.toString()}");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("네트워크 오류: ${e.toString()}")));
+      }
+      return false;
     }
   }
 
@@ -119,18 +181,6 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
           showReviews = reviews;
           currentPage++;
           hasMore = !data["last"];
-          
-          // 값 초기화
-          ratings = [];
-          ratingCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-
-          for (var review in reviews) {
-            int? rating = review["review"]["rating"];
-            if (rating != null) {
-              ratings.add(rating);
-              ratingCounts[rating] = ratingCounts[rating]! + 1;
-            }
-          }
         });
 
         print("리뷰 리스트 요청 성공");
@@ -161,15 +211,14 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
   }
 
   Widget buildRatingDistribution() {
-    int total = ratings.length;
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(5, (index) {
           int star = 5 - index;
-          int count = ratingCounts[star] ?? 0;
-          double ratio = total > 0 ? count / total : 0;
+          int count = ratingStatus[star] ?? 0;
+          double ratio = ratingStatus["totalCount"] > 0 ? count / ratingStatus["totalCount"] : 0;
       
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -243,7 +292,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                                 size: 40,
                               ),
                               Text( // 평균값
-                                calculateAvgStarRating(ratings),
+                                ratingStatus["avg"].toString(),
                                 style: TextStyle(
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold
@@ -253,7 +302,7 @@ class _RestaurantDetailReviewScreenState extends State<RestaurantDetailReviewScr
                           ),
                           SizedBox(height: 5),
                           Text( // 총 리뷰 수
-                            "${ratings.length.toString()}개의 평점",
+                            "${ratingStatus["totalCount"].toString()}개의 평점",
                             style: TextStyle(
                               color: Colors.grey[800]
                             ),

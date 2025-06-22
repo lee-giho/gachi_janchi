@@ -453,6 +453,17 @@ public class ReviewService {
     }
   }
 
+  public ReviewRatingStatusResponse getReviewRatingStatus(String restaurantId) {
+    long start = System.currentTimeMillis();
+
+    ReviewRatingStatusResponse reviewRatingStatusResponse = reviewRepository.getRatingStatusByRestaurantId(restaurantId);
+
+    long end = System.currentTimeMillis();
+    System.out.println("getReviewByRestaurant 실행 시간: " + (end - start) + "ms");
+
+    return reviewRatingStatusResponse;
+  }
+
   private Sort getSortBySortType(String sortType) {
     return switch (sortType) {
       case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");

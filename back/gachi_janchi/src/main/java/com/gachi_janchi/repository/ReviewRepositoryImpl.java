@@ -1,12 +1,14 @@
 package com.gachi_janchi.repository;
 
 import com.gachi_janchi.dto.QReviewWithWriterDto;
+import com.gachi_janchi.dto.ReviewRatingStatusResponse;
 import com.gachi_janchi.dto.ReviewWithWriterDto;
 import com.gachi_janchi.entity.*;
 import com.gachi_janchi.exception.CustomException;
 import com.gachi_janchi.exception.ErrorCode;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -100,6 +102,24 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
       .fetchOne();
 
     return new PageImpl<>(content, pageable, total);
+  }
+
+  @Override
+  public ReviewRatingStatusResponse getRatingStatusByRestaurantId(String restaurantId) {
+    QReview review = QReview.review;
+
+    return queryFactory
+      .select(Projections.constructor(
+        ReviewRatingStatusResponse.class,
+        review.rating.when(1).then(1).otherwise(0).sum(),
+        review.rating.when(2).then(1).otherwise(0).sum(),
+        review.rating.when(3).then(1).otherwise(0).sum(),
+        review.rating.when(4).then(1).otherwise(0).sum(),
+        review.rating.when(5).then(1).otherwise(0).sum()
+      ))
+      .from(review)
+      .where(review.restaurantId.eq(restaurantId))
+      .fetchOne();
   }
 
   private OrderSpecifier<?> getOrderSpecifier(String sortType) {

@@ -12,8 +12,17 @@ void main() async {
   await dotenv.load(
       fileName:
           ".env"); // .env 파일을 런타임에 가져오는 작업. 해당 작업을 통해 .env 파일에 작성한 구성 변수들을 사용할 수 있다.
-  await NaverMapSdk.instance
-      .initialize(clientId: "${dotenv.get("naver_map_client_id")}");
+  // await NaverMapSdk.instance
+  //     .initialize(clientId: "${dotenv.get("naver_map_client_id")}");
+  await FlutterNaverMap().init(
+    clientId: "${dotenv.get("naver_map_client_id")}",
+    onAuthFailed: (ex) => switch (ex) {
+      NQuotaExceededException(:final message) => print("사용량 초과 (message: $message)"),
+      NUnauthorizedClientException() ||
+      NClientUnspecifiedException() ||
+      NAnotherAuthFailedException() => print("인증 실패: $ex")
+    },
+  );
   runApp(ProviderScope(child: MyApp())); // Riverpod 사용
 }
 

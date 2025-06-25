@@ -22,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,9 @@ public class RestaurantService {
   @Autowired
   private RestaurantStatRepository restaurantStatRepository;
 
+  @Autowired
+  private RestaurantCacheService restaurantCacheService;
+
   // dong을 기준으로 Restaurant 찾기
   // public RestaurantsByDongResponse findRestaurantsByDong(String dong) {
   //   List<Restaurant> restaurants = restaurantRepository.findByAddress_Dong(dong);
@@ -52,31 +57,59 @@ public class RestaurantService {
 
   // 지도에 보이는 영역을 기준으로 Restaurant 찾기
   public RestaurantsByBoundsResponse findRestaurantsInBounds(double latMin, double latMax, double lonMin, double lonMax) {
+
+    long start = System.currentTimeMillis();
+
     List<Restaurant> restaurants = restaurantRepository.findByLocationLatitudeBetweenAndLocationLongitudeBetween(latMin, latMax, lonMin, lonMax);
 
     List<String> restaurantIds = restaurants.stream()
       .map(Restaurant::getId)
       .toList();
 
-    // 리뷰, 평균값 한 번에 조회
-    List<ReviewCountAndAvg> reviewStats = restaurantStatRepository.findReviewStatsByRestaurantIds(restaurantIds);
-    Map<String, ReviewCountAndAvg> reviewStatMap = reviewStats.stream()
-      .collect(Collectors.toMap(ReviewCountAndAvg::getRestaurantId, Function.identity()));
+    // Redis에서 캐싱된 데이터 조회
+    List<RestaurantWithIngredientAndReviewCountDto> cachedData = restaurantCacheService.getRestaurants(restaurantIds);
+    Set<String> cachedIds = cachedData.stream()
+      .map(RestaurantWithIngredientAndReviewCountDto::getId)
+      .collect(Collectors.toSet());
 
-    // 재료 한 번에 조회
-    List<RestaurantIngredient> restaurantIngredients = restaurantIngredientRepository.findByRestaurantIdIn(restaurantIds);
-    Map<String, Ingredient> ingredientMap = restaurantIngredients.stream()
-      .collect(Collectors.toMap(RestaurantIngredient::getRestaurantId, RestaurantIngredient::getIngredient));
-
-    // DTO 생성
-    List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientAndReviewCountDtos = restaurants.stream()
-      .map(restaurant -> {
-        ReviewCountAndAvg stats = reviewStatMap.getOrDefault(
-          restaurant.getId(), new ReviewCountAndAvg(restaurant.getId(), 0L, 0.0));
-        Ingredient ingredient = ingredientMap.get(restaurant.getId());
-        return RestaurantWithIngredientAndReviewCountDto.from(restaurant, ingredient, stats);
-      })
+    // 캐싱되지 않은 ID 목록
+    List<String> missedIds = restaurantIds.stream()
+      .filter(id -> !cachedIds.contains(id))
       .toList();
+
+    // 캐싱되지 않은 데이터 조회 및 가공
+    List<RestaurantWithIngredientAndReviewCountDto> missedData = new ArrayList<>();
+    if (!missedIds.isEmpty()) {
+      Map<String, ReviewCountAndAvg> reviewStatMap = restaurantStatRepository.findReviewStatsByRestaurantIds(missedIds).stream()
+        .collect(Collectors.toMap(ReviewCountAndAvg::getRestaurantId, Function.identity()));
+
+
+      Map<String, Ingredient> ingredientMap = restaurantIngredientRepository.findByRestaurantIdIn(missedIds).stream()
+        .collect(Collectors.toMap(RestaurantIngredient::getRestaurantId, RestaurantIngredient::getIngredient));
+
+      missedData = restaurants.stream()
+        .filter(restaurant -> missedIds.contains(restaurant.getId()))
+        .map(restaurant -> {
+          ReviewCountAndAvg stats = reviewStatMap.getOrDefault(restaurant.getId(), new ReviewCountAndAvg(restaurant.getId(), 0L, 0.0));
+          Ingredient ingredient = ingredientMap.get(restaurant.getId());
+          return RestaurantWithIngredientAndReviewCountDto.from(restaurant, ingredient, stats);
+        })
+        .toList();
+
+      // Redis에 캐시 저장
+      restaurantCacheService.cacheRestaurants(missedData);
+    }
+
+    // 캐시된 + 새로 조회한 데이터 통합 후 반환
+    List<RestaurantWithIngredientAndReviewCountDto> restaurantWithIngredientAndReviewCountDtos = new ArrayList<>();
+    restaurantWithIngredientAndReviewCountDtos.addAll(cachedData);
+    restaurantWithIngredientAndReviewCountDtos.addAll(missedData);
+
+    long end = System.currentTimeMillis();
+    System.out.println("getReviewByRestaurant 실행 시간: " + (end - start) + "ms");
+
+    System.out.println("Redis Data: " + cachedData.size());
+    System.out.println("New Data: " + missedData.size());
 
     return new RestaurantsByBoundsResponse(restaurantWithIngredientAndReviewCountDtos);
   }

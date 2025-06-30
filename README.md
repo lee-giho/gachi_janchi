@@ -155,9 +155,14 @@ QR코드 스캔이 완료되면 정보가 저장되고 방문내역 탭으로 �
 | <img src="https://github.com/user-attachments/assets/492a7c43-38e8-4722-a5b9-a20fe69d1cda" height="350" /> | <img src="https://github.com/user-attachments/assets/2e9cab98-40e0-45eb-8679-ad50b43a134d" height="350" /> | <img src="https://github.com/user-attachments/assets/5826c3ef-54f2-495a-a232-ad76cba16290" height="350" /> |
 | **방문내역 탭** | **마이페이지 탭** | **음식점 상세 페이지** |
 | <img src="https://github.com/user-attachments/assets/d5547eb0-5bb0-4558-9481-bc6986cdf9da" height="350" /> | <img src="https://github.com/user-attachments/assets/3f4b75ba-16c7-4ffd-92ad-d08dfa96259b" height="350" /> | <img src="https://github.com/user-attachments/assets/467f1063-69cf-4df5-9d07-7116cfcbf694" height="350" /> |
+| **리뷰 등록** | | |
+| <img src="https://github.com/user-attachments/assets/58ff8f83-f31a-4183-b637-3a32ae82fe70" height="350" />
+
 
 <br><br>
 # 📈 성능 개선
+review테이블에 100,000건의 리뷰 데이터와 그에 따른 리뷰 이미지/메뉴(리뷰당 0 ~ 5개) 테이블에 각각 250,000건의 데이터를 저장하며 성능 저하가 발생했습니다.
+
 ## 추가로 사용된 기술<br>
 ### ✔ Monitoring
 <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white"><br>
@@ -166,10 +171,37 @@ QR코드 스캔이 완료되면 정보가 저장되고 방문내역 탭으로 �
 ### ✔ Load Testing
 <img src="https://img.shields.io/badge/k6-0078d7.svg?style=for-the-badge&logo=k6&logoColor=white">
 
+## 지도 영영 내 음식점 정보 조회 API 성능 개선
+### 🔍 문제 인식
+Prometheus + Grafana 기반 모니터링과 k6 부하 테스트를 통해 평균 응답 시간이 음식점 34곳 조회 기준 36초 이상 걸리는 병목을 확인했습니다.<br>
+지도 영역 기반 음식점 조회 API는 각 음식점마다 리뷰 수, 평균 별점, 재료를 개별로 조회해야 하는 복합 응답 구조입니다.<br>
+따라서 기존 코드에서는 음식점 수만큼 반복 쿼리를 수행해 N+1 문제가 발생했습니다.<br>
+→ 34곳의 음식점을 조회하는데 115건의 쿼리 발생<br>
+
+### 🛠️ 개선 방식
+- **리뷰 통계 전용 테이블 분리**<br>
+성능 이슈가 있는 COUNT, AVG 연산을 제거하여 빠른 조회
+- **JPQL 기반 DTO Projection 쿼리를 구현하여 리뷰 수/평균을 한 번에 조회**<br>
+- **Redis 캐시 도입**<br>
+음식점 id를 기반으로 정보를 DTO 형태로 캐싱(TTL 10분)<br>
+Redis hit 시 즉시 반환, miss 시 MySQL 조회 및 캐시 저장 후 반환
+
+### 📊 개선 결과 (k6 부하 테스트)
+VUs: 100<br>
+Duration: 10m
+| **항목**	| **성능 개선 전**	| **성능 개선 후**(인덱스만 적용)	| **성능 개선 후** |	**Redis 캐시 적용 후**	| **개선 효과**(인덱스 적용부터) |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **평균 응답 시간**	| 36s	| 1s	| 139ms |	66ms |	약 93% 감소 |
+| **p(90)**	| 51s	| 1s	| 192ms	| 164ms	| 약 83% 감소 |
+| **p(95)**	| 52s	| 1s	| 228ms	| 214ms	| 약 78% 감소 |
+| **p(99)**	| 52s	| 2s	| 308ms	| 336ms	| 약 83% 감소 |
+| **HTTP 요청 수**	| 1.7k	| 38.5k	| 428.7k	| 906.6k	| 약 23배 증가 |
+| **TPS**	| 2.67/s	| 64.07/s	| 714.41/s	| 1.51k/s	| 약 23배 향상 |
+
+인덱스 적용 후로부터 N+1 문제 완화 및 쿼리 최적화, 캐시 도입을 통해 **평균 응답 시간은 약 93% 단축**되고 **TPS는 약 23배 향상**시켰으며, 실제 **쿼리 수도 115개에서 15개 또는 0개**(Redis에 값이 있을 경우)로 줄였습니다.
+
 
 ## 리뷰 조회 API 성능 개선
-review테이블에 100,000건의 리뷰 데이터와 그에 따른 리뷰 이미지/메뉴(리뷰당 0 ~ 5개) 테이블에 각각 250,000건의 데이터를 저장하며 성능 저하가 발생했습니다.
-
 ### 🔍 문제 인식
 Prometheus + Grafana 기반 모니터링과 k6 부하 테스트를 통해 평균 응답 시간이 리뷰 10건 조회 기준 2초 이상, 전체 조회 기준 30초 이상 걸리는 병목을 확인했습니다.<br>
 리뷰 조회 API는 리뷰뿐만 아니라 관련 정보인 사용자와 칭호, 리뷰 이미지, 리뷰 메뉴 등 여러 데이터를 조회해야 하는 복합 응답 구조입니다.<br>
@@ -177,25 +209,23 @@ Prometheus + Grafana 기반 모니터링과 k6 부하 테스트를 통해 평균
 -> 10개의 리뷰를 조회하는데 38건의 쿼리 발생<br>
 
 ### 🛠️ 개선 방식
-- QueryDSL 기반 DTO Projection 쿼리를 구현하여 Review와 User, Title을 한 번에 조회
-- ReviewImage와 ReviewMenu는 IN 조건으로 일괄 조회한 후 매핑
-- 쿼리 속도 향상을 위해 리뷰 정렬 방식에 따른 복합 인덱스 적용
+- **QueryDSL 기반 DTO Projection 쿼리를 구현하여 Review와 User, Title을 한 번에 조회**
+- **ReviewImage와 ReviewMenu는 IN 조건으로 일괄 조회한 후 매핑**
+- **쿼리 속도 향상을 위해 리뷰 정렬 방식에 따른 복합 인덱스 적용**
 
 ### 📊 개선 결과 (k6 부하 테스트)
 VUs: 100<br>
 Duration: 10m
 | **항목** | **성능 개선 전** | **성능 개선 후** | **개선 효과** |
 | :---: | :---: | :---: | :---: |
-| 평균 응답 시간 | 2s | 63ms | 약 96% 감소 |
-| p(90) | 3s | 103ms | 약 96% 감소 |
-| p(95) | 4s | 118ms | 약 97% 감소 |
-| p(99) | 4s | 166ms | 약 95% 감소 |
-| HTTP 요청 수 | 21.7k | 937.7k | 약 43배 증가 |
-| TPS | 36/s | 1560/s | 약 43배 향상 |
+| **평균 응답 시간** | 2s | 63ms | 약 96% 감소 |
+| **p(90)** | 3s | 103ms | 약 96% 감소 |
+| **p(95)** | 4s | 118ms | 약 97% 감소 |
+| **p(99)** | 4s | 166ms | 약 95% 감소 |
+| **HTTP 요청 수** | 21.7k | 937.7k | 약 43배 증가 |
+| **TPS** | 36/s | 1560/s | 약 43배 향상 |
 
 N+1 문제 완화 및 쿼리 최적화를 통해 **평균 응답 시간은 약 96% 단축**되고 **TPS는 약 43배 향상**시켰으며, 실제 **쿼리 수도 38개에서 4개**로 줄였습니다.
-
-
 
 <br><br>
 # 🛠 추후 계획

@@ -171,7 +171,7 @@ review테이블에 100,000건의 리뷰 데이터와 그에 따른 리뷰 이미
 ### ✔ Load Testing
 <img src="https://img.shields.io/badge/k6-0078d7.svg?style=for-the-badge&logo=k6&logoColor=white">
 
-## 지도 영영 내 음식점 정보 조회 API 성능 개선
+## 지도 영역 내 음식점 정보 조회 API 성능 개선
 ### 🔍 문제 인식
 Prometheus + Grafana 기반 모니터링과 k6 부하 테스트를 통해 평균 응답 시간이 음식점 34곳 조회 기준 36초 이상 걸리는 병목을 확인했습니다.<br>
 지도 영역 기반 음식점 조회 API는 각 음식점마다 리뷰 수, 평균 별점, 재료를 개별로 조회해야 하는 복합 응답 구조입니다.<br>

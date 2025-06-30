@@ -8,9 +8,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.gachi_janchi.dto.*;
+import com.gachi_janchi.event.ReviewUpdateEvent;
 import com.gachi_janchi.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +54,9 @@ public class ReviewService {
 
   @Value("${REVIEW_IMAGE_PATH}")
   private String reviewImageRelativePath;
+
+  @Autowired
+  private ApplicationEventPublisher applicationEventPublisher;
 
   // 리뷰 저장
   @Transactional
@@ -119,11 +124,10 @@ public class ReviewService {
       }
 
       // 리뷰 작성 경험치 획득
-      if (type.equals("image")) { // 이미지가 포함된 리뷰일 경우
-        userService.gainExp(userId, 40);
-      } else { // 이미지가 포함되지 않은 리뷰일 경우
-        userService.gainExp(userId, 30);
-      }
+      userService.gainExp(userId, type.equals("image") ? 40 : 30);
+
+      // 리뷰 통계 비동기 갱신 이벤트 발행
+      applicationEventPublisher.publishEvent(new ReviewUpdateEvent(addReviewRequest.getRestaurantId()));
 
       return new AddReviewResponse("리뷰가 정상적으로 저장되었습니다.");
     } catch (Exception e) {
@@ -237,11 +241,10 @@ public class ReviewService {
     reviewRepository.delete(review);
 
     // 리뷰 작성 경험치 차감
-    if (review.getType().equals("image")) { // 이미지가 포함된 리뷰일 경우
-      userService.gainExp(userId, -40);
-    } else { // 이미지가 포함되지 않은 리뷰일 경우
-      userService.gainExp(userId, -30);
-    }
+    userService.gainExp(userId, review.getType().equals("image") ? -40 : -30);
+
+    // 리뷰 통계 비동기 갱신 이벤트 발행
+    applicationEventPublisher.publishEvent(new ReviewUpdateEvent(review.getRestaurantId()));
 
     return new DeleteReviewResponse("Delete Review Successful");
   }
@@ -420,6 +423,9 @@ public class ReviewService {
           backup.delete(); // 저장 후 백업 파일 삭제
         }
       }
+
+      // 리뷰 통계 비동기 갱신 이벤트 발행
+      applicationEventPublisher.publishEvent(new ReviewUpdateEvent(review.getRestaurantId()));
 
       return new UpdateReviewResponse("리뷰가 정상적으로 수정되었습니다.");
 

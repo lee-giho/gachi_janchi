@@ -13,6 +13,8 @@ import org.springframework.data.repository.query.Param;
 import com.gachi_janchi.entity.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, String>, ReviewRepositoryCustom{
+  List<Review> findByRestaurantId(String restaurantId);
+
   Boolean existsByVisitedId(String visitedId);
 
   // 사용자 아이디로 리뷰 찾기 - 최신순

@@ -40,7 +40,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         review.createdAt,
         user.id,
         user.nickName,
-        user.name,
+        title.name,
         user.profileImage
       ))
       .from(review)

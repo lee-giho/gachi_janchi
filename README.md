@@ -30,17 +30,24 @@
 # 🛠 프로젝트 설계 🏗  
 ## 기술 스택
 
-### ✔ Frond-end
+### ✔ Frond-End
 <div>
  <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white"/>
 </div>
 
-### ✔ Back-end
+### ✔ Back-End
 <div>
  <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white"/>
  <img src="https://img.shields.io/badge/JAVA-FF7800?style=for-the-badge&logo=JAVA&logoColor=white"/>
  <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens"/>
  <img src="https://img.shields.io/badge/JPA-FF7800?style=for-the-badge&logo=JAVA&logoColor=white"/>
+</div>
+
+### ✔ Database
+<div>
+ <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/>
+ <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white"/>
+ <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white">
 </div>
 
 ### ✔ Cloud
@@ -49,11 +56,10 @@
  <img src="https://img.shields.io/badge/MongoDB Atlas-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white"/>
 </div>
 
-### ✔ DB
+### ✔ DevOps
 <div>
- <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/>
- <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white"/>
- <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white">
+ <img src="https://img.shields.io/badge/Docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
+ <img src="https://img.shields.io/badge/Docker Compose-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
 </div>
 
 ### ✔ Dev tools

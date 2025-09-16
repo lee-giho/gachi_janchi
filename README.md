@@ -41,7 +41,6 @@
  <img src="https://img.shields.io/badge/JAVA-FF7800?style=for-the-badge&logo=JAVA&logoColor=white"/>
  <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens"/>
  <img src="https://img.shields.io/badge/JPA-FF7800?style=for-the-badge&logo=JAVA&logoColor=white"/>
- <img src="https://img.shields.io/badge/Redis(for Caching)-DC382D?style=for-the-badge&logo=Redis&logoColor=white">
 </div>
 
 ### ✔ Cloud
@@ -54,6 +53,7 @@
 <div>
  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/>
  <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white"/>
+ <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white">
 </div>
 
 ### ✔ Dev tools
